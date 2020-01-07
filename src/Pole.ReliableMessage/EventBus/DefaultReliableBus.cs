@@ -55,7 +55,7 @@ namespace Pole.Pole.ReliableMessage.EventBus
             var currentMessageCallbackInfo = _messageCallBackInfoStore.Get(messageTypeId);
             if (currentMessageCallbackInfo == null)
             {
-                throw new Exception($"Current message type not registered ,messageTypeId:{messageTypeId}");
+                throw new Exception($"Current message type Callback not registered ,messageTypeId:{messageTypeId}");
             }
             try
             {

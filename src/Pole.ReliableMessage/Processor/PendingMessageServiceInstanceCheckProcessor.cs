@@ -14,10 +14,10 @@ namespace Pole.ReliableMessage.Processor
     {
         private readonly ReliableMessageOption _options;
         private readonly ITimeHelper _timeHelper;
-        private readonly IMemberShipTable _memberShipTable;
+        private readonly IMemberShipTableManager _memberShipTable;
         private readonly ILogger<PendingMessageServiceInstanceCheckProcessor> _logger;
         private readonly IServiceIPv4AddressProvider _serviceIPv4AddressProvider;
-        public PendingMessageServiceInstanceCheckProcessor(IOptions<ReliableMessageOption> options, ITimeHelper timeHelper, IMemberShipTable memberShipTable, ILogger<PendingMessageServiceInstanceCheckProcessor> logger, IServiceIPv4AddressProvider serviceIPv4AddressProvider)
+        public PendingMessageServiceInstanceCheckProcessor(IOptions<ReliableMessageOption> options, ITimeHelper timeHelper, IMemberShipTableManager memberShipTable, ILogger<PendingMessageServiceInstanceCheckProcessor> logger, IServiceIPv4AddressProvider serviceIPv4AddressProvider)
         {
             _options = options.Value ?? throw new Exception($"{nameof(ReliableMessageOption)} Must be injected");
             _timeHelper = timeHelper;

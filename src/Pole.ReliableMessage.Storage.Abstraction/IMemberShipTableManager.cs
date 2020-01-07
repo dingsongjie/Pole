@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pole.ReliableMessage.Storage.Abstraction
 {
-    public interface IMemberShipTable
+    public interface IMemberShipTableManager
     {
         Task<bool> IsPendingMessageCheckerServiceInstance(string ipAddress);
         Task<bool> UpdateIAmAlive(string ipAddress, DateTime dateTime);

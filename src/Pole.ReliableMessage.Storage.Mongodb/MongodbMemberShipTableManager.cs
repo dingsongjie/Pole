@@ -12,12 +12,12 @@ using Pole.ReliableMessage.Storage.Abstraction;
 
 namespace Pole.ReliableMessage.Storage.Mongodb
 {
-    class MongodbMemberShipTable : IMemberShipTable
+    class MongodbMemberShipTableManager : IMemberShipTableManager
     {
         private readonly MongoClient _mongoClient;
         private readonly MongodbOption _mongodbOption;
         private readonly ILogger _logger;
-        public MongodbMemberShipTable(IConfiguration configuration, MongoClient mongoClient, IOptions<MongodbOption> mongodbOption, ILogger<MongodbMemberShipTable> logger)
+        public MongodbMemberShipTableManager(IConfiguration configuration, MongoClient mongoClient, IOptions<MongodbOption> mongodbOption, ILogger<MongodbMemberShipTableManager> logger)
         {
             _mongoClient = mongoClient;
             _mongodbOption = mongodbOption.Value;

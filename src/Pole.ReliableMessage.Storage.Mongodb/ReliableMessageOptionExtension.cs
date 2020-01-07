@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.Configure(_mongodbOption);
             services.AddSingleton<IMessageStorage, MongodbMessageStorage>();
-            services.AddSingleton<IMemberShipTable, MongodbMemberShipTable>();
+            services.AddSingleton<IMemberShipTableManager, MongodbMemberShipTableManager>();
 
             var mongodbOption = services.BuildServiceProvider().GetRequiredService<IOptions<MongodbOption>>().Value;
 

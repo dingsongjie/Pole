@@ -19,11 +19,11 @@ namespace Pole.ReliableMessage.Processor
         private readonly ReliableMessageOption _options;
         //private readonly IMessageBuffer _messageBuffer;
         private readonly ITimeHelper _timeHelper;
-        private readonly IMemberShipTable _memberShipTable;
+        private readonly IMemberShipTableManager _memberShipTable;
         private readonly ILogger<PendingMessageCheckProcessor> _logger;
         private readonly IServiceIPv4AddressProvider _serviceIPv4AddressProvider;
         private readonly IMessageCheckRetryer _messageCheckRetryer;
-        public PendingMessageCheckProcessor(IMessageStorage storage, IOptions<ReliableMessageOption> options, ITimeHelper timeHelper, IMemberShipTable memberShipTable, ILogger<PendingMessageCheckProcessor> logger, IServiceIPv4AddressProvider serviceIPv4AddressProvider, IMessageCheckRetryer messageCheckRetryer)
+        public PendingMessageCheckProcessor(IMessageStorage storage, IOptions<ReliableMessageOption> options, ITimeHelper timeHelper, IMemberShipTableManager memberShipTable, ILogger<PendingMessageCheckProcessor> logger, IServiceIPv4AddressProvider serviceIPv4AddressProvider, IMessageCheckRetryer messageCheckRetryer)
         {
             _storage = storage;
             _options = options.Value ?? throw new Exception($"{nameof(ReliableMessageOption)} Must be injected");

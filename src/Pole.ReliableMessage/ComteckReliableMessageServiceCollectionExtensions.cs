@@ -28,6 +28,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure(optionConfig);
 
             services.AddSingleton<IJsonConverter, DefaultJsonConverter>();
+            //services.AddSingleton<IMessageBuffer, DefaultMessageBuffer>();
+            services.AddSingleton<IMessageCheckRetryer, DefaultMessageCheckRetryer>();
             services.AddSingleton<IRetryTimeDelayCalculator, DefaultRetryTimeDelayCalculator>();
             services.AddSingleton<ITimeHelper, DefaulTimeHelper>();
             services.AddSingleton<IApplicationBuilderConfigurator, DefaultApplicationBuilderConfigurator>();

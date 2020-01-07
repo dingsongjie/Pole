@@ -14,9 +14,9 @@ namespace Pole.ReliableMessage.Masstransit
         public string RabbitMqHostPassword { get; set; }
         public string QueueNamePrefix { get; set; } = string.Empty;
         /// <summary>
-        /// 4 个并发
+        /// 2 个并发
         /// </summary>
-        public ushort PrefetchCount { get; set; } = 4;
+        public ushort PrefetchCount { get; set; } = 2;
 
         public Action<IRetryConfigurator> RetryConfigure { get; set; } =
         r => r.Intervals(TimeSpan.FromSeconds(0.1)

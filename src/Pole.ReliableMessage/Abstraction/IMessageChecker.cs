@@ -1,4 +1,5 @@
 ﻿using Pole.ReliableMessage.Messaging;
+using Pole.ReliableMessage.Storage.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Text;

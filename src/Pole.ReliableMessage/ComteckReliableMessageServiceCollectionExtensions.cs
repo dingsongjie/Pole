@@ -28,7 +28,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure(optionConfig);
 
             services.AddSingleton<IJsonConverter, DefaultJsonConverter>();
-            services.AddSingleton<IMessageBuffer, DefaultMessageBuffer>();
             services.AddSingleton<IRetryTimeDelayCalculator, DefaultRetryTimeDelayCalculator>();
             services.AddSingleton<ITimeHelper, DefaulTimeHelper>();
             services.AddSingleton<IApplicationBuilderConfigurator, DefaultApplicationBuilderConfigurator>();
@@ -51,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
 
 
-            services.AddSingleton<IProcessor, MessageBufferFlushProcessor>();
+            services.AddSingleton<IProcessor, MessageCleanProcessor>();
             services.AddSingleton<IProcessor, PendingMessageCheckProcessor>();
             services.AddSingleton<IProcessor, PendingMessageServiceInstanceCheckProcessor>();
 

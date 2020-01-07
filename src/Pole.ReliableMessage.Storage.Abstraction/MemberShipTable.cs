@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.ReliableMessage
+namespace Pole.ReliableMessage.Storage.Abstraction
 {
     public class MemberShipTable
     {

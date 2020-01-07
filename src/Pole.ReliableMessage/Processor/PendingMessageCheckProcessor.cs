@@ -17,26 +17,22 @@ namespace Pole.ReliableMessage.Processor
     {
         private readonly IMessageStorage _storage;
         private readonly ReliableMessageOption _options;
-        private readonly IMessageBuffer _messageBuffer;
+        //private readonly IMessageBuffer _messageBuffer;
         private readonly ITimeHelper _timeHelper;
-        private readonly IMessageChecker _messageChecker;
-        private readonly IRetryTimeDelayCalculator _retryTimeDelayCalculator;
         private readonly IMemberShipTable _memberShipTable;
         private readonly ILogger<PendingMessageCheckProcessor> _logger;
         private readonly IServiceIPv4AddressProvider _serviceIPv4AddressProvider;
-        private readonly IMessageBus _messageBus;
-        public PendingMessageCheckProcessor(IMessageStorage storage, IOptions<ReliableMessageOption> options, IMessageBuffer messageBuffer, ITimeHelper timeHelper, IMessageChecker messageChecker, IRetryTimeDelayCalculator retryTimeDelayCalculator, IMemberShipTable memberShipTable, ILogger<PendingMessageCheckProcessor> logger, IServiceIPv4AddressProvider serviceIPv4AddressProvider, IMessageBus messageBus)
+        private readonly IMessageCheckRetryer _messageCheckRetryer;
+        public PendingMessageCheckProcessor(IMessageStorage storage, IOptions<ReliableMessageOption> options, ITimeHelper timeHelper, IMemberShipTable memberShipTable, ILogger<PendingMessageCheckProcessor> logger, IServiceIPv4AddressProvider serviceIPv4AddressProvider, IMessageCheckRetryer messageCheckRetryer)
         {
             _storage = storage;
             _options = options.Value ?? throw new Exception($"{nameof(ReliableMessageOption)} Must be injected");
-            _messageBuffer = messageBuffer;
+            //_messageBuffer = messageBuffer;
             _timeHelper = timeHelper;
-            _messageChecker = messageChecker;
-            _retryTimeDelayCalculator = retryTimeDelayCalculator;
             _memberShipTable = memberShipTable;
             _logger = logger;
             _serviceIPv4AddressProvider = serviceIPv4AddressProvider;
-            _messageBus = messageBus;
+            _messageCheckRetryer = messageCheckRetryer;
         }
         public override string Name => nameof(PendingMessageCheckProcessor);
 
@@ -54,20 +50,7 @@ namespace Pole.ReliableMessage.Processor
                     return;
                 }
 
-                var now = _timeHelper.GetUTCNow();
-                var pendingMessages = await _storage.GetMany(m => m.MessageStatusId == MessageStatus.Pending.Id &&m.NextRetryUTCTime <= now && m.AddedUTCTime <= now.AddSeconds(-1 * _options.PendingMessageFirstProcessingWaitTime)&&m.AddedUTCTime>= now.AddSeconds(-1 * _options.PendingMessageCheckingTimeOutSeconds),_options.PendingMessageCheckBatchCount);
-
-                var cachedPushedMessage = await _messageBuffer.GetAll(m => m.MessageStatus == MessageStatus.Pushed);
-
-                var finalToCheckedMessages = pendingMessages.Except(cachedPushedMessage, MessageIEqualityComparer.Default).ToList();
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug($"PendingMessageCheckProcessor  pendingMessages count:{pendingMessages.Count}");
-                    _logger.LogDebug($"PendingMessageCheckProcessor  cachedPushedMessage count:{cachedPushedMessage.Count}");
-                    _logger.LogDebug($"PendingMessageCheckProcessor  finalToCheckedMessages count:{finalToCheckedMessages.Count}");
-                }
-
-                finalToCheckedMessages.AsParallel().ForAll(async m => await Retry(m, now));
+                await ProcessInternal();
             }
             catch (Exception ex)
             {
@@ -78,56 +61,21 @@ namespace Pole.ReliableMessage.Processor
                 await Task.Delay(_options.PendingMessageRetryInterval * 1000);
             }
         }
-
-        private async Task Retry(Message message, DateTime retryTime)
+        public async Task ProcessInternal()
         {
-            try
+            var now = _timeHelper.GetUTCNow();
+            var pendingMessages = await _storage.GetMany(m => m.MessageStatusId == MessageStatus.Pending.Id && m.NextRetryUTCTime <= now && m.AddedUTCTime <= now.AddSeconds(-1 * _options.PendingMessageFirstProcessingWaitTime) && m.AddedUTCTime >= now.AddSeconds(-1 * _options.PendingMessageCheckingTimeOutSeconds), _options.PendingMessageCheckBatchCount);
+
+            if (_logger.IsEnabled(LogLevel.Debug))
             {
-                await Task.CompletedTask;
-
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug($"PendingMessageCheckProcessor.Retry ,message:{message.Id} begin Retry");
-                }
-                var nextRetryDelay = _retryTimeDelayCalculator.Get(message.RetryTimes, _options.MaxPendingMessageRetryDelay);
-                message.NextRetryUTCTime = retryTime.AddSeconds(nextRetryDelay);
-
-                if (retryTime > message.AddedUTCTime.AddSeconds(_options.PendingMessageTimeOut))
-                {
-                    if (_logger.IsEnabled(LogLevel.Debug))
-                    {
-                        _logger.LogDebug($"PendingMessageCheckProcessor.Retry ,message:{message.Id} would be Canced ,PendingMessageTimeOut:{_options.PendingMessageTimeOut}");
-                    }
-
-                    message.NextRetryUTCTime = DateTime.MinValue;
-                    message.MessageStatus = MessageStatus.Canced;
-                    await _messageBuffer.Add(message);
-                    return;
-                }
-                message.RetryTimes++;
-
-                var messageCheckerResult = await _messageChecker.GetResult(message);
-                if (messageCheckerResult.IsFinished)
-                {
-                    if (_logger.IsEnabled(LogLevel.Debug))
-                    {
-                        _logger.LogDebug($"PendingMessageCheckProcessor.Retry ,message:{message.Id} would be Pushed");
-                    }
-                    message.MessageStatus = MessageStatus.Pushed;
-                    await _messageBus.Publish(messageCheckerResult.Event, message.Id);
-                }
-                else
-                {
-                    if (_logger.IsEnabled(LogLevel.Debug))
-                    {
-                        _logger.LogDebug($"PendingMessageCheckProcessor.Retry ,message:{message.Id} would be Retry next time");
-                    }
-                }
-                await _messageBuffer.Add(message);
+                _logger.LogDebug($"PendingMessageCheckProcessor  pendingMessages count:{pendingMessages.Count}");
             }
-            catch (Exception ex)
+
+            await _messageCheckRetryer.Execute(pendingMessages, now);
+            // 说明此时 消息数量超过 批量获取数 
+            if (pendingMessages.Count == _options.PendingMessageCheckBatchCount)
             {
-                _logger.LogError(ex, $"PendingMessageCheckProcessor Retry ,Message:{message.Id}  retry with errors");
+                await ProcessInternal();
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using Pole.ReliableMessage.Core;
+﻿using Pole.Domain;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -1,11 +1,11 @@
-﻿using Pole.ReliableMessage.Core;
-using Pole.ReliableMessage.EventBus;
+﻿using Pole.ReliableMessage.EventBus;
 using Pole.ReliableMessage.Masstransit.Abstraction;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Pole.Domain;
 
 namespace Pole.ReliableMessage.Masstransit
 {

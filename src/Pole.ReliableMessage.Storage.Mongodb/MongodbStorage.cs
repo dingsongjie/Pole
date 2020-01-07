@@ -10,6 +10,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Pole.ReliableMessage.Storage.Abstraction;
+using Pole.Domain;
 
 namespace Pole.ReliableMessage.Storage.Mongodb
 {
@@ -56,14 +58,14 @@ namespace Pole.ReliableMessage.Storage.Mongodb
             return true;
         }
 
-        public async Task<List<Message>> GetMany(Expression<Func<Message, bool>> filter,int count)
+        public async Task<List<Message>> GetMany(Expression<Func<Message, bool>> filter, int count)
         {
             IMongoCollection<Message> collection = GetCollection();
 
-            var list=  await collection.Find(filter).Limit(count).ToListAsync();
+            var list = await collection.Find(filter).Limit(count).ToListAsync();
             list.ForEach(m =>
             {
-                m.MessageStatus = Core.Enumeration.FromValue<MessageStatus>(m.MessageStatusId);
+                m.MessageStatus = Enumeration.FromValue<MessageStatus>(m.MessageStatusId);
             });
             return list;
         }
@@ -98,36 +100,6 @@ namespace Pole.ReliableMessage.Storage.Mongodb
             return result.IsAcknowledged;
         }
 
-        public async Task<bool> UpdateStatus(IEnumerable<Message> messages)
-        {
-            var count = messages.Count();
-            _logger.LogDebug($"MongodbMessageStorage updateStatus begin, Messages count: {messages.Count()}");
-            if (count == 0)
-            {
-                _logger.LogDebug($"MongodbMessageStorage updateStatus successfully, Modified count: 0");
-                return true;
-            }
-            IMongoCollection<Message> collection = GetCollection();
-
-            var models = new List<WriteModel<Message>>();
-
-            foreach (var message in messages)
-            {
-                FilterDefinition<Message> filter = Builders<Message>.Filter.Where(m => m.Id == message.Id&&m.MessageStatusId!=MessageStatus.Handed.Id);
-                UpdateDefinition<Message> update = Builders<Message>.Update
-                    .Set(m => m.MessageStatusId, message.MessageStatus.Id);
-
-                var model = new UpdateOneModel<Message>(filter, update);
-                models.Add(model);
-            }
-            
-            var result = await collection.BulkWriteAsync(models, new BulkWriteOptions { IsOrdered = false });
-
-            _logger.LogDebug($"MongodbMessageStorage updateStatus successfully, Modified count: {result.ModifiedCount}");
-
-            return result.IsAcknowledged;
-        }
-
         public async Task<bool> UpdateStatus(Expression<Func<Message, bool>> filter, MessageStatus messageStatus)
         {
             IMongoCollection<Message> collection = GetCollection();
@@ -135,6 +107,14 @@ namespace Pole.ReliableMessage.Storage.Mongodb
             var update = Builders<Message>.Update.Set(m => m.MessageStatusId, messageStatus.Id);
             var result = await collection.UpdateOneAsync(filter, update);
             return result.IsAcknowledged;
+        }
+
+        public async Task<long> Delete(Expression<Func<Message, bool>> filter)
+        {
+            IMongoCollection<Message> collection = GetCollection();
+
+            var result = await collection.DeleteManyAsync(filter);
+            return result.DeletedCount;
         }
     }
 }

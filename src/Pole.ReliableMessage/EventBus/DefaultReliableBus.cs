@@ -1,5 +1,4 @@
 using Pole.ReliableMessage.Abstraction;
-using Pole.ReliableMessage.Messaging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using Pole.ReliableMessage.Storage.Abstraction;
 
 namespace Pole.Pole.ReliableMessage.EventBus
 {
@@ -16,18 +16,17 @@ namespace Pole.Pole.ReliableMessage.EventBus
         private readonly IMessageStorage _messageStorage;
         private readonly IMessageIdGenerator _messageIdGenerator;
         private readonly ITimeHelper _timeHelper;
-        private readonly IMessageBuffer _messageBuffer;
+        //private readonly IMessageBuffer _messageBuffer;
         private readonly ILogger _logger;
         private readonly IJsonConverter _jsonConverter;
         private readonly IMessageCallBackInfoStore _messageCallBackInfoStore;
         private readonly IMessageTypeIdGenerator _messageTypeIdGenerator;
-        public DefaultReliableBus(IMessageBus messageBus, IMessageStorage messageStorage, IMessageIdGenerator messageIdGenerator, ITimeHelper timeHelper, IMessageBuffer messageBuffer, ILogger<DefaultReliableBus> logger, IJsonConverter jsonConverter, IMessageCallBackInfoStore messageCallBackInfoStore, IMessageTypeIdGenerator messageTypeIdGenerator)
+        public DefaultReliableBus(IMessageBus messageBus, IMessageStorage messageStorage, IMessageIdGenerator messageIdGenerator, ITimeHelper timeHelper, ILogger<DefaultReliableBus> logger, IJsonConverter jsonConverter, IMessageCallBackInfoStore messageCallBackInfoStore, IMessageTypeIdGenerator messageTypeIdGenerator)
         {
             _messageBus = messageBus;
             _messageStorage = messageStorage;
             _messageIdGenerator = messageIdGenerator;
             _timeHelper = timeHelper;
-            _messageBuffer = messageBuffer;
             _logger = logger;
             _jsonConverter = jsonConverter;
             _messageCallBackInfoStore = messageCallBackInfoStore;
@@ -97,8 +96,8 @@ namespace Pole.Pole.ReliableMessage.EventBus
             {
                 await _messageBus.Publish(@event, prePublishMessageId, cancellationToken);
 
-                var messageBufferResult = await _messageBuffer.Add(new Message { Id = prePublishMessageId, MessageStatus = MessageStatus.Pushed });
-                return true;
+                var messageBufferResult = await _messageStorage.UpdateStatus(m => m.Id == prePublishMessageId && m.MessageStatusId == MessageStatus.Pending.Id, MessageStatus.Pushed);
+                return messageBufferResult;
             }
             catch (Exception ex)
             {

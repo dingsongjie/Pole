@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Pole.ReliableMessage.Storage.Abstraction;
 
 namespace Pole.ReliableMessage.Masstransit
 {
 
-    public abstract class ReliableEventHandler<TEvent> : IReliableEventHandler<TEvent>,IConsumer<TEvent>
+    public abstract class ReliableEventHandler<TEvent> : IReliableEventHandler<TEvent>, IConsumer<TEvent>
        where TEvent : class
     {
         private readonly IMessageStorage _messageStorage;
@@ -20,8 +21,8 @@ namespace Pole.ReliableMessage.Masstransit
         private readonly IServiceProvider _serviceProvider;
         public ReliableEventHandler(IServiceProvider serviceProvider)
         {
-            _messageStorage = serviceProvider.GetRequiredService(typeof(IMessageStorage)) as IMessageStorage;
-            var loggerFactory = serviceProvider.GetRequiredService(typeof(ILoggerFactory)) as ILoggerFactory;
+            _messageStorage = serviceProvider.GetRequiredService<IMessageStorage>();
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             _logger = loggerFactory.CreateLogger<ReliableEventHandler<TEvent>>();
             _serviceProvider = serviceProvider;
         }

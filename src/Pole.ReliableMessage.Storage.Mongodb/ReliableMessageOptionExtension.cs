@@ -60,13 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (!collectionNames.Contains(mongodbOption.ServiceCollectionName))
             {
-                database.CreateCollection(mongodbOption.ServiceCollectionName, new CreateCollectionOptions
-                {
-                    Capped = true,
-                    MaxDocuments = mongodbOption.CollectionMaxMessageCount,
-                    MaxSize = mongodbOption.CollectionMaxSize,
-                    
-                });
+                database.CreateCollection(mongodbOption.ServiceCollectionName);
                 var messageCollection = database.GetCollection<Message>(mongodbOption.ServiceCollectionName);
                 AddMessageCollectionIndex(messageCollection);
             }
@@ -74,7 +68,6 @@ namespace Microsoft.Extensions.DependencyInjection
             if (!collectionNames.Contains(mongodbOption.MembershipCollectionName))
             {
                 database.CreateCollection(mongodbOption.MembershipCollectionName);
-
                 var membershipCollection = database.GetCollection<MemberShipTable>(mongodbOption.MembershipCollectionName);
                 AddMemberShipTableCollectionIndex(membershipCollection);
             }

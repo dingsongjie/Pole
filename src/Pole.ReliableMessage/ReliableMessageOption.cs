@@ -25,7 +25,7 @@ namespace Pole.ReliableMessage
         /// <summary>
         /// 预发送消息超时时间 单位 秒
         /// </summary>
-        public int PendingMessageTimeOut { get; set; } = 10*60;
+        public int PendingMessageTimeOut { get; set; } = 10 * 60;
 
         /// <summary>
         /// 预发送消息检查时每一次获取的消息数量 
@@ -35,7 +35,7 @@ namespace Pole.ReliableMessage
         /// <summary>
         /// 预发送消息状态检查最后时间 单位 秒
         /// </summary>
-        public int PendingMessageCheckingTimeOutSeconds { get; set; } = 13*60;
+        public int PendingMessageCheckingTimeOutSeconds { get; set; } = 13 * 60;
 
         /// <summary>
         /// 已发送的消息缓冲区 flush to storage 的时间间隔 单位 秒
@@ -46,7 +46,7 @@ namespace Pole.ReliableMessage
         /// <summary>
         /// PendingMessage 第一次处理等待时间 单位 秒
         /// </summary>
-        public int PendingMessageFirstProcessingWaitTime { get; set; } = 2+10;
+        public int PendingMessageFirstProcessingWaitTime { get; set; } = 2 + 10;
 
         /// <summary>
         /// 每次重试之间最大间隔 单位 秒
@@ -61,14 +61,19 @@ namespace Pole.ReliableMessage
         /// <summary>
         /// PendingMessageCheck 实例存活超时时间 单位 秒
         /// </summary>
-        public int PendingMessageCheckerInstanceIAnAliveTimeout { get; set; } = 3*10;
+        public int PendingMessageCheckerInstanceIAnAliveTimeout { get; set; } = 3 * 10;
+
+        /// <summary>
+        /// Message 定期清理时间间隔 单位 秒
+        /// </summary>
+        public int MessageCleanInterval { get; set; } = 30 * 60;
 
         /// <summary>
         /// 当主机有多个网络时通过指定网关地址找到合适的服务ip地址
         /// </summary>
         public string NetworkInterfaceGatewayAddress { get; set; } = string.Empty;
 
-        public ReliableMessageOption AddEventAssemblies (params Assembly [] assemblies)
+        public ReliableMessageOption AddEventAssemblies(params Assembly[] assemblies)
         {
             EventCallbackAssemblies = assemblies.ToList();
             return this;
@@ -89,5 +94,4 @@ namespace Pole.ReliableMessage
             return this;
         }
     }
-
 }

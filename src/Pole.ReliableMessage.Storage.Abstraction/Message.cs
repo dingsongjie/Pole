@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.ReliableMessage.Messaging
+namespace Pole.ReliableMessage.Storage.Abstraction
 {
     public class Message : IComparable<Message>
     {

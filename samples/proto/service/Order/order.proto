@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+
+package newArchitectureLab.apps.order;
+
+
+service Order {
+
+  rpc GetById (GetByIdRequest) returns (GetByIdResponse);
+}
+
+
+message GetByIdRequest {
+  string id = 1;
+}
+
+
+message GetByIdResponse {
+  string id = 1;
+  double totalprice = 2;
+  repeated Product products = 3 ;
+
+  message Product {
+    string id = 1 ;
+    string name = 2 ;
+    double price = 3 ;
+  }
+}

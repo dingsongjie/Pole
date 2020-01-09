@@ -35,11 +35,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.ReliableMessage.Storag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "webs", "webs", "{452B9D9E-881E-4E0E-A90B-98F2253F20F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Order.Api", "samples\apis\Order.Api\Order.Api.csproj", "{098DF771-6DC6-45D4-ABFA-FF84E8F7750B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Order.Api", "samples\apis\Order.Api\Order.Api.csproj", "{098DF771-6DC6-45D4-ABFA-FF84E8F7750B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Product.Api", "samples\apis\Product.Api\Product.Api.csproj", "{125B1E4B-B1C1-4F85-9C6A-38815960E654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Product.Api", "samples\apis\Product.Api\Product.Api.csproj", "{125B1E4B-B1C1-4F85-9C6A-38815960E654}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backet.Api", "samples\apis\Backet.Api\Backet.Api.csproj", "{C961F25C-1C11-4855-84E4-ADABE96451E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Backet.Api", "samples\apis\Backet.Api\Backet.Api.csproj", "{C961F25C-1C11-4855-84E4-ADABE96451E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

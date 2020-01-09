@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+
+package newArchitectureLab.apps.product;
+
+// The greeting service definition.
+service ProductType {
+  // Sends a greeting
+  rpc GetById (GetProductTypeRequest) returns (GetProductTypeResponse);
+}
+
+// The request message containing the user's name.
+message GetProductTypeRequest {
+  string id = 1;
+}
+
+// The response message containing the greetings.
+message GetProductTypeResponse {
+  string id = 1;
+  string name = 2;
+}

@@ -5,5 +5,5 @@ using System.Text;
 
 namespace Pole.Domain
 {
-    public interface AggregateRoot { }
+    public interface IAggregateRoot { }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pole.Domain
 {
-    public interface IRepository<T> : IRepository where T :  AggregateRoot
+    public interface IRepository<T> : IRepository where T :  IAggregateRoot
     {
         void Update(T entity);
         void Delete(T entity);

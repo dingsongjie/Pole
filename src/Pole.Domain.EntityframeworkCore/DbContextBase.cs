@@ -23,12 +23,8 @@ namespace Pole.EntityframeworkCore
         {
             var result = CompleteResult.SuccessResult;
 
-            var eventHnadlersResult = await _mediator.DispatchDomainEventsAsync(this);
-            if (eventHnadlersResult.Status != 1)
-            {
-                return new CompleteResult(eventHnadlersResult);
-            }
-            var dbResult = await base.SaveChangesAsync(cancellationToken);
+            await _mediator.DispatchDomainEventsAsync(this);
+            await base.SaveChangesAsync(cancellationToken);
 
             return result;
         }

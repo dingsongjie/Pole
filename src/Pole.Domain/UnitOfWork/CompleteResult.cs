@@ -12,7 +12,6 @@ namespace Pole.Domain.UnitOfWork
             Status = status;
             Message = message;
         }
-        public CompleteResult(DomainHandleResult domainHandleResult) : this(domainHandleResult.Status, domainHandleResult.Message) { }
 
         /// <summary>
         /// 1  Success 2  Faild ...

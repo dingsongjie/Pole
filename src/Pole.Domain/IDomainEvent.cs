@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Pole.Domain
 {
-    public interface IDomainEvent : IRequest<DomainHandleResult>
+    public interface IDomainEvent : INotification
     {
 
     }

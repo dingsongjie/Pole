@@ -31,7 +31,8 @@ namespace Product.Api.Application.Command.CommandHandler
                 ProductTypeName = productType.Name
             };
             productType.AddDomainEvent(productTypeAddedDomainEvent);
-            return await _productTypeRepository.UnitOfWork.CompeleteAsync();
+            var result= await _productTypeRepository.UnitOfWork.CompeleteAsync();
+            return result;
         }
     }
 }

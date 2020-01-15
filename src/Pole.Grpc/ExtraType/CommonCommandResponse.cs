@@ -11,7 +11,7 @@ namespace Pole.Grpc.ExtraType
     {
         public static implicit operator CommonCommandResponse(CompleteResult domainHandleResult)
         {
-            return new CompleteResult(domainHandleResult.Status, domainHandleResult.Message);
+            return new CommonCommandResponse { Status = domainHandleResult.Status, Message = domainHandleResult.Message };
         }
     }
 }

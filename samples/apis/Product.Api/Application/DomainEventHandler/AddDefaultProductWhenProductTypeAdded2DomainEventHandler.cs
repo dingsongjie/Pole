@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace Product.Api.Application.DomainEventHandler
 {
-    public class AddDefaultProductWhenProductTypeAddedDomainEventHandler : IDomainEventHandler<ProductTypeAddedDomainEvent>
+    public class AddDefaultProductWhenProductTypeAdded2DomainEventHandler : IDomainEventHandler<ProductTypeAddedDomainEvent>
     {
         private readonly IProductRepository _productRepository;
-        public AddDefaultProductWhenProductTypeAddedDomainEventHandler(IProductRepository productRepository)
+        public AddDefaultProductWhenProductTypeAdded2DomainEventHandler(IProductRepository productRepository)
         {
             _productRepository = productRepository;
         }

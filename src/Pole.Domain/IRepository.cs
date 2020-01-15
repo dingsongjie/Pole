@@ -1,4 +1,5 @@
-﻿using Pole.Domain.UnitOfWork;
+﻿using Pole.Core.DependencyInjection;
+using Pole.Domain.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,11 +12,11 @@ namespace Pole.Domain
     {
         void Update(T entity);
         void Delete(T entity);
-        Task<T> Add(T entity);
+        void Add(T entity);
         Task<T> Get(string id);
         IUnitOfWork UnitOfWork { get; }
     }
-    public interface IRepository
+    public interface IRepository: IScopedDenpendency
     {
 
     }

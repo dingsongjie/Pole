@@ -8,6 +8,11 @@ namespace Product.Api.Domain.ProductTypeAggregate
 {
     public class ProductType : Entity, IAggregateRoot
     {
-        public string Name { get; set; }
+        public ProductType(string id,string name)
+        {
+            Id = id;
+            Name = name;
+        }
+        public string Name { get;private set; }
     }
 }

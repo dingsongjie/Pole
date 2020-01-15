@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class ServiceCollectionExtensions
+    public static class ServiceCollectionValidationExtensions
     {
         public static IServiceCollection AddGrpcValidation(this IServiceCollection services)
         {

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Pole.Domain
 {
     public static class ServiceCollectionExtensions
     {

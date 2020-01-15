@@ -30,7 +30,7 @@ namespace ServiceA
         {
             services.AddControllers();
 
-            services.AddComteckReliableMessage(option =>
+            services.AddPoleReliableMessage(option =>
             {
                 option.AddMasstransitRabbitmq(rabbitoption =>
                 {

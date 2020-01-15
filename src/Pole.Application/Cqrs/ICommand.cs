@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Pole.Application.Cqrs
 {
-    public interface ICommandHandler<TCommand,TResult>: IRequestHandler<TCommand, TResult> where TCommand : ICommand<TResult>
+    public interface ICommand<TResponse>:IRequest<TResponse>
     {
     }
 }

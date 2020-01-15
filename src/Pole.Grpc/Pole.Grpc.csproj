@@ -11,4 +11,9 @@
     <PackageReference Include="FluentValidation" Version="8.6.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.26.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pole.Application\Pole.Application.csproj" />
+    <ProjectReference Include="..\Pole.Domain\Pole.Domain.csproj" />
+  </ItemGroup>
 </Project>

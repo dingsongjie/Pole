@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+
+package pole.Grpc.ExtraType;
+
+message CommonCommandResponse {
+    // 1 成功 2 失败
+    int32 status = 1;
+    string message = 2;
+}

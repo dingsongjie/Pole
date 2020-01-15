@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pole.Domain.UnitOfWork;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,6 +13,10 @@ namespace Pole.Domain
             Message = message;
         }
         public static DomainHandleResult SuccessResult = new DomainHandleResult(1, "处理成功");
+        public static implicit operator DomainHandleResult(CompleteResult completeResult)
+        {
+            return new DomainHandleResult(completeResult.Status, completeResult.Message);
+        }
         /// <summary>
         /// 1  Success 2  Faild ...
         /// </summary>

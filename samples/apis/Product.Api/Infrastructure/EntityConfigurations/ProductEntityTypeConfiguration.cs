@@ -15,11 +15,11 @@ namespace Product.Api.Infrastructure.EntityConfigurations
 
             builder.Property(m => m.Id).HasMaxLength(32);
             builder.Property(m => m.Name).HasMaxLength(256).IsRequired();
-            builder.Property(m => m.ProductId).HasMaxLength(32).IsRequired();
+            builder.Property(m => m.ProductTypeId).HasMaxLength(32).IsRequired();
 
             builder.Ignore(m => m.DomainEvents);
 
-            builder.HasIndex(m => m.ProductId);
+            builder.HasIndex(m => m.ProductTypeId);
             builder.HasKey(m => m.Id);
         }
     }

@@ -14,9 +14,9 @@ using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class ComteckReliableMessageServiceCollectionExtensions
+    public static class PoleReliableMessageServiceCollectionExtensions
     {
-        public static IServiceCollection AddComteckReliableMessage(this IServiceCollection  services, Action<ReliableMessageOption> optionConfig)
+        public static IServiceCollection AddPoleReliableMessage(this IServiceCollection  services, Action<ReliableMessageOption> optionConfig)
         {
             ReliableMessageOption reliableMessageOption = new ReliableMessageOption();
             optionConfig(reliableMessageOption);

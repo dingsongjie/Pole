@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pole.Domain
 {
-    public interface IDomainEventHandler<TCommand, TResult> : IRequestHandler<TCommand, TResult> where TCommand : IRequest<TResult>
+    public interface IDomainEventHandler<TCommand> : IRequestHandler<TCommand, DomainHandleResult> where TCommand : IRequest<DomainHandleResult>
     {
 
     }

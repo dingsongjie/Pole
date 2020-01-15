@@ -11,6 +11,8 @@ namespace Product.Api.Infrastructure
 {
     public class ProductDbContext : DbContextBase
     {
+        public DbSet<Product.Api.Domain.ProductAggregate.Product> Products { get; set; }
+        public DbSet<Product.Api.Domain.ProductTypeAggregate.ProductType> ProductTypes { get; set; }
         public ProductDbContext(DbContextOptions options, IMediator mediator) : base(options, mediator)
         {
 
@@ -21,10 +23,6 @@ namespace Product.Api.Infrastructure
 
             builder.ApplyConfiguration(new ProductEntityTypeEntityTypeConfiguration());
             builder.ApplyConfiguration(new ProductTypeEntityTypeConfiguration());
-
-            //builder.ApplyConfiguration(new ThinkNestDirectSalesManagerEntityTypeConfiguration());
-            //builder.ApplyConfiguration(new ThinkNestInDirectSalesManagerEntityTypeConfiguration());
-
         }
     }
 }

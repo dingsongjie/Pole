@@ -43,11 +43,5 @@ namespace Pole.ReliableMessage
         {
             return Start(stoppingToken);
         }
-        public override void Dispose()
-        {
-            // 等待 10秒 待 消息处理完
-            _compositeTask?.Wait((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
-            base.Dispose();
-        }
     }
 }

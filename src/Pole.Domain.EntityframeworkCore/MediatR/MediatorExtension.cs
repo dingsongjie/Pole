@@ -24,10 +24,13 @@ namespace Pole.EntityframeworkCore.MediatR
             domainEntities.ToList()
                 .ForEach(entity => entity.Entity.ClearDomainEvents());
 
-            foreach(var domainEvent in domainEvents)
-            {
-                await mediator.Publish(domainEvent);              
-            }
+            var tasks = domainEvents
+                        .Select(async (domainEvent) =>
+                        {
+                            await mediator.Publish(domainEvent);
+                        });
+
+            await Task.WhenAll(tasks);
         }
     }
 }

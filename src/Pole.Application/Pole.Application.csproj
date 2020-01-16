@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pole.Core\Pole.Core.csproj" />
     <ProjectReference Include="..\Pole.Domain\Pole.Domain.csproj" />
+    <ProjectReference Include="..\Pole.ReliableMessage.Masstransit\Pole.ReliableMessage.Masstransit.csproj" />
     <ProjectReference Include="..\Pole.ReliableMessage\Pole.ReliableMessage.csproj" />
   </ItemGroup>
 

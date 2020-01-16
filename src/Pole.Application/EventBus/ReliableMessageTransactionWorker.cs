@@ -40,7 +40,7 @@ namespace Pole.Application.EventBus
 
                 if (events.Count(@event => @event.IsPublished) > 1)
                 {
-                    //这里发布失败 通过预发送 后的重试机制去处理, 因为一旦有一个消息发出去后 无法挽回
+                    //这里发布失败 通过预发送后的重试机制去处理, 因为一旦有一个消息发出去后 无法挽回
                     return Task.FromResult(1);
                 }
                 else
@@ -63,7 +63,7 @@ namespace Pole.Application.EventBus
             var events = _reliableMessageScopedBuffer.GetAll();
             foreach (var @event in events)
             {
-                @event.PrePublishEventId = await _reliableBus.PrePublish(@event.Event, @event.PrePublishEventId, cancellationToken);
+                @event.PrePublishEventId = await _reliableBus.PrePublish(@event.Event, @event.EventType, @event.PrePublishEventId, cancellationToken);
             }
             WorkerStatus = WorkerStatus.PreCommited;
         }

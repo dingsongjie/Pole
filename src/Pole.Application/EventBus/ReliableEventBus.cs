@@ -15,9 +15,9 @@ namespace Pole.Application.EventBus
             _reliableMessageScopedBuffer = reliableMessageScopedBuffer;
         }
 
-        public Task Publish<TReliableEvent>(TReliableEvent @event, object callbackParemeter, CancellationToken cancellationToken = default)
+        public Task Publish<TReliableEvent>(TReliableEvent @event, object callbackParemeter, CancellationToken cancellationToken = default) where TReliableEvent : class
         {
-            _reliableMessageScopedBuffer.Add(new EventEntry(@event, callbackParemeter));
+            _reliableMessageScopedBuffer.Add(new EventEntry(@event, callbackParemeter,typeof(TReliableEvent)));
             return Task.FromResult(1);
         }
     }

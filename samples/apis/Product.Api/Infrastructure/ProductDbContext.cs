@@ -13,7 +13,7 @@ namespace Product.Api.Infrastructure
     {
         public DbSet<Product.Api.Domain.ProductAggregate.Product> Products { get; set; }
         public DbSet<Product.Api.Domain.ProductTypeAggregate.ProductType> ProductTypes { get; set; }
-        public ProductDbContext(DbContextOptions<ProductDbContext> options) : base(options)
+        public ProductDbContext(DbContextOptions options) : base(options)
         {
 
         }

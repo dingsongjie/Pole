@@ -47,11 +47,24 @@ namespace Pole.Pole.ReliableMessage.EventBus
             }
         }
 
-        public async Task<string> PrePublish<TReliableEvent>(TReliableEvent @event, object callbackParemeter, CancellationToken cancellationToken = default)
+        #region PrePublish
+        public async Task<string> PrePublish<TReliableEvent>(TReliableEvent @event, object callbackParemeter, CancellationToken cancellationToken = default) where TReliableEvent : class
         {
 
             var messageTypeId = _messageTypeIdGenerator.Generate(typeof(TReliableEvent));
+            var content = _jsonConverter.Serialize(@event);
 
+            return await PrePublishCore(callbackParemeter, messageTypeId, content);
+        }
+
+        public async Task<string> PrePublish(object @event, Type eventType, object callbackParemeter, CancellationToken cancellationToken = default)
+        {
+            var messageTypeId = _messageTypeIdGenerator.Generate(eventType);
+            var content = _jsonConverter.Serialize(@event);
+            return await PrePublishCore(callbackParemeter, messageTypeId, content);
+        }
+        private async Task<string> PrePublishCore(object callbackParemeter, string messageTypeId, string content)
+        {
             var currentMessageCallbackInfo = _messageCallBackInfoStore.Get(messageTypeId);
             if (currentMessageCallbackInfo == null)
             {
@@ -64,7 +77,7 @@ namespace Pole.Pole.ReliableMessage.EventBus
                 _logger.LogDebug($"PrePublish message begin ,messageId:{messageId}");
 
                 var now = _timeHelper.GetUTCNow();
-                var content = _jsonConverter.Serialize(@event);
+
                 var callBackParem = _jsonConverter.Serialize(callbackParemeter);
                 Message newMessage = new Message()
                 {
@@ -88,9 +101,10 @@ namespace Pole.Pole.ReliableMessage.EventBus
                 _logger.LogError(ex, errorInfo);
                 throw new Exception(errorInfo, ex);
             }
-        }
+        } 
+        #endregion
 
-        public async Task<bool> Publish<TReliableEvent>(TReliableEvent @event, string prePublishMessageId, CancellationToken cancellationToken = default)
+        public async Task<bool> Publish(object @event, string prePublishMessageId, CancellationToken cancellationToken = default)
         {
             try
             {

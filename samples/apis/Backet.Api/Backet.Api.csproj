@@ -4,4 +4,21 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Pole.Application\Pole.Application.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.Domain.EntityframeworkCore\Pole.Domain.EntityframeworkCore.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.Grpc\Pole.Grpc.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Masstransit\Pole.ReliableMessage.Masstransit.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Storage.Mongodb\Pole.ReliableMessage.Storage.Mongodb.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Domain\AggregatesModel\" />
+  </ItemGroup>
+
 </Project>

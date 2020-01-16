@@ -49,23 +49,23 @@ namespace Product.Api
                 option.AutoInjectionCommandHandlersAndDomainEventHandlers();
                 option.AddPoleEntityFrameworkCoreDomain();
 
-                option.AddPoleReliableMessage(option =>
+                option.AddPoleReliableMessage(messageOption =>
                 {
-                    option.AddMasstransitRabbitmq(rabbitoption =>
+                    messageOption.AddMasstransitRabbitmq(rabbitoption =>
                     {
                         rabbitoption.RabbitMqHostAddress = Configuration["RabbitmqConfig:HostAddress"];
                         rabbitoption.RabbitMqHostUserName = Configuration["RabbitmqConfig:HostUserName"];
                         rabbitoption.RabbitMqHostPassword = Configuration["RabbitmqConfig:HostPassword"];
                         rabbitoption.QueueNamePrefix = Configuration["ServiceName"];
                     });
-                    option.AddMongodb(mongodbOption =>
+                    messageOption.AddMongodb(mongodbOption =>
                     {
                         mongodbOption.ServiceCollectionName = Configuration["ServiceName"];
                         mongodbOption.Servers = Configuration.GetSection("MongoConfig:Servers").Get<MongoHost[]>();
                     });
-                    option.AddEventAssemblies(typeof(Startup).Assembly)
+                    messageOption.AddEventAssemblies(typeof(Startup).Assembly)
                           .AddEventHandlerAssemblies(typeof(Startup).Assembly);
-                    option.NetworkInterfaceGatewayAddress = Configuration["ReliableMessageOption:NetworkInterfaceGatewayAddress"];
+                    messageOption.NetworkInterfaceGatewayAddress = Configuration["ReliableMessageOption:NetworkInterfaceGatewayAddress"];
                 });
             });
         }
@@ -73,6 +73,7 @@ namespace Product.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UsePoleReliableMessage();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

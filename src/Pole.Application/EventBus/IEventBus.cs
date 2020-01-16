@@ -8,6 +8,6 @@ namespace Pole.Application.EventBus
 {
     public interface IEventBus
     {
-        Task Publish<TReliableEvent>(TReliableEvent @event, object callbackParemeter, CancellationToken cancellationToken = default);
+        Task Publish<TReliableEvent>(TReliableEvent @event, object callbackParemeter, CancellationToken cancellationToken = default) where TReliableEvent : class;
     }
 }

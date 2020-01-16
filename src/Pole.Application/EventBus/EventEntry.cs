@@ -10,10 +10,12 @@ namespace Pole.Application.EventBus
         public object CallbackParemeter { get; private set; }
         public string PrePublishEventId { get; set; }
         public bool IsPublished { get; set; }
-        public EventEntry(object @event,object callbackParemeter)
+        public Type EventType { get;private set; }
+        public EventEntry(object @event,object callbackParemeter, Type eventType)
         {
             Event = @event;
             CallbackParemeter = callbackParemeter;
+            EventType = eventType;
         }
     }
 }

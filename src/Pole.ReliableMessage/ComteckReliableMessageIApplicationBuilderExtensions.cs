@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class ComteckReliableMessageIApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseComteckReliableMessage(this IApplicationBuilder  applicationBuilder)
+        public static IApplicationBuilder UsePoleReliableMessage(this IApplicationBuilder  applicationBuilder)
         {
             var option = applicationBuilder.ApplicationServices.GetRequiredService(typeof(IOptions<ReliableMessageOption>)) as IOptions<ReliableMessageOption>;
             var messageCallBackRegister = applicationBuilder.ApplicationServices.GetRequiredService(typeof(IMessageCallBackRegister)) as IMessageCallBackRegister;

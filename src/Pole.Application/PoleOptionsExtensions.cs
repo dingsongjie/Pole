@@ -21,7 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
         public static PoleOptions AutoInjectionDependency(this PoleOptions options)
         {
-            var assemblies = options.ApplicationAssemblies;
+            var assemblies = options.ApplicationAssemblies??throw new Exception("Cant't find ApplicationAssemblies,You must Run  PoleOptions.AddManageredAssemblies First");
 
             foreach (var assembly in assemblies)
             {
@@ -34,10 +34,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static PoleOptions AutoInjectionCommandHandlersAndDomainEventHandlers(this PoleOptions options, ServiceLifetime lifetime = ServiceLifetime.Scoped)
         {
+            var assemblies = options.ApplicationAssemblies ?? throw new Exception("Cant't find ApplicationAssemblies,You must Run  PoleOptions.AddManageredAssemblies First");
             options.Services.AddMediatR(config =>
-            {
+            {              
                 config.AddServiceLifetime(lifetime);
-            }, options.ApplicationAssemblies.ToArray());
+            }, assemblies.ToArray());
             return options;
         }
 

@@ -17,30 +17,29 @@ namespace Product.Api.Application.CommandHandler
     public class AddProductTypeCommandHandler : ICommandHandler<Command<AddProductTypeRequest, CommonCommandResponse>, CommonCommandResponse>
     {
         private readonly IProductTypeRepository _productTypeRepository;
-        private readonly IUnitOfWorkManager _unitOfWorkManager;
-        public AddProductTypeCommandHandler(IProductTypeRepository productTypeRepository, IUnitOfWorkManager unitOfWorkManager)
+        private readonly IUnitOfWork _unitOfWork;
+        public AddProductTypeCommandHandler(IProductTypeRepository productTypeRepository, IUnitOfWork unitOfWork)
         {
             _productTypeRepository = productTypeRepository;
-            _unitOfWorkManager = unitOfWorkManager;
+            _unitOfWork = unitOfWork;
         }
         public async Task<CommonCommandResponse> Handle(Command<AddProductTypeRequest, CommonCommandResponse> request, CancellationToken cancellationToken)
         {
             var productType = new Domain.ProductTypeAggregate.ProductType(request.Data.Id, request.Data.Name);
-     
-             _productTypeRepository.Add(productType);
+
+            _productTypeRepository.Add(productType);
             ProductTypeAddedDomainEvent productTypeAddedDomainEvent = new ProductTypeAddedDomainEvent
             {
                 ProductTypeId = productType.Id,
                 ProductTypeName = productType.Name
             };
-            using(var unitOfWork= await _unitOfWorkManager.BeginUnitOfWork())
-            {
-                productType.AddDomainEvent(productTypeAddedDomainEvent);
-                var result = await _productTypeRepository.SaveEntitiesAsync();
 
-                await unitOfWork.CompeleteAsync();
-                return CommonCommandResponse.SuccessResponse;
-            }
+            productType.AddDomainEvent(productTypeAddedDomainEvent);
+            var result = await _productTypeRepository.SaveEntitiesAsync();
+
+            await _unitOfWork.Compelete();
+            return CommonCommandResponse.SuccessResponse;
+
         }
     }
 }

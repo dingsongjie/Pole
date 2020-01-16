@@ -10,6 +10,6 @@ namespace Pole.ReliableMessage.Abstraction
     {
         Task<string> PrePublish<TReliableEvent>(TReliableEvent @event,object callbackParemeter, CancellationToken cancellationToken = default);
         Task<bool> Publish<TReliableEvent>(TReliableEvent @event,string prePublishMessageId, CancellationToken cancellationToken=default);
-       Task<bool> Cancel<TReliableEvent>(TReliableEvent @event, string prePublishMessageId, CancellationToken cancellationToken = default); 
+       Task<bool> Cancel(string prePublishMessageId, CancellationToken cancellationToken = default); 
   }
 }

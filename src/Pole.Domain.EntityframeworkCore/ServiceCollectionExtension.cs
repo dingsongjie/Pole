@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static PoleOptions AddPoleEntityFrameworkCoreDomain(this PoleOptions options) 
         {
-            options.Services.AddScoped<IUnitOfWorkManager, EntityFrameworkCoreUnitOfWorkManager>();
+            options.Services.AddScoped<IWorker, EntityFrameworkCoreTransactionWorker>();
             return options;
         }
     }

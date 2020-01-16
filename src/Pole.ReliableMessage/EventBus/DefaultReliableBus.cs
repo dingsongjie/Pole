@@ -33,7 +33,7 @@ namespace Pole.Pole.ReliableMessage.EventBus
             _messageTypeIdGenerator = messageTypeIdGenerator;
         }
 
-        public Task<bool> Cancel<TReliableEvent>(TReliableEvent @event, string prePublishMessageId, CancellationToken cancellationToken = default)
+        public Task<bool> Cancel(string prePublishMessageId, CancellationToken cancellationToken = default)
         {
             try
             {

@@ -1,5 +1,7 @@
 ﻿using NewArchitectureLab.Apps.Product;
+using Pole.Application.Command;
 using Pole.Application.Cqrs;
+using Pole.Domain.UnitOfWork;
 using Pole.Grpc.ExtraType;
 using PoleSample.Apis.Product;
 using Product.Api.Domain.Event;
@@ -15,9 +17,11 @@ namespace Product.Api.Application.Command.CommandHandler
     public class AddProductTypeCommandHandler : ICommandHandler<AddProductTypeCommand, CommonCommandResponse>
     {
         private readonly IProductTypeRepository _productTypeRepository;
-        public AddProductTypeCommandHandler(IProductTypeRepository productTypeRepository)
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
+        public AddProductTypeCommandHandler(IProductTypeRepository productTypeRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _productTypeRepository = productTypeRepository;
+            _unitOfWorkManager = unitOfWorkManager;
         }
         public async Task<CommonCommandResponse> Handle(AddProductTypeCommand request, CancellationToken cancellationToken)
         {
@@ -30,9 +34,14 @@ namespace Product.Api.Application.Command.CommandHandler
                 ProductTypeId = productType.Id,
                 ProductTypeName = productType.Name
             };
-            productType.AddDomainEvent(productTypeAddedDomainEvent);
-            var result= await _productTypeRepository.UnitOfWork.CompeleteAsync();
-            return result;
+            using(var unitOfWork= await _unitOfWorkManager.BeginUnitOfWork())
+            {
+                productType.AddDomainEvent(productTypeAddedDomainEvent);
+                var result = await _productTypeRepository.SaveEntitiesAsync();
+
+                await unitOfWork.CompeleteAsync();
+                return CommonCommandResponse.SuccessResponse;
+            }
         }
     }
 }

@@ -28,17 +28,27 @@ namespace Product.Api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ProductDbContext>(options => 
+            services.AddDbContext<ProductDbContext>(options =>
                 options.UseNpgsql(Configuration["postgres:main"]));
 
-            services.AddGrpc(option=> {
+            services.AddGrpc(option =>
+            {
                 if (Environment.IsDevelopment())
                 {
                     option.EnableDetailedErrors = true;
                 }
             });
 
-            services.AddPoleGrpc(this.GetType().Assembly);
+            services.AddGrpcValidation();
+            services.AddGrpcRequestValidator(this.GetType().Assembly);
+
+            services.AddPole(option =>
+            {
+                option.AddManageredAssemblies(this.GetType().Assembly);
+                option.AutoInjectionDependency();
+                option.AutoInjectionCommandHandlersAndDomainEventHandlers();
+                option.AddPoleEntityFrameworkCoreDomain();
+            });
 
             services.AddPoleReliableMessage(option =>
             {

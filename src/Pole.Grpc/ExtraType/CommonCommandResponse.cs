@@ -9,9 +9,10 @@ namespace Pole.Grpc.ExtraType
 {
     public partial class CommonCommandResponse
     {
-        public static implicit operator CommonCommandResponse(CompleteResult domainHandleResult)
+        public static CommonCommandResponse SuccessResponse = new CommonCommandResponse()
         {
-            return new CommonCommandResponse { Status = domainHandleResult.Status, Message = domainHandleResult.Message };
-        }
+            Message = "执行成功",
+            Status = 1
+        };
     }
 }

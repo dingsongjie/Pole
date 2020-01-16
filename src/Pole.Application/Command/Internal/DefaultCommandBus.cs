@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Pole.Application.Command;
 
 namespace Pole.Application.Cqrs.Internal
 {

@@ -8,8 +8,8 @@ namespace Pole.Domain.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
-        //Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-        Task<CompleteResult> CompeleteAsync(CancellationToken cancellationToken = default);
+        Task CompeleteAsync(CancellationToken cancellationToken = default);
+        Task RollbackAsync(CancellationToken cancellationToken = default);
     }
     
 }

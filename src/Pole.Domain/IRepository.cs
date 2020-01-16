@@ -14,7 +14,7 @@ namespace Pole.Domain
         void Delete(T entity);
         void Add(T entity);
         Task<T> Get(string id);
-        IUnitOfWork UnitOfWork { get; }
+        Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default);
     }
     public interface IRepository: IScopedDenpendency
     {

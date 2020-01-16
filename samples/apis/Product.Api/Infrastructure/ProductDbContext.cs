@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Product.Api.Infrastructure
 {
-    public class ProductDbContext : DbContextBase
+    public class ProductDbContext : DbContext
     {
         public DbSet<Product.Api.Domain.ProductAggregate.Product> Products { get; set; }
         public DbSet<Product.Api.Domain.ProductTypeAggregate.ProductType> ProductTypes { get; set; }
-        public ProductDbContext(DbContextOptions options, IMediator mediator) : base(options, mediator)
+        public ProductDbContext(DbContextOptions<ProductDbContext> options) : base(options)
         {
 
         }

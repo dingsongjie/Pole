@@ -21,7 +21,7 @@ namespace Product.Api.Application.DomainEventHandler
         {
             Product.Api.Domain.ProductAggregate.Product product = new Product.Api.Domain.ProductAggregate.Product(Guid.NewGuid().ToString("N"), request.ProductTypeName, 100, request.ProductTypeId);
             _productRepository.Add(product);
-            await _productRepository.UnitOfWork.CompeleteAsync();
+            await _productRepository.SaveEntitiesAsync();
         }
     }
 }

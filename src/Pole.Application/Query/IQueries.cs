@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Application.Cqrs
+namespace Pole.Application.Query
 {
     public interface IQueries: IScopedDenpendency
     {

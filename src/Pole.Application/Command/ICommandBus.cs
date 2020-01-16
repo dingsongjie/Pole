@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pole.Application.Cqrs
+namespace Pole.Application.Command
 {
     public interface ICommandBus
     {

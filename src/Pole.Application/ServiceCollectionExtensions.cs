@@ -5,17 +5,18 @@ using MediatR;
 using System.Reflection;
 using Pole.Application.Cqrs;
 using Pole.Application.Cqrs.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using Pole.Application.Command;
+using Pole.Application;
 
-namespace Pole.Application
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddPoleApplication(this IServiceCollection services, Action<PoleApplicationOptions> config, params Assembly[] assemblies)
+        public static IServiceCollection AddPole(this IServiceCollection services, Action<PoleOptions> config)
         {
-            PoleApplicationOptions poleApplicationOptions = new PoleApplicationOptions(services, assemblies);
+            PoleOptions poleOptions = new PoleOptions(services);
 
-            config(poleApplicationOptions);
+            config(poleOptions);
 
             services.AddScoped<ICommandBus, DefaultCommandBus>();
 

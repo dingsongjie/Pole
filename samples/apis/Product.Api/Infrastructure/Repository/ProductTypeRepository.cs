@@ -1,4 +1,5 @@
-﻿using Pole.Domain.UnitOfWork;
+﻿using Pole.Domain.EntityframeworkCore;
+using Pole.Domain.UnitOfWork;
 using Product.Api.Domain.ProductTypeAggregate;
 using System;
 using System.Collections.Generic;
@@ -7,34 +8,10 @@ using System.Threading.Tasks;
 
 namespace Product.Api.Infrastructure.Repository
 {
-    public class ProductTypeRepository : IProductTypeRepository
+    public class ProductTypeRepository : EFCoreRepository<ProductType>, IProductTypeRepository
     {
-        private readonly ProductDbContext _productDbContext;
-
-        public ProductTypeRepository(ProductDbContext productDbContext)
+        public ProductTypeRepository(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _productDbContext = productDbContext;
-        }
-        public IUnitOfWork UnitOfWork => _productDbContext;
-
-        public void Add(ProductType entity)
-        {
-            _productDbContext.ProductTypes.Add(entity);
-        }
-
-        public void Delete(ProductType entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ProductType> Get(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update(ProductType entity)
-        {
-            throw new NotImplementedException();
         }
     }
 }

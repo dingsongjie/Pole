@@ -4,10 +4,11 @@ using System.Text;
 
 namespace Pole.Domain.UnitOfWork
 {
-    public class CompleteResult
+    public class UnitOfWorkResult
     {
-        public static CompleteResult SuccessResult = new CompleteResult(1, "保存成功");
-        public CompleteResult(int status, string message)
+        public static UnitOfWorkResult SuccessResult = new UnitOfWorkResult(1, "保存成功");
+        public static UnitOfWorkResult FaildResult = new UnitOfWorkResult(1, "保存失败");
+        public UnitOfWorkResult(int status, string message)
         {
             Status = status;
             Message = message;

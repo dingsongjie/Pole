@@ -6,14 +6,13 @@ using System.Text;
 
 namespace Pole.Application
 {
-    public class PoleApplicationOptions
+    public class PoleOptions
     {
-        public PoleApplicationOptions(IServiceCollection services, params Assembly [] applicationAssemblies)
+        public PoleOptions(IServiceCollection services)
         {
             Services = services;
-            ApplicationAssemblies = applicationAssemblies;
         }
-        public IServiceCollection Services { get; set; }
+        public IServiceCollection Services { get;private set; }
         public IEnumerable<Assembly> ApplicationAssemblies { get; set; }
 
     }

@@ -9,13 +9,14 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddPoleGrpc(this IServiceCollection services, params Assembly[] assemblies)
-        {
-            PoleGrpcOptions poleGrpcOptions = new PoleGrpcOptions(services, assemblies);
-            poleGrpcOptions.AddPoleApplication();
-            poleGrpcOptions.AddPoleDomain();
-           // poleGrpcOptions.Services.AddGrpcValidation();
-            return services;
-        }
+        //public static IServiceCollection AddPoleGrpc(this IServiceCollection services, params Assembly[] assemblies)
+        //{
+        //   // PoleGrpcOptions poleGrpcOptions = new PoleGrpcOptions(services, assemblies);
+
+        //   //poleGrpcOptions.Services.AddGrpcValidation();
+
+        //   // poleGrpcOptions.Services.addv
+        //    return services;
+        //}
     }
 }

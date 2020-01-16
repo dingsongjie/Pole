@@ -22,9 +22,7 @@ namespace Product.Api
             var optionsBuilder = new DbContextOptionsBuilder<ProductDbContext>()
                 .UseNpgsql(configuration["postgres:main"]);
 
-            return new ProductDbContext(optionsBuilder.Options, new NoMediator());
+            return new ProductDbContext(optionsBuilder.Options);
         }
-
-
     }
 }

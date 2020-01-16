@@ -48,25 +48,25 @@ namespace Product.Api
                 option.AutoInjectionDependency();
                 option.AutoInjectionCommandHandlersAndDomainEventHandlers();
                 option.AddPoleEntityFrameworkCoreDomain();
-            });
 
-            services.AddPoleReliableMessage(option =>
-            {
-                option.AddMasstransitRabbitmq(rabbitoption =>
+                option.AddPoleReliableMessage(option =>
                 {
-                    rabbitoption.RabbitMqHostAddress = Configuration["RabbitmqConfig:HostAddress"];
-                    rabbitoption.RabbitMqHostUserName = Configuration["RabbitmqConfig:HostUserName"];
-                    rabbitoption.RabbitMqHostPassword = Configuration["RabbitmqConfig:HostPassword"];
-                    rabbitoption.QueueNamePrefix = Configuration["ServiceName"];
+                    option.AddMasstransitRabbitmq(rabbitoption =>
+                    {
+                        rabbitoption.RabbitMqHostAddress = Configuration["RabbitmqConfig:HostAddress"];
+                        rabbitoption.RabbitMqHostUserName = Configuration["RabbitmqConfig:HostUserName"];
+                        rabbitoption.RabbitMqHostPassword = Configuration["RabbitmqConfig:HostPassword"];
+                        rabbitoption.QueueNamePrefix = Configuration["ServiceName"];
+                    });
+                    option.AddMongodb(mongodbOption =>
+                    {
+                        mongodbOption.ServiceCollectionName = Configuration["ServiceName"];
+                        mongodbOption.Servers = Configuration.GetSection("MongoConfig:Servers").Get<MongoHost[]>();
+                    });
+                    option.AddEventAssemblies(typeof(Startup).Assembly)
+                          .AddEventHandlerAssemblies(typeof(Startup).Assembly);
+                    option.NetworkInterfaceGatewayAddress = Configuration["ReliableMessageOption:NetworkInterfaceGatewayAddress"];
                 });
-                option.AddMongodb(mongodbOption =>
-                {
-                    mongodbOption.ServiceCollectionName = Configuration["ServiceName"];
-                    mongodbOption.Servers = Configuration.GetSection("MongoConfig:Servers").Get<MongoHost[]>();
-                });
-                option.AddEventAssemblies(typeof(Startup).Assembly)
-                      .AddEventHandlerAssemblies(typeof(Startup).Assembly);
-                option.NetworkInterfaceGatewayAddress = Configuration["ReliableMessageOption:NetworkInterfaceGatewayAddress"];
             });
         }
 

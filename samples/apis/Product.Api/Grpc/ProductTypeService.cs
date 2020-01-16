@@ -4,7 +4,6 @@ using Pole.Application.Command;
 using Pole.Application.Cqrs;
 using Pole.Grpc.ExtraType;
 using PoleSample.Apis.Product;
-using Product.Api.Application.Command;
 using Product.Api.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -22,7 +21,7 @@ namespace Product.Api.Grpc
         }
         public override Task<CommonCommandResponse> Add(AddProductTypeRequest request, ServerCallContext context)
         {
-            var cpmmand = new AddProductTypeCommand { Request = request };
+            var cpmmand = new Command<AddProductTypeRequest, CommonCommandResponse>(request);
             return _commandBus.Send(cpmmand);
         }
     }

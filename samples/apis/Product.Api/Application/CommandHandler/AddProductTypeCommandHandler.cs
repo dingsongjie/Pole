@@ -12,9 +12,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Product.Api.Application.Command.CommandHandler
+namespace Product.Api.Application.CommandHandler
 {
-    public class AddProductTypeCommandHandler : ICommandHandler<AddProductTypeCommand, CommonCommandResponse>
+    public class AddProductTypeCommandHandler : ICommandHandler<Command<AddProductTypeRequest, CommonCommandResponse>, CommonCommandResponse>
     {
         private readonly IProductTypeRepository _productTypeRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
@@ -23,9 +23,9 @@ namespace Product.Api.Application.Command.CommandHandler
             _productTypeRepository = productTypeRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
-        public async Task<CommonCommandResponse> Handle(AddProductTypeCommand request, CancellationToken cancellationToken)
+        public async Task<CommonCommandResponse> Handle(Command<AddProductTypeRequest, CommonCommandResponse> request, CancellationToken cancellationToken)
         {
-            var productType = new Domain.ProductTypeAggregate.ProductType(request.Request.Id, request.Request.Name);
+            var productType = new Domain.ProductTypeAggregate.ProductType(request.Data.Id, request.Data.Name);
 
             
              _productTypeRepository.Add(productType);

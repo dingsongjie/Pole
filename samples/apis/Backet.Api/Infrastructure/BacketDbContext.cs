@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Backet.Api.Domain.AggregatesModel.BacketAggregate;
+using Backet.Api.Infrastructure.EntityConfigurations;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +14,14 @@ namespace Backet.Api.Infrastructure
         {
 
         }
+        public DbSet<Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet> Backets { get; set; }
+        public DbSet<BacketItem> BacketItems { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.ApplyConfiguration(new BacketItemEntityTypeConfiguration());
+            builder.ApplyConfiguration(new BacketEntityTypeConfiguration());
         }
     }
 }

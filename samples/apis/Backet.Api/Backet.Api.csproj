@@ -5,7 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200117082211_Init.cs" />
+    <Compile Remove="Migrations\20200117082211_Init.Designer.cs" />
+    <Compile Remove="Migrations\20200117091659_Set_Backet_BacketItem_IsRequired_false.cs" />
+    <Compile Remove="Migrations\20200117091659_Set_Backet_BacketItem_IsRequired_false.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
   </ItemGroup>
 
@@ -15,10 +26,7 @@
     <ProjectReference Include="..\..\..\src\Pole.Grpc\Pole.Grpc.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Masstransit\Pole.ReliableMessage.Masstransit.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Storage.Mongodb\Pole.ReliableMessage.Storage.Mongodb.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Domain\AggregatesModel\" />
+    <ProjectReference Include="..\..\intergrationEvents\Product.IntegrationEvents\Product.IntegrationEvents.csproj" />
   </ItemGroup>
 
 </Project>

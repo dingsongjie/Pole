@@ -1,7 +1,7 @@
 ﻿using Pole.ReliableMessage.Abstraction;
-using Product.Api.Application.IntergrationEvent;
 using Product.Api.Application.Query.Abstraction;
 using Product.Api.Domain.ProductAggregate;
+using Product.IntegrationEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;

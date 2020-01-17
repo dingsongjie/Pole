@@ -1,8 +1,8 @@
 ﻿using Pole.Application.EventBus;
 using Pole.Domain;
-using Product.Api.Application.IntergrationEvent;
 using Product.Api.Domain.Event;
 using Product.Api.Domain.ProductAggregate;
+using Product.IntegrationEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;

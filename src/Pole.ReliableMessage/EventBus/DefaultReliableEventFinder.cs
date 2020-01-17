@@ -11,10 +11,10 @@ namespace Pole.ReliableMessage.EventBus
     {
         public List<Type> FindAll(IEnumerable<Assembly> assemblies)
         {
-            var eventType = typeof(IReliableEventCallback);
+            var callbackType = typeof(IReliableEventCallback);
 
-            var eventTypes = assemblies.SelectMany(m => m.GetTypes().Where(type => eventType.IsAssignableFrom(type)));
-            return eventTypes.ToList(); ;
+            var callbackTypes = assemblies.SelectMany(m => m.GetTypes().Where(type => callbackType.IsAssignableFrom(type)));
+            return callbackTypes.ToList(); ;
         }
     }
 }

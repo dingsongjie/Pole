@@ -27,5 +27,6 @@
     <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Masstransit\Pole.ReliableMessage.Masstransit.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Storage.Mongodb\Pole.ReliableMessage.Storage.Mongodb.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.ReliableMessage\Pole.ReliableMessage.csproj" />
+    <ProjectReference Include="..\..\intergrationEvents\Product.IntegrationEvents\Product.IntegrationEvents.csproj" />
   </ItemGroup>
 </Project>

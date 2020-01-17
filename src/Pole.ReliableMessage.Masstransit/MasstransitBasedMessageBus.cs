@@ -15,7 +15,7 @@ namespace Pole.ReliableMessage.Masstransit
             _bus = bus;
         }
         private readonly MassTransit.IBus _bus;
-        public Task Publish(object @event,string reliableMessageId, CancellationToken cancellationToken = default(CancellationToken))
+        public Task Publish(object @event, string reliableMessageId, CancellationToken cancellationToken = default)
         {
             var pipe = new AddReliableMessageIdPipe(reliableMessageId);
             return _bus.Publish(@event, pipe, cancellationToken);

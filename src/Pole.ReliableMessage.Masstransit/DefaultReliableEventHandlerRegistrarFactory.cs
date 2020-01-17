@@ -19,13 +19,13 @@ namespace Pole.ReliableMessage.Masstransit
         public MasstransitEventHandlerRegistrar Create(Type eventHnadler)
         {
 
-            if (!eventHnadler.Name.EndsWith("EventHandler"))
+            if (!eventHnadler.Name.EndsWith(_masstransitOptions.EventHandlerNameSuffix))
             {
-                throw new Exception("EventHandler Name Must EndWith EventHandler");
+                throw new Exception($"EventHandler Name Must EndWith {_masstransitOptions.EventHandlerNameSuffix}");
             }
             var reliableEventHandlerParemeterAttribute = eventHnadler.GetCustomAttributes(typeof(ReliableEventHandlerParemeterAttribute), true).FirstOrDefault();
 
-            var eventHandlerName = GetQueueName(reliableEventHandlerParemeterAttribute, eventHnadler, _masstransitOptions.QueueNamePrefix);
+            var eventHandlerName = GetQueueName(reliableEventHandlerParemeterAttribute, eventHnadler, _masstransitOptions.QueueNamePrefix, _masstransitOptions.EventHandlerNameSuffix);
 
             var parentEventHandler = eventHnadler.BaseType;
             var eventType = parentEventHandler.GetGenericArguments().ToList().FirstOrDefault();
@@ -36,9 +36,9 @@ namespace Pole.ReliableMessage.Masstransit
             return eventHandlerRegisterInvoker;
         }
 
-        private string GetQueueName(object reliableEventHandlerParemeterAttribute, Type eventHnadler, string queueNamePrefix)
+        private string GetQueueName(object reliableEventHandlerParemeterAttribute, Type eventHnadler, string queueNamePrefix,string eventHandlerNameSuffix)
         {
-            var eventHandlerDefaultName = $"eventHandler-{ eventHnadler.Name.Replace("EventHandler", "").ToLowerInvariant()}";
+            var eventHandlerDefaultName = $"eventHandler-{ eventHnadler.Name.Replace(eventHandlerNameSuffix, "").ToLowerInvariant()}";
             var eventHandlerName = string.IsNullOrEmpty(queueNamePrefix) ? eventHandlerDefaultName : $"{queueNamePrefix}-{eventHandlerDefaultName}";
 
             if (reliableEventHandlerParemeterAttribute != null)

@@ -1,5 +1,6 @@
 ﻿using Pole.Application.EventBus;
 using Pole.ReliableMessage.Abstraction;
+using Product.Api.Application.IntergrationEvent;
 using System;
 using System.Collections.Generic;
 using System.Linq;

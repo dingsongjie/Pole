@@ -13,6 +13,8 @@ namespace Pole.ReliableMessage.Masstransit
         public string RabbitMqHostUserName { get; set; }
         public string RabbitMqHostPassword { get; set; }
         public string QueueNamePrefix { get; set; } = string.Empty;
+
+        public string EventHandlerNameSuffix = "EventHandler";
         /// <summary>
         /// 2 个并发
         /// </summary>

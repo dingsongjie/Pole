@@ -57,6 +57,7 @@ namespace Product.Api
                         rabbitoption.RabbitMqHostUserName = Configuration["RabbitmqConfig:HostUserName"];
                         rabbitoption.RabbitMqHostPassword = Configuration["RabbitmqConfig:HostPassword"];
                         rabbitoption.QueueNamePrefix = Configuration["ServiceName"];
+                        rabbitoption.EventHandlerNameSuffix = "IntegrationEventHandler";
                     });
                     messageOption.AddMongodb(mongodbOption =>
                     {

@@ -24,16 +24,17 @@ namespace Pole.Application.EventBus
 
         public WorkerStatus WorkerStatus { get; set; }
 
-        public Task Commit(CancellationToken cancellationToken = default)
+        public async Task Commit(CancellationToken cancellationToken = default)
         {
             var events = _reliableMessageScopedBuffer.GetAll();
             try
             {
-                events.ToList().ForEach(async @event =>
-                {
-                    await _reliableBus.Publish(@event.Event, @event.PrePublishEventId, cancellationToken);
-                    @event.IsPublished = true;
-                });
+                var tasks = events.Select(async @event =>
+                  {
+                      await _reliableBus.Publish(@event.Event, @event.PrePublishEventId, cancellationToken);
+                      @event.IsPublished = true;
+                  });
+                await Task.WhenAll(tasks);
             }
             catch (Exception ex)
             {
@@ -41,7 +42,7 @@ namespace Pole.Application.EventBus
                 if (events.Count(@event => @event.IsPublished) > 1)
                 {
                     //这里发布失败 通过预发送后的重试机制去处理, 因为一旦有一个消息发出去后 无法挽回
-                    return Task.FromResult(1);
+                    return;
                 }
                 else
                 {
@@ -50,7 +51,7 @@ namespace Pole.Application.EventBus
                 }
             }
             WorkerStatus = WorkerStatus.Commited;
-            return Task.FromResult(1);
+            return;
         }
 
         public void Dispose()
@@ -63,7 +64,7 @@ namespace Pole.Application.EventBus
             var events = _reliableMessageScopedBuffer.GetAll();
             foreach (var @event in events)
             {
-                @event.PrePublishEventId = await _reliableBus.PrePublish(@event.Event, @event.EventType, @event.PrePublishEventId, cancellationToken);
+                @event.PrePublishEventId = await _reliableBus.PrePublish(@event.Event, @event.EventType, @event.CallbackParemeter, cancellationToken);
             }
             WorkerStatus = WorkerStatus.PreCommited;
         }

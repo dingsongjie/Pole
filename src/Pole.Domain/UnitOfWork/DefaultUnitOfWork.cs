@@ -15,28 +15,30 @@ namespace Pole.Domain.UnitOfWork
         {
             _workers = serviceProvider.GetServices<IWorker>().ToList();
         }
-        public Task Compelete(CancellationToken cancellationToken = default)
+        public async Task Compelete(CancellationToken cancellationToken = default)
         {
-            _workers.OrderBy(worker => worker.Order).ToList().ForEach(async worker =>
+            var preCommitTasks = _workers.OrderBy(worker => worker.Order).Select(async worker =>
             {
                 await worker.PreCommit();
             });
+            await Task.WhenAll(preCommitTasks);
             try
             {
-                _workers.OrderBy(worker => worker.Order).ToList().ForEach(async worker =>
+                var commitTasks = _workers.OrderBy(worker => worker.Order).Select(async worker =>
                 {
                     await worker.Commit();
                 });
+                await Task.WhenAll(commitTasks);
             }
             catch (Exception ex)
             {
-                _workers.OrderBy(worker => worker.Order).Where(worker => worker.WorkerStatus == WorkerStatus.Commited).ToList().ForEach(async worker =>
-                {
-                    await worker.Rollback();
-                });
+                var rollbackTasks = _workers.OrderBy(worker => worker.Order).Where(worker => worker.WorkerStatus == WorkerStatus.Commited).Select(async worker =>
+                 {
+                     await worker.Rollback();
+                 });
+                await Task.WhenAll(rollbackTasks);
                 throw ex;
             }
-            return Task.FromResult(1);
         }
 
         public void Dispose()

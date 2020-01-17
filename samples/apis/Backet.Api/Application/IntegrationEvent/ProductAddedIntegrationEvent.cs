@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Backet.Api.Application.IntegrationEvent
+namespace Product.Api.Application.IntergrationEvent
 {
     public class ProductAddedIntegrationEvent
     {

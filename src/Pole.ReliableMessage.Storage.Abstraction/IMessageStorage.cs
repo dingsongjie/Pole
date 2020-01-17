@@ -26,6 +26,14 @@ namespace Pole.ReliableMessage.Storage.Abstraction
         Task<List<Message>> GetMany(Expression<Func<Message, bool>> filter, int count);
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="messageStatus"></param>
+        /// <param name="endRetryTime"></param>
+        /// <returns></returns>
+        Task<Message> GetOne(Expression<Func<Message, bool>> filter);
+
+        /// <summary>
         /// 批量更新
         /// 更新这几个值   MessageStatusId ,  RetryTimes  LastRetryUTCTime, NextRetryUTCTime 
         /// </summary>

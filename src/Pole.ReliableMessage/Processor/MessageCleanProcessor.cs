@@ -41,7 +41,7 @@ namespace Pole.ReliableMessage.Processor
                 }
                 _logger.LogInformation($"Begin clean message");
 
-                var deletedCount = await _messageStorage.Delete(m => m.MessageStatusId == MessageStatus.Canced.Id || m.MessageStatusId == MessageStatus.Handed.Id);
+                var deletedCount = await _messageStorage.Delete(m => m.MessageStatusId == MessageStatus.Canced.Id || m.MessageStatusId == MessageStatus.Pushed.Id);
 
                 _logger.LogInformation($"End clean message ,delete message count : {deletedCount} , successfully");
             }

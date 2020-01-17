@@ -51,6 +51,10 @@ namespace Pole.ReliableMessage.Storage.Mongodb
 
             var update = Builders<Message>.Update.Set(m => m.MessageStatusId, messageStatus.Id);
             var beforeDoc = await collection.FindOneAndUpdateAsync(filter, update, new FindOneAndUpdateOptions<Message, Message>() { ReturnDocument = ReturnDocument.Before });
+            if (beforeDoc == null)
+            {
+                throw new Exception("IMessageStorage.CheckAndUpdateStatus Error ,Message not found in Storage");
+            }
             if (beforeDoc.MessageStatusId == messageStatus.Id)
             {
                 return false;
@@ -84,7 +88,7 @@ namespace Pole.ReliableMessage.Storage.Mongodb
             var models = new List<WriteModel<Message>>();
             foreach (var message in messages)
             {
-                FilterDefinition<Message> filter = Builders<Message>.Filter.Where(m => m.Id == message.Id && m.MessageStatusId != MessageStatus.Handed.Id);
+                FilterDefinition<Message> filter = Builders<Message>.Filter.Where(m => m.Id == message.Id);
                 UpdateDefinition<Message> update = Builders<Message>.Update
                     .Set(m => m.MessageStatusId, message.MessageStatus.Id)
                     .Set(m => m.RetryTimes, message.RetryTimes)
@@ -115,6 +119,11 @@ namespace Pole.ReliableMessage.Storage.Mongodb
 
             var result = await collection.DeleteManyAsync(filter);
             return result.DeletedCount;
+        }
+
+        public Task<Message> GetOne(Expression<Func<Message, bool>> filter)
+        {
+            throw new NotImplementedException();
         }
     }
 }

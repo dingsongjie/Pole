@@ -26,7 +26,7 @@ namespace Pole.Domain.EntityframeworkCore
             _dbContext.Set<TEntity>().Add(entity);
         }
 
-        public void Delete(TEntity entity)
+        public virtual void Delete(TEntity entity)
         {
             _dbContext.Set<TEntity>().Remove(entity);
         }

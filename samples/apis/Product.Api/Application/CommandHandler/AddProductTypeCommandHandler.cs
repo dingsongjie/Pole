@@ -37,7 +37,7 @@ namespace Product.Api.Application.CommandHandler
             productType.AddDomainEvent(productTypeAddedDomainEvent);
             var result = await _productTypeRepository.SaveEntitiesAsync();
 
-            await _unitOfWork.Compelete();
+            await _unitOfWork.CompeleteAsync();
             return CommonCommandResponse.SuccessResponse;
         }
     }

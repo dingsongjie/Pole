@@ -25,11 +25,15 @@ namespace Product.Api.Application.DomainEventHandler
         {
             Product.Api.Domain.ProductAggregate.Product product = new Product.Api.Domain.ProductAggregate.Product(Guid.NewGuid().ToString("N"), request.ProductTypeName, 100, request.ProductTypeId);
             _productRepository.Add(product);
+            var backId = Guid.NewGuid().ToString("N");
             ProductAddedIntegrationEvent productAddedIntegrationEvent = new ProductAddedIntegrationEvent()
             {
+                BacketId = backId,
                 Price = product.Price,
-                ProductName = product.Name
+                ProductName = product.Name,
+                ProductId = product.Id
             };
+
             await _eventBus.Publish(productAddedIntegrationEvent, product.Id);
             await _productRepository.SaveEntitiesAsync();
         }

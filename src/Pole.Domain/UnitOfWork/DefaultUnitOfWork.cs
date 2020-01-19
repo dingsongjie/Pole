@@ -15,7 +15,7 @@ namespace Pole.Domain.UnitOfWork
         {
             _workers = serviceProvider.GetServices<IWorker>().ToList();
         }
-        public async Task Compelete(CancellationToken cancellationToken = default)
+        public async Task CompeleteAsync(CancellationToken cancellationToken = default)
         {
             var preCommitTasks = _workers.OrderBy(worker => worker.Order).Select(async worker =>
             {

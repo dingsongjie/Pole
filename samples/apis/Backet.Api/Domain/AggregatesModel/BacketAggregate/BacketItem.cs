@@ -9,8 +9,8 @@ namespace Backet.Api.Domain.AggregatesModel.BacketAggregate
     public class BacketItem : Entity
     {
         public string ProductId { get; set; }
-        public string ProductName { get; set; }
-        public long Price { get; set; }
-        public string BacketId { get; set; }
+        public string ProductName { get;  set; }
+        public long Price { get;  set; }
+        public string BacketId { get;  set; }
     }
 }

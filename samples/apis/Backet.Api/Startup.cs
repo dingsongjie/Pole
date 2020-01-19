@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Backet.Api.Infrastructure;
+using GreenPipes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Npgsql;
 using Pole.ReliableMessage.Storage.Mongodb;
 
 namespace Backet.Api
@@ -57,6 +60,21 @@ namespace Backet.Api
                         rabbitoption.RabbitMqHostPassword = Configuration["RabbitmqConfig:HostPassword"];
                         rabbitoption.QueueNamePrefix = Configuration["ServiceName"];
                         rabbitoption.EventHandlerNameSuffix = "IntegrationEventHandler";
+                        rabbitoption.RetryConfigure =
+                            r =>
+                            {
+                                r.Intervals(TimeSpan.FromSeconds(0.1)
+                                       , TimeSpan.FromSeconds(1)
+                                       , TimeSpan.FromSeconds(4)
+                                       , TimeSpan.FromSeconds(16)
+                                       , TimeSpan.FromSeconds(64)
+                                       );
+                                r.Ignore<DbUpdateException>(exception =>
+                                {
+                                    var sqlException = exception.InnerException as PostgresException;
+                                    return sqlException != null && sqlException.SqlState == "23505";
+                                });
+                            };
                     });
                     messageOption.AddMongodb(mongodbOption =>
                     {

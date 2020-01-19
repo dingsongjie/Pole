@@ -14,7 +14,7 @@ namespace Pole.Domain
             {
                 return _id;
             }
-            protected set
+            set
             {
                 _id = value;
             }
@@ -22,7 +22,7 @@ namespace Pole.Domain
         public List<IDomainEvent> DomainEvents { get; private set; }
         public bool IsTransient()
         {
-            return string.IsNullOrEmpty( this._id);
+            return string.IsNullOrEmpty(this._id);
         }
         public override bool Equals(object obj)
         {

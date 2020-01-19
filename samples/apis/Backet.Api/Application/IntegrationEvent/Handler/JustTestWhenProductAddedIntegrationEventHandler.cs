@@ -1,4 +1,6 @@
-﻿using Pole.Application.EventBus;
+﻿using Backet.Api.Domain.AggregatesModel.BacketAggregate;
+using Pole.Application.EventBus;
+using Pole.Domain.UnitOfWork;
 using Pole.ReliableMessage.Abstraction;
 using Product.IntegrationEvents;
 using System;
@@ -10,21 +12,24 @@ namespace Backet.Api.Application.IntegrationEvent.Handler
 {
     public class JustTestWhenProductAddedIntegrationEventHandler : IntegrationEventHandler<ProductAddedIntegrationEvent>
     {
-        public JustTestWhenProductAddedIntegrationEventHandler(IServiceProvider serviceProvider) : base(serviceProvider)
+        private readonly IBacketRepository _backetRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        public JustTestWhenProductAddedIntegrationEventHandler(IServiceProvider serviceProvider, IBacketRepository backetRepository, IUnitOfWork unitOfWork) : base(serviceProvider)
         {
+            _backetRepository = backetRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public override Task Handle(IReliableEventHandlerContext<ProductAddedIntegrationEvent> context)
+        public override async Task Handle(IReliableEventHandlerContext<ProductAddedIntegrationEvent> context)
         {
-            try
-            {
 
-            }
-            catch(Exception ex)
-            {
+            var @event = context.Event;
+            Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet backet = new Domain.AggregatesModel.BacketAggregate.Backet(@event.BacketId, "1");
+            backet.AddBacketItem(@event.ProductId, @event.ProductName, @event.Price);
+            _backetRepository.Add(backet);
+            await _backetRepository.SaveEntitiesAsync();
 
-            }
-            return Task.FromResult(1);
+            await _unitOfWork.CompeleteAsync();
         }
     }
 }

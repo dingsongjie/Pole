@@ -22,10 +22,10 @@ namespace Pole.ReliableMessage.Masstransit
 
         public Action<IRetryConfigurator> RetryConfigure { get; set; } =
         r => r.Intervals(TimeSpan.FromSeconds(0.1)
-                       , TimeSpan.FromSeconds(1)
-                       , TimeSpan.FromSeconds(4)
-                       , TimeSpan.FromSeconds(16)
-                       , TimeSpan.FromSeconds(64)
-                       );
+                     , TimeSpan.FromSeconds(1)
+                     , TimeSpan.FromSeconds(4)
+                     , TimeSpan.FromSeconds(16)
+                     , TimeSpan.FromSeconds(64)
+                     );
     }
 }

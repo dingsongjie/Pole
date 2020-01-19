@@ -7,6 +7,8 @@ namespace Product.IntegrationEvents
 {
     public class ProductAddedIntegrationEvent
     {
+        public string BacketId { get; set; }
+        public string ProductId { get; set; }
         public string ProductName { get; set; }
         public long Price { get; set; }
     }

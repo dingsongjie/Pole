@@ -25,7 +25,7 @@ namespace Product.Api.Application.CommandHandler
         }
         public async Task<CommonCommandResponse> Handle(Command<AddProductTypeRequest, CommonCommandResponse> request, CancellationToken cancellationToken)
         {
-            var productType = new Domain.ProductTypeAggregate.ProductType(request.Data.Id, request.Data.Name);
+            var productType = new Domain.ProductTypeAggregate.ProductType(Guid.NewGuid().ToString("N"), request.Data.Name);
 
             _productTypeRepository.Add(productType);
             ProductTypeAddedDomainEvent productTypeAddedDomainEvent = new ProductTypeAddedDomainEvent

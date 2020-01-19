@@ -2,15 +2,17 @@
 using Backet.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Backet.Api.Migrations
 {
     [DbContext(typeof(BacketDbContext))]
-    partial class BacketDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200119013821_Remove_BacketItem_FK_Constraint")]
+    partial class Remove_BacketItem_FK_Constraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,8 +78,7 @@ namespace Backet.Api.Migrations
                     b.HasOne("Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet", null)
                         .WithMany("BacketItems")
                         .HasForeignKey("BacketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

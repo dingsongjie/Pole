@@ -2,15 +2,17 @@
 using Backet.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Backet.Api.Migrations
 {
     [DbContext(typeof(BacketDbContext))]
-    partial class BacketDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200119020249_Update_BacketItem_FK_Constraint")]
+    partial class Update_BacketItem_FK_Constraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

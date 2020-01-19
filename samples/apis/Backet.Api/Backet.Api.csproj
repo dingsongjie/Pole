@@ -9,6 +9,12 @@
     <Compile Remove="Migrations\20200117082211_Init.Designer.cs" />
     <Compile Remove="Migrations\20200117091659_Set_Backet_BacketItem_IsRequired_false.cs" />
     <Compile Remove="Migrations\20200117091659_Set_Backet_BacketItem_IsRequired_false.Designer.cs" />
+    <Compile Remove="Migrations\20200119012712_Remove_BacketItem_FK_Constraint.cs" />
+    <Compile Remove="Migrations\20200119012712_Remove_BacketItem_FK_Constraint.Designer.cs" />
+    <Compile Remove="Migrations\20200119013717_Remove_BacketItem_FK_Constraint.cs" />
+    <Compile Remove="Migrations\20200119013717_Remove_BacketItem_FK_Constraint.Designer.cs" />
+    <Compile Remove="Migrations\20200119020005_Update_BacketItem_FK_Constraint.cs" />
+    <Compile Remove="Migrations\20200119020005_Update_BacketItem_FK_Constraint.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

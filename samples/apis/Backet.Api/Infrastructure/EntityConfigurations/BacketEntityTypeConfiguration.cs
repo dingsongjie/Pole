@@ -15,7 +15,7 @@ namespace Backet.Api.Infrastructure.EntityConfigurations
 
             builder.Property(m => m.Id).HasMaxLength(32);
             builder.Property(m => m.UserId).HasMaxLength(32).IsRequired();
-            builder.HasMany(m => m.BacketItems).WithOne();
+            builder.HasMany(m => m.BacketItems).WithOne().IsRequired().OnDelete(DeleteBehavior.Cascade).HasForeignKey("BacketId");
 
             builder.Ignore(m => m.DomainEvents);
 

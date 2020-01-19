@@ -17,6 +17,7 @@ namespace Backet.Api.Infrastructure.EntityConfigurations
             builder.Property(m => m.Id).HasMaxLength(32);
             builder.Property(m => m.ProductId).HasMaxLength(32);
             builder.Property(m => m.ProductName).HasMaxLength(256).IsRequired();
+            builder.Property(m => m.BacketId).HasMaxLength(32).IsRequired();
 
             builder.Ignore(m => m.DomainEvents);
 

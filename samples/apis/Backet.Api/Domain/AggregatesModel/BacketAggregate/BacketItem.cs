@@ -11,5 +11,6 @@ namespace Backet.Api.Domain.AggregatesModel.BacketAggregate
         public string ProductId { get; set; }
         public string ProductName { get; set; }
         public long Price { get; set; }
+        public string BacketId { get; set; }
     }
 }

@@ -9,7 +9,6 @@ namespace Pole.Application.EventBus
         public object Event { get;private set; }
         public object CallbackParemeter { get; private set; }
         public string PrePublishEventId { get; set; }
-        public bool IsPublished { get; set; }
         public Type EventType { get;private set; }
         public EventEntry(object @event,object callbackParemeter, Type eventType)
         {

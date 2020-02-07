@@ -25,8 +25,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.ReliableMessage", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.ReliableMessage.Masstransit", "src\Pole.ReliableMessage.Masstransit\Pole.ReliableMessage.Masstransit.csproj", "{051BECA5-5E65-4FCB-9B7F-C9E64809E218}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.ReliableMessage.Dashboard", "src\Pole.ReliableMessage.Dashboard\Pole.ReliableMessage.Dashboard.csproj", "{9EF13D70-C3AF-471A-8AA6-603338B194B7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.ReliableMessage.Storage.Abstraction", "src\Pole.ReliableMessage.Storage.Abstraction\Pole.ReliableMessage.Storage.Abstraction.csproj", "{3D92F460-350B-4614-A6F6-C00A2D0FA9E2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.ReliableMessage.Storage.Mongodb", "src\Pole.ReliableMessage.Storage.Mongodb\Pole.ReliableMessage.Storage.Mongodb.csproj", "{793C73C6-93DE-4A56-B979-137914B247F2}"
@@ -45,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "User.Api", "samples\apis\Us
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integrationEvents", "integrationEvents", "{74422E64-29FE-4287-A86E-741D1DFF6698}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Product.IntegrationEvents", "samples\intergrationEvents\Product.IntegrationEvents\Product.IntegrationEvents.csproj", "{9C0DFC90-1AF9-424A-B5FB-2A7C3611970C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Product.IntegrationEvents", "samples\intergrationEvents\Product.IntegrationEvents\Product.IntegrationEvents.csproj", "{9C0DFC90-1AF9-424A-B5FB-2A7C3611970C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,10 +79,6 @@ Global
 		{051BECA5-5E65-4FCB-9B7F-C9E64809E218}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{051BECA5-5E65-4FCB-9B7F-C9E64809E218}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{051BECA5-5E65-4FCB-9B7F-C9E64809E218}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9EF13D70-C3AF-471A-8AA6-603338B194B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9EF13D70-C3AF-471A-8AA6-603338B194B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9EF13D70-C3AF-471A-8AA6-603338B194B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9EF13D70-C3AF-471A-8AA6-603338B194B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3D92F460-350B-4614-A6F6-C00A2D0FA9E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3D92F460-350B-4614-A6F6-C00A2D0FA9E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D92F460-350B-4614-A6F6-C00A2D0FA9E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -130,7 +124,6 @@ Global
 		{475116FC-DEEC-4255-94E4-AE7B8C85038D} = {4A0FB696-EC29-4A5F-B40B-A6FC56001ADB}
 		{699C75AB-4814-4E16-A3F3-9735C4C609FE} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{051BECA5-5E65-4FCB-9B7F-C9E64809E218} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
-		{9EF13D70-C3AF-471A-8AA6-603338B194B7} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{3D92F460-350B-4614-A6F6-C00A2D0FA9E2} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{793C73C6-93DE-4A56-B979-137914B247F2} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{805CF4F7-CCDC-4390-A92B-55E0FFA7F659} = {9932C965-8B38-4F70-9E43-86DC56860E2B}

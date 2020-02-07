@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ray.Core.Exceptions
+namespace Pole.Core.Exceptions
 {
     public class EventBusRepeatBindingProducerException : Exception
     {

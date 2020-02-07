@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Orleans;
 
-namespace Ray.Core.Services
+namespace Pole.Core.Services
 {
     public interface ILock : IGrainWithStringKey
     {

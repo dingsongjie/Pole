@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ProducerAttribute : Attribute

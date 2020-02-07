@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class RabbitMQClient : IRabbitMQClient
     {
@@ -17,7 +17,7 @@ namespace Ray.EventBus.RabbitMQ
                 UserName = options.UserName,
                 Password = options.Password,
                 VirtualHost = options.VirtualHost,
-                AutomaticRecoveryEnabled = false
+                AutomaticRecoveryEnabled = true
             };
             pool = new DefaultObjectPool<ModelWrapper>(new ModelPooledObjectPolicy(connectionFactory, options));
         }

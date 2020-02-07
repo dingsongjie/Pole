@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Ray.Core.Utils
+namespace Pole.Core.Utils
 {
     public class ConsistentHash
     {
@@ -72,7 +72,7 @@ namespace Ray.Core.Utils
         }
         //return the index of first item that >= val.
         //if not exist, return 0;
-        //ay should be ordered array.
+        //ay should be ordered arPole.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int First_ge(int[] ay, int val)
         {

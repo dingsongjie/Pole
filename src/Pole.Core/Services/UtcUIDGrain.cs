@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ray.Core.Services
+namespace Pole.Core.Services
 {
     [Reentrant]
     public class UtcUIDGrain : Grain, IUtcUID

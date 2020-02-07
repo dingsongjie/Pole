@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Ray.Core.Observer
+namespace Pole.Core.Observer
 {
     public interface IVersion
     {

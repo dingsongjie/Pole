@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Ray.Core.EventBus;
+using Pole.Core.EventBus;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class RabbitConsumer : Consumer
     {

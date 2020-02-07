@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Ray.Core.Abstractions
+namespace Pole.Core.Abstractions
 {
     public interface IObserverUnit<PrimaryKey> : IGrainID
     {

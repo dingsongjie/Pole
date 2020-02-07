@@ -1,12 +1,12 @@
-﻿using Ray.Core.Abstractions;
-using Ray.Core.Exceptions;
-using Ray.Core.Utils;
+﻿using Pole.Core.Abstractions;
+using Pole.Core.Exceptions;
+using Pole.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class RabbitEventBus
     {

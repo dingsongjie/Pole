@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ray.Core.Abstractions
+namespace Pole.Core.Abstractions
 {
     public interface IGrainID
     {

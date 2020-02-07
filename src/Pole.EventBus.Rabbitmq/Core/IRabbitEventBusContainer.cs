@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Ray.Core.EventBus;
+using Pole.Core.EventBus;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public interface IRabbitEventBusContainer : IConsumerContainer
     {

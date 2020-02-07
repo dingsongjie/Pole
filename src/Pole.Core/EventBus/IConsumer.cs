@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Ray.Core.EventBus
+namespace Pole.Core.EventBus
 {
     public interface IConsumer
     {

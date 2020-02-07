@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class ConnectionWrapper
     {
@@ -22,7 +22,7 @@ namespace Ray.EventBus.RabbitMQ
             semaphoreSlim.Wait();
             try
             {
-                if (models.Count < Options.PoolSizePerConnection)
+                if (models.Count < Options.MasChannelsPerConnection)
                 {
                     var model = new ModelWrapper(this, connection.CreateModel());
                     models.Add(model);

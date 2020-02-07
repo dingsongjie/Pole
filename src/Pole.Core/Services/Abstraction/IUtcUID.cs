@@ -2,7 +2,7 @@
 using Orleans.Concurrency;
 using System.Threading.Tasks;
 
-namespace Ray.Core.Services
+namespace Pole.Core.Services
 {
     public interface IUtcUID : IGrainWithStringKey
     {

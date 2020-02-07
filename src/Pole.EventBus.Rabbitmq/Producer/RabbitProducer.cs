@@ -1,8 +1,9 @@
-﻿using Ray.Core;
-using Ray.Core.EventBus;
+﻿using Pole.Core;
+using Pole.Core;
+using Pole.Core.EventBus;
 using System.Threading.Tasks;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class RabbitProducer : IProducer
     {

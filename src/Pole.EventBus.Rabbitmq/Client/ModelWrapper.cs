@@ -2,7 +2,7 @@
 using RabbitMQ.Client;
 using System;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class ModelWrapper : IDisposable
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ray.Core.Observer
+namespace Pole.Core.Observer
 {
     /// <summary>
     /// 标记为观察者

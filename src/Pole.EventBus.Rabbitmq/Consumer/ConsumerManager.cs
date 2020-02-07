@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans;
-using Ray.Core.Services;
+using Pole.Core.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class ConsumerManager : IHostedService, IDisposable
     {

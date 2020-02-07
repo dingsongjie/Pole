@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Ray.Core.Utils
+namespace Pole.Core.Utils
 {
     public class AssemblyHelper
     {

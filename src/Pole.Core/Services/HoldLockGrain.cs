@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Orleans;
 
-namespace Ray.Core.Services
+namespace Pole.Core.Services
 {
     public class HoldLockGrain : Grain, IHoldLock
     {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Ray.Core.Utils
+namespace Pole.Core.Utils
 {
     public class MurmurHash2
     {

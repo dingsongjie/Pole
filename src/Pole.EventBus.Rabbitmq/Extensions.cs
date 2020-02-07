@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Ray.Core;
-using Ray.Core.EventBus;
+using Pole.Core;
+using Pole.Core.EventBus;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public static class Extensions
     {

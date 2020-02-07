@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class EventBusRepeatException : Exception
     {

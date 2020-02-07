@@ -2,7 +2,7 @@
 using System.IO;
 using System.Buffers;
 
-namespace Ray.Core.Utils
+namespace Pole.Core.Utils
 {
     public class PooledMemoryStream : Stream
     {

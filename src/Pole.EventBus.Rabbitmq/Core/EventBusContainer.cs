@@ -2,16 +2,16 @@
 using Microsoft.Extensions.Logging;
 using Orleans;
 using RabbitMQ.Client;
-using Ray.Core.Abstractions;
-using Ray.Core.EventBus;
-using Ray.Core.Exceptions;
-using Ray.Core.Utils;
+using Pole.Core.Abstractions;
+using Pole.Core.EventBus;
+using Pole.Core.Exceptions;
+using Pole.Core.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Ray.EventBus.RabbitMQ
+namespace Pole.EventBus.RabbitMQ
 {
     public class EventBusContainer : IRabbitEventBusContainer, IProducerContainer
     {

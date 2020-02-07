@@ -17,4 +17,11 @@
     <ProjectReference Include="..\Pole.Core\Pole.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Core\Attributes\" />
+    <Folder Include="Core\Client\" />
+    <Folder Include="Core\Configuration\" />
+    <Folder Include="Core\Consumer\" />
+  </ItemGroup>
+
 </Project>

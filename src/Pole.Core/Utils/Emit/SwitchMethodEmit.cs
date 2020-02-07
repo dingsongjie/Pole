@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Ray.Core.Utils.Emit
+namespace Pole.Core.Utils.Emit
 {
     /// <summary>
     /// 用来生成模式匹配方法调用的方法信息

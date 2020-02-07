@@ -1,4 +1,4 @@
-﻿namespace Ray.EventBus.RabbitMQ
+﻿namespace Pole.EventBus.RabbitMQ
 {
     /// <summary>
     /// Consumer配置信息

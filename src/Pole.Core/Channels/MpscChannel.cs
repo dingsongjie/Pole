@@ -7,7 +7,7 @@ using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Ray.Core.Channels
+namespace Pole.Core.Channels
 {
     /// <summary>
     /// multi producter single consumer channel

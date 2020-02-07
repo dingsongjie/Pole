@@ -2,7 +2,7 @@
 using Orleans;
 
 
-namespace Ray.Core.Services
+namespace Pole.Core.Services
 {
     public interface IWeightHoldLock : IGrainWithStringKey
     {

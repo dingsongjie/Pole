@@ -2,7 +2,7 @@
 using Orleans;
 using Orleans.Concurrency;
 
-namespace Ray.Core.Services
+namespace Pole.Core.Services
 {
     public interface ILocalUID : IGrainWithStringKey
     {

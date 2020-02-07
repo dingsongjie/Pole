@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Ray.Core.Channels
+namespace Pole.Core.Channels
 {
     public interface IMpscChannel<T> : IBaseMpscChannel
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Ray.Core.EventBus
+namespace Pole.Core.EventBus
 {
     public interface IConsumerContainer
     {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Orleans;
 using Orleans.Concurrency;
 
-namespace Ray.Core.Services
+namespace Pole.Core.Services
 {
     [Reentrant]
     public class LockGrain : Grain, ILock

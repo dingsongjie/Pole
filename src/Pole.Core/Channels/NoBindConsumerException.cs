@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ray.Core.Channels
+namespace Pole.Core.Channels
 {
     public class NoBindConsumerException : Exception
     {

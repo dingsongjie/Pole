@@ -42,8 +42,10 @@ namespace Pole.EventBus.RabbitMQ
             {
                 isFirst = false;
                 Model.Model.ExchangeDeclare(Consumer.EventBus.Exchange, "direct", true);
+                Model.Model.ExchangeDeclare(Queue.Queue, "direct", true);
+                Model.Model.ExchangeBind(Consumer.EventBus.Exchange, Queue.Queue,string.Empty);
                 Model.Model.QueueDeclare(Queue.Queue, true, false, false, null);
-                Model.Model.QueueBind(Queue.Queue, Consumer.EventBus.Exchange, Queue.RoutingKey);
+                Model.Model.QueueBind(Queue.Queue, Queue.Queue, string.Empty);
             }
             Model.Model.BasicQos(0, Model.Connection.Options.CunsumerMaxBatchSize, false);
             BasicConsumer = new EventingBasicConsumer(Model.Model);

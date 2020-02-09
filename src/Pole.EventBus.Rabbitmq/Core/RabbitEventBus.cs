@@ -10,7 +10,6 @@ namespace Pole.EventBus.RabbitMQ
 {
     public class RabbitEventBus
     {
-        private readonly ConsistentHash _CHash;
         readonly IObserverUnitContainer observerUnitContainer;
         public RabbitEventBus(
             IObserverUnitContainer observerUnitContainer,
@@ -34,8 +33,6 @@ namespace Pole.EventBus.RabbitMQ
                 AutoAck = autoAck,
                 Reenqueue = reenqueue,
             };
-            RouteList = new List<string>() { $"{routePrefix }" };
-            _CHash = new ConsistentHash(RouteList, lBCount * 10);
         }
         public IRabbitEventBusContainer Container { get; }
         public string Exchange { get; }
@@ -52,7 +49,7 @@ namespace Pole.EventBus.RabbitMQ
         public List<RabbitConsumer> Consumers { get; set; } = new List<RabbitConsumer>();
         public string GetRoute(string key)
         {
-            return LBCount == 1 ? RoutePrefix : _CHash.GetNode(key); ;
+            return RoutePrefix;
         }
         public RabbitEventBus BindEvent(Type eventType, string eventName)
         {
@@ -66,32 +63,16 @@ namespace Pole.EventBus.RabbitMQ
             foreach (var observerUnit in observerUnits)
             {
                 var consumer = new RabbitConsumer(
-                    observerUnit.GetEventHandlers(),
-                    observerUnit.GetBatchEventHandlers())
+                    observerUnit.GetEventHandler(),
+                    observerUnit.GetBatchEventHandler())
                 {
                     EventBus = this,
-                    QueueList = RouteList.Select(route => new QueueInfo { RoutingKey = "", Queue = $"{route}_{EventName}" }).ToList(),
+                    QueueInfo = new QueueInfo { RoutingKey = RoutePrefix, Queue = $"{RoutePrefix}_{observerUnit}" },
                     Config = ConsumerConfig
                 };
                 Consumers.Add(consumer);
             }
             return Enable();
-        }
-        public RabbitEventBus AddConsumer(
-            Func<byte[], Task> handler,
-            Func<List<byte[]>, Task> batchHandler,
-            string observerGroup)
-        {
-            var consumer = new RabbitConsumer(
-                new List<Func<byte[], Task>> { handler },
-                new List<Func<List<byte[]>, Task>> { batchHandler })
-            {
-                EventBus = this,
-                QueueList = RouteList.Select(route => new QueueInfo { RoutingKey = route, Queue = $"{route}_{observerGroup}" }).ToList(),
-                Config = ConsumerConfig
-            };
-            Consumers.Add(consumer);
-            return this;
         }
         public Task Enable()
         {

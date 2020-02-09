@@ -9,7 +9,10 @@ namespace Pole.EventBus.RabbitMQ
         public string Password { get; set; }
         public string VirtualHost { get; set; }
         public int MasChannelsPerConnection { get; set; } = 200;
-        public int MaxConnection { get; set; } = 20;
+        /// <summary>
+        /// 目前为一个连接 当消息数量非常大时,单个TCP连接的运输能力有限,可以修改这个最大连接数提高运输能力
+        /// </summary>
+        public int MaxConnection { get; set; } = 1;
         /// <summary>
         /// 消费者批量处理每次处理的最大消息量
         /// </summary>

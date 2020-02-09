@@ -22,8 +22,8 @@ namespace Pole.Core.EventBus
         readonly ISerializer serializer;
         readonly ITypeFinder typeFinder;
         readonly IClusterClient clusterClient;
-        readonly List<Func<byte[], Task>> eventHandlers = new List<Func<byte[], Task>>();
-        readonly List<Func<List<byte[]>, Task>> batchEventHandlers = new List<Func<List<byte[]>, Task>>();
+        Func<byte[], Task> eventHandler;
+        Func<List<byte[]>, Task> batchEventHandler;
         protected ILogger Logger { get; private set; }
         public Type GrainType { get; }
 
@@ -41,21 +41,21 @@ namespace Pole.Core.EventBus
             return new ObserverUnit<PrimaryKey>(serviceProvider, typeof(Grain));
         }
 
-        public List<Func<byte[], Task>> GetEventHandlers()
+        public Func<byte[], Task> GetEventHandler()
         {
-            return eventHandlers;
+            return eventHandler;
         }
 
-        public List<Func<List<byte[]>, Task>> GetBatchEventHandlers()
+        public Func<List<byte[]>, Task> GetBatchEventHandler()
         {
-            return batchEventHandlers;
+            return batchEventHandler;
         }
         public ObserverUnit<PrimaryKey> UnreliableObserver(
             Func<IServiceProvider,
             FullyEvent<PrimaryKey>, ValueTask> handler)
         {
-            GetEventHandlers().Add(EventHandler);
-            GetBatchEventHandlers().Add(BatchEventHandler);
+            eventHandler = EventHandler;
+            batchEventHandler = BatchEventHandler;
             return this;
             //内部函数
             Task EventHandler(byte[] bytes)
@@ -111,8 +111,8 @@ namespace Pole.Core.EventBus
         {
             if (!typeof(PoleEventHandlerBase).IsAssignableFrom(observerType))
                 throw new NotSupportedException($"{observerType.FullName} must inheritance from PoleEventHandler");
-            GetEventHandlers().Add(EventHandler);
-            GetBatchEventHandlers().Add(BatchEventHandler);
+            eventHandler = EventHandler;
+            batchEventHandler = BatchEventHandler;
             //内部函数
             Task EventHandler(byte[] bytes)
             {

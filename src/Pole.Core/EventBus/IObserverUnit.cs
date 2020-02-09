@@ -6,7 +6,7 @@ namespace Pole.Core.EventBus
 {
     public interface IObserverUnit<PrimaryKey> : IGrainID
     {
-        List<Func<byte[], Task>> GetEventHandlers();
-        List<Func<List<byte[]>, Task>> GetBatchEventHandlers();
+        Func<byte[], Task> GetEventHandler();
+        Func<List<byte[]>, Task> GetBatchEventHandler();
     }
 }

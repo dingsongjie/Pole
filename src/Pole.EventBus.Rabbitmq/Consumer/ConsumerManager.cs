@@ -43,48 +43,20 @@ namespace Pole.EventBus.RabbitMQ
         int distributedMonitorTimeLock = 0;
         int distributedHoldTimerLock = 0;
         int heathCheckTimerLock = 0;
-        private async Task DistributedStart()
+        private async Task Start()
         {
-            try
+            var consumers = rabbitEventBusContainer.GetConsumers();
+            foreach (var consumer in consumers)
             {
-                if (Interlocked.CompareExchange(ref distributedMonitorTimeLock, 1, 0) == 0)
+                if (consumer is RabbitConsumer value)
                 {
-                    var consumers = rabbitEventBusContainer.GetConsumers();
-                    foreach (var consumer in consumers)
-                    {
-                        if (consumer is RabbitConsumer value)
-                        {
-                            for (int i = 0; i < value.QueueList.Count(); i++)
-                            {
-                                var queue = value.QueueList[i];
-                                var key = queue.ToString();
-                                if (!Runners.ContainsKey(key))
-                                {
-                                    var weight = 100000 - Runners.Count;
-                                    var (isOk, lockId, expectMillisecondDelay) = await grainFactory.GetGrain<IWeightHoldLock>(key).Lock(weight, lockHoldingSeconds);
-                                    if (isOk)
-                                    {
-                                        if (Runners.TryAdd(key, lockId))
-                                        {
-                                            var runner = new ConsumerRunner(client, provider, value, queue);
-                                            ConsumerRunners.TryAdd(key, runner);
-                                            await runner.Run();
-                                        }
+                    var queue = value.QueueInfo;
+                    var key = queue.Queue;
 
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    Interlocked.Exchange(ref distributedMonitorTimeLock, 0);
-                    if (logger.IsEnabled(LogLevel.Information))
-                        logger.LogInformation("EventBus Background Service is working.");
+                    var runner = new ConsumerRunner(client, provider, value, queue);
+                    ConsumerRunners.TryAdd(key, runner);
+                    await runner.Run();
                 }
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception.InnerException ?? exception, nameof(DistributedStart));
-                Interlocked.Exchange(ref distributedMonitorTimeLock, 0);
             }
         }
         private async Task DistributedHold()
@@ -141,7 +113,7 @@ namespace Pole.EventBus.RabbitMQ
         {
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformation("EventBus Background Service is starting.");
-            DistributedMonitorTime = new Timer(state => DistributedStart().Wait(), null, 1000, _MonitTime);
+            DistributedMonitorTime = new Timer(state => Start().Wait(), null, 1000, _MonitTime);
             DistributedHoldTimer = new Timer(state => DistributedHold().Wait(), null, _HoldTime, _HoldTime);
             HeathCheckTimer = new Timer(state => { HeathCheck().Wait(); }, null, _checkTime, _checkTime);
             return Task.CompletedTask;

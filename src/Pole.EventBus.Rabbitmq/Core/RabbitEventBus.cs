@@ -1,4 +1,4 @@
-﻿using Pole.Core.Abstractions;
+﻿using Pole.Core.EventBus;
 using Pole.Core.Exceptions;
 using Pole.Core.Utils;
 using System;
@@ -34,18 +34,7 @@ namespace Pole.EventBus.RabbitMQ
                 AutoAck = autoAck,
                 Reenqueue = reenqueue,
             };
-            RouteList = new List<string>();
-            if (LBCount == 1)
-            {
-                RouteList.Add(routePrefix);
-            }
-            else
-            {
-                for (int i = 0; i < LBCount; i++)
-                {
-                    RouteList.Add($"{routePrefix }_{ i.ToString()}");
-                }
-            }
+            RouteList = new List<string>() { $"{routePrefix }" };
             _CHash = new ConsistentHash(RouteList, lBCount * 10);
         }
         public IRabbitEventBusContainer Container { get; }
@@ -54,7 +43,8 @@ namespace Pole.EventBus.RabbitMQ
         public int LBCount { get; }
         public ConsumerOptions ConsumerConfig { get; set; }
         public List<string> RouteList { get; }
-        public Type ProducerType { get; set; }
+        public Type Event { get; set; }
+        public string EventName { get; set; }
         /// <summary>
         /// 消息是否持久化
         /// </summary>
@@ -64,31 +54,28 @@ namespace Pole.EventBus.RabbitMQ
         {
             return LBCount == 1 ? RoutePrefix : _CHash.GetNode(key); ;
         }
-        public RabbitEventBus BindProducer<TGrain>()
+        public RabbitEventBus BindEvent(Type eventType, string eventName)
         {
-            return BindProducer(typeof(TGrain));
-        }
-        public RabbitEventBus BindProducer(Type grainType)
-        {
-            if (ProducerType == null)
-                ProducerType = grainType;
-            else
-                throw new EventBusRepeatBindingProducerException(grainType.FullName);
+            Event = eventType;
+            EventName = eventName;
             return this;
         }
-        public RabbitEventBus AddGrainConsumer<PrimaryKey>(string observerGroup)
+        public Task AddGrainConsumer<PrimaryKey>()
         {
-            var observerUnit = observerUnitContainer.GetUnit<PrimaryKey>(ProducerType);
-            var consumer = new RabbitConsumer(
-                observerUnit.GetEventHandlers(observerGroup),
-                observerUnit.GetBatchEventHandlers(observerGroup))
+            var observerUnits = observerUnitContainer.GetUnits<PrimaryKey>(EventName);
+            foreach (var observerUnit in observerUnits)
             {
-                EventBus = this,
-                QueueList = RouteList.Select(route => new QueueInfo { RoutingKey = route, Queue = $"{route}_{observerGroup}" }).ToList(),
-                Config = ConsumerConfig
-            };
-            Consumers.Add(consumer);
-            return this;
+                var consumer = new RabbitConsumer(
+                    observerUnit.GetEventHandlers(),
+                    observerUnit.GetBatchEventHandlers())
+                {
+                    EventBus = this,
+                    QueueList = RouteList.Select(route => new QueueInfo { RoutingKey = "", Queue = $"{route}_{EventName}" }).ToList(),
+                    Config = ConsumerConfig
+                };
+                Consumers.Add(consumer);
+            }
+            return Enable();
         }
         public RabbitEventBus AddConsumer(
             Func<byte[], Task> handler,
@@ -109,14 +96,6 @@ namespace Pole.EventBus.RabbitMQ
         public Task Enable()
         {
             return Container.Work(this);
-        }
-        public Task AddGrainConsumer<PrimaryKey>()
-        {
-            foreach (var group in observerUnitContainer.GetUnit<PrimaryKey>(ProducerType).GetGroups())
-            {
-                AddGrainConsumer<PrimaryKey>(group);
-            };
-            return Enable();
         }
     }
 }

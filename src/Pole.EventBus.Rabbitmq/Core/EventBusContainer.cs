@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Orleans;
 using RabbitMQ.Client;
-using Pole.Core.Abstractions;
 using Pole.Core.EventBus;
 using Pole.Core.Exceptions;
 using Pole.Core.Utils;
@@ -10,6 +9,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Pole.Core.EventBus.Event;
+using Pole.Core.EventBus.EventHandler;
+using Microsoft.Extensions.Options;
 
 namespace Pole.EventBus.RabbitMQ
 {
@@ -20,58 +22,45 @@ namespace Pole.EventBus.RabbitMQ
         readonly IRabbitMQClient rabbitMQClient;
         readonly IServiceProvider serviceProvider;
         private readonly IObserverUnitContainer observerUnitContainer;
+        private readonly RabbitOptions rabbitOptions;
         public EventBusContainer(
             IServiceProvider serviceProvider,
             IObserverUnitContainer observerUnitContainer,
-            IRabbitMQClient rabbitMQClient)
+            IRabbitMQClient rabbitMQClient,
+            IOptions<RabbitOptions> rabbitOptions)
         {
             this.serviceProvider = serviceProvider;
             this.rabbitMQClient = rabbitMQClient;
             this.observerUnitContainer = observerUnitContainer;
+            this.rabbitOptions = rabbitOptions.Value;
         }
         public async Task AutoRegister()
         {
             var observableList = new List<(Type type, ProducerAttribute config)>();
-            foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
+            var eventList = new List<(Type type, EventAttribute config)>();
+            var evenHandlertList = new List<(Type type, EventHandlerAttribute config)>();
+            AddEventAndEventHandlerInfoList(eventList, evenHandlertList);
+            foreach (var (type, config) in eventList)
             {
-                foreach (var type in assembly.GetTypes())
-                {
-                    foreach (var attribute in type.GetCustomAttributes(false))
-                    {
-                        if (attribute is ProducerAttribute config)
-                        {
-                            observableList.Add((type, config));
-                            break;
-                        }
-                    }
-                }
+                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name : config.EventName;
+                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 2, true, true, true).BindEvent(type, eventName);
+                await eventBus.AddGrainConsumer<string>();
             }
-            foreach (var (type, config) in observableList)
+            foreach (var (type, config) in evenHandlertList)
             {
-                var eventBus = CreateEventBus(string.IsNullOrEmpty(config.Exchange) ? type.Name : config.Exchange, string.IsNullOrEmpty(config.RoutePrefix) ? type.Name : config.RoutePrefix, config.LBCount, config.AutoAck, config.Reenqueue, config.Persistent).BindProducer(type);
-                if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
-                {
-                    await eventBus.AddGrainConsumer<long>();
-                }
-                else if (typeof(IGrainWithStringKey).IsAssignableFrom(type))
-                {
-                    await eventBus.AddGrainConsumer<string>();
-                }
-                else
-                    throw new PrimaryKeyTypeException(type.FullName);
+                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name : config.EventName;
+                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 2, true, true, true).BindEvent(type, eventName);
+                await eventBus.AddGrainConsumer<string>();
             }
         }
-        public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool autoAck = false, bool reenqueue = false, bool persistent = false)
+
+        public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool autoAck = true, bool reenqueue = true, bool persistent = true)
         {
             return new RabbitEventBus(observerUnitContainer, this, exchange, routePrefix, lBCount, autoAck, reenqueue, persistent);
         }
-        public RabbitEventBus CreateEventBus<MainGrain>(string exchange, string routePrefix, int lBCount = 1, bool autoAck = false, bool reenqueue = false, bool persistent = false)
-        {
-            return CreateEventBus(exchange, routePrefix, lBCount, autoAck, reenqueue, persistent).BindProducer<MainGrain>();
-        }
         public Task Work(RabbitEventBus bus)
         {
-            if (eventBusDictionary.TryAdd(bus.ProducerType, bus))
+            if (eventBusDictionary.TryAdd(bus.Event, bus))
             {
                 eventBusList.Add(bus);
                 using var channel = rabbitMQClient.PullModel();
@@ -79,7 +68,7 @@ namespace Pole.EventBus.RabbitMQ
                 return Task.CompletedTask;
             }
             else
-                throw new EventBusRepeatException(bus.ProducerType.FullName);
+                throw new EventBusRepeatException(bus.Event.FullName);
         }
 
         readonly ConcurrentDictionary<Type, IProducer> producerDict = new ConcurrentDictionary<Type, IProducer>();
@@ -110,5 +99,40 @@ namespace Pole.EventBus.RabbitMQ
             }
             return result;
         }
+
+
+        #region helpers
+        private void AddEventAndEventHandlerInfoList(List<(Type type, EventAttribute config)> eventList, List<(Type type, EventHandlerAttribute config)> evenHandlertList)
+        {
+            foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    foreach (var attribute in type.GetCustomAttributes(false))
+                    {
+                        if (attribute is EventAttribute config)
+                        {
+                            eventList.Add((type, config));
+                            break;
+                        }
+                    }
+                }
+            }
+            foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    foreach (var attribute in type.GetCustomAttributes(false))
+                    {
+                        if (attribute is EventHandlerAttribute config)
+                        {
+                            evenHandlertList.Add((type, config));
+                            break;
+                        }
+                    }
+                }
+            }
+        } 
+        #endregion
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pole.Core.Abstractions
+namespace Pole.Core.EventBus
 {
     public interface IGrainID
     {

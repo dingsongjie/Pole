@@ -5,8 +5,8 @@ using System.Text;
 namespace Pole.Core.EventBus.Event
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class EventInfoAttribute: Attribute
+    public class EventAttribute: Attribute
     {
-        public string SendBoxName { get; set; }
+        public string EventName { get; set; }
     }
 }

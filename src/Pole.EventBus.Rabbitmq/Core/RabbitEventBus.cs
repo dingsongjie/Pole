@@ -32,6 +32,8 @@ namespace Pole.EventBus.RabbitMQ
             {
                 AutoAck = autoAck,
                 Reenqueue = reenqueue,
+                ErrorQueueSuffix = "_error",
+                MaxReenqueueTimes = 10
             };
         }
         public IRabbitEventBusContainer Container { get; }

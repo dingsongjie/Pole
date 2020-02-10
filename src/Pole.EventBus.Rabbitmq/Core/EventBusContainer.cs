@@ -42,19 +42,19 @@ namespace Pole.EventBus.RabbitMQ
             AddEventAndEventHandlerInfoList(eventList, evenHandlertList);
             foreach (var (type, config) in eventList)
             {
-                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name : config.EventName;
-                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 2, true, true, true).BindEvent(type, eventName);
+                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name.ToLower() : config.EventName;
+                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, false, true, true).BindEvent(type, eventName);
                 await eventBus.AddGrainConsumer<string>();
             }
             foreach (var (type, config) in evenHandlertList)
             {
-                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name : config.EventName;
-                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 2, true, true, true).BindEvent(type, eventName);
+                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name.ToLower() : config.EventName;
+                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, false, true, true).BindEvent(type, eventName);
                 await eventBus.AddGrainConsumer<string>();
             }
         }
 
-        public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool autoAck = true, bool reenqueue = true, bool persistent = true)
+        public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool autoAck = false, bool reenqueue = true, bool persistent = true)
         {
             return new RabbitEventBus(observerUnitContainer, this, exchange, routePrefix, lBCount, autoAck, reenqueue, persistent);
         }
@@ -63,7 +63,7 @@ namespace Pole.EventBus.RabbitMQ
             if (eventBusDictionary.TryAdd(bus.Event, bus))
             {
                 eventBusList.Add(bus);
-                using var channel = rabbitMQClient.PullModel();
+                using var channel = rabbitMQClient.PullChannel();
                 channel.Model.ExchangeDeclare(bus.Exchange, "direct", true);
                 return Task.CompletedTask;
             }

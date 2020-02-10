@@ -12,7 +12,7 @@ namespace Pole.EventBus.RabbitMQ
         /// <summary>
         /// 目前为一个连接 当消息数量非常大时,单个TCP连接的运输能力有限,可以修改这个最大连接数提高运输能力
         /// </summary>
-        public int MaxConnection { get; set; } = 1;
+        public int MaxConnection { get; set; } = 10;
         /// <summary>
         /// 消费者批量处理每次处理的最大消息量
         /// </summary>
@@ -21,6 +21,10 @@ namespace Pole.EventBus.RabbitMQ
         /// 消费者批量处理每次处理的最大延时
         /// </summary>
         public int CunsumerMaxMillisecondsInterval { get; set; } = 1000;
+        /// <summary>
+        /// 消费者批量处理每次处理的最大延时
+        /// </summary>
+        public int  ProducerConfirmWaitTimeoutSeconds { get; set; } = 5;
         /// <summary>
         /// exchange 和 queue 名称的前缀
         /// </summary>

@@ -68,10 +68,13 @@ namespace Pole.Core.Channels
         {
             if (consumer is null)
                 throw new NoBindConsumerException(GetType().Name);
-            if (!IsChildren && _autoConsuming == 0)
-                ActiveAutoConsumer();
+
             if (!buffer.Post(data))
                 return await buffer.SendAsync(data);
+
+            if (!IsChildren && _autoConsuming == 0)
+                ActiveAutoConsumer();
+
             return true;
         }
         private void ActiveAutoConsumer()

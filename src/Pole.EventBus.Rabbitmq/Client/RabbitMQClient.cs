@@ -22,7 +22,7 @@ namespace Pole.EventBus.RabbitMQ
             pool = new DefaultObjectPool<ModelWrapper>(new ModelPooledObjectPolicy(connectionFactory, options));
         }
 
-        public ModelWrapper PullModel()
+        public ModelWrapper PullChannel()
         {
             var result = pool.Get();
             if (result.Pool is null)

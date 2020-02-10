@@ -2,6 +2,6 @@
 {
     public interface IRabbitMQClient
     {
-        ModelWrapper PullModel();
+        ModelWrapper PullChannel();
     }
 }

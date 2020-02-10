@@ -8,5 +8,8 @@ namespace Pole.Core
     public static class Consts
     {
         public static ValueTask ValueTaskDone = new ValueTask();
+        public const string ConsumerRetryTimesStr = "pole-consumer-retry-times";
+        public const string ConsumerExceptionDetailsStr = "pole-consumer-exception-details";
     }
+}
 }

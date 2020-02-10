@@ -17,8 +17,8 @@ namespace Pole.EventBus.RabbitMQ
         }
         public ValueTask Publish(byte[] bytes, string hashKey)
         {
-            using var model = rabbitMQClient.PullModel();
-            model.Publish(bytes, publisher.Exchange, publisher.GetRoute(hashKey), publisher.Persistent);
+            using var channel = rabbitMQClient.PullChannel();
+            channel.Publish(bytes, publisher.Exchange, publisher.GetRoute(hashKey), publisher.Persistent);
             return Consts.ValueTaskDone;
         }
     }

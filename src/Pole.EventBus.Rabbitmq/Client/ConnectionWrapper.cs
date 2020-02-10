@@ -6,7 +6,7 @@ namespace Pole.EventBus.RabbitMQ
 {
     public class ConnectionWrapper
     {
-        private readonly List<ModelWrapper> models = new List<ModelWrapper>();
+        private readonly List<ModelWrapper> channels = new List<ModelWrapper>();
         private readonly IConnection connection;
         readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         public ConnectionWrapper(
@@ -22,11 +22,11 @@ namespace Pole.EventBus.RabbitMQ
             semaphoreSlim.Wait();
             try
             {
-                if (models.Count < Options.MasChannelsPerConnection)
+                if (channels.Count < Options.MasChannelsPerConnection)
                 {
-                    var model = new ModelWrapper(this, connection.CreateModel());
-                    models.Add(model);
-                    return (true, model);
+                    var channel = new ModelWrapper(this, connection.CreateModel());
+                    channels.Add(channel);
+                    return (true, channel);
                 }
             }
             finally
@@ -37,7 +37,7 @@ namespace Pole.EventBus.RabbitMQ
         }
         public void Return(ModelWrapper model)
         {
-            models.Remove(model);
+            channels.Remove(model);
         }
     }
 }

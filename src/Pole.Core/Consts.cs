@@ -12,4 +12,3 @@ namespace Pole.Core
         public const string ConsumerExceptionDetailsStr = "pole-consumer-exception-details";
     }
 }
-}

@@ -138,10 +138,10 @@ namespace Pole.EventBus.RabbitMQ
                         Model.Model.ExchangeDeclare(errorExchangeName, "direct", true);
                         Model.Model.QueueDeclare(errorQueueName, true, false, false, null);
                         Model.Model.QueueBind(errorQueueName, errorExchangeName, string.Empty);
-                    }
-                    if (!Consumer.Config.AutoAck)
-                    {
-                        Model.Model.BasicAck(ea.DeliveryTag, false);
+                        if (!Consumer.Config.AutoAck)
+                        {
+                            Model.Model.BasicAck(ea.DeliveryTag, false);
+                        }
                     }
                 }
             }

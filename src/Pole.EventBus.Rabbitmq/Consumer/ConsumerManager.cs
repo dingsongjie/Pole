@@ -40,7 +40,6 @@ namespace Pole.EventBus.RabbitMQ
         private Timer DistributedMonitorTime { get; set; }
         private Timer DistributedHoldTimer { get; set; }
         const int lockHoldingSeconds = 60;
-        int distributedMonitorTimeLock = 0;
         int distributedHoldTimerLock = 0;
         int heathCheckTimerLock = 0;
         private async Task Start()

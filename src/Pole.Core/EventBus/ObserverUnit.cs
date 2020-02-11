@@ -144,7 +144,7 @@ namespace Pole.Core.EventBus
                 return Task.WhenAll(groups.Select(kv =>
                 {
                     var items = kv.Select(item => item.bytes).ToList();
-                    return GetObserver(observerType, kv.Key).BatchInvoke(new Immutable<List<byte[]>>(items));
+                    return GetObserver(observerType, kv.Key).Invoke(new Immutable<List<byte[]>>(items));
                 }));
             }
         }

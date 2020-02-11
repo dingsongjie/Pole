@@ -10,6 +10,6 @@ namespace Pole.Core.EventBus.EventHandler
     public abstract class PoleEventHandlerBase : Grain
     {
         public abstract Task Invoke(Immutable<byte[]> bytes);
-        public abstract Task BatchInvoke(Immutable<List<byte[]>> bytes);
+        public abstract Task Invoke(Immutable<List<byte[]>> bytes);
     }
 }

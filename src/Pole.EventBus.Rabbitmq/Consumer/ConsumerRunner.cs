@@ -78,22 +78,21 @@ namespace Pole.EventBus.RabbitMQ
                 try
                 {
                     await Consumer.Notice(list.Select(o => o.Body).ToList());
-                    if (!Consumer.Config.AutoAck)
-                    {
-                        Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
-                    }
                 }
                 catch (Exception exception)
                 {
-                    Logger.LogError(exception.InnerException ?? exception, $"An error occurred in {Consumer.EventBus.Exchange}-{Queue}");
+                    Logger.LogError(exception, $"An error occurred in batch consume {Queue.Queue} queue, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
                     if (Consumer.Config.Reenqueue)
                     {
-                        await Task.Delay(1000);
                         foreach (var item in list)
                         {
-                            Model.Model.BasicReject(item.DeliveryTag, true);
+                            await ProcessComsumerErrors(item, exception);
                         }
                     }
+                }
+                if (!Consumer.Config.AutoAck)
+                {
+                    Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
                 }
             }
         }
@@ -105,8 +104,11 @@ namespace Pole.EventBus.RabbitMQ
             }
             catch (Exception exception)
             {
-                Logger.LogError(exception, $"An error occurred in {Queue.Queue}, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
-                await ProcessComsumerErrors(ea, exception);
+                Logger.LogError(exception, $"An error occurred in consume {Queue.Queue} queue, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
+                if (Consumer.Config.Reenqueue)
+                {
+                    await ProcessComsumerErrors(ea, exception);
+                }
             }
             if (!Consumer.Config.AutoAck)
             {
@@ -116,32 +118,29 @@ namespace Pole.EventBus.RabbitMQ
 
         private async Task ProcessComsumerErrors(BasicDeliverEventArgs ea, Exception exception)
         {
-            if (Consumer.Config.Reenqueue)
+            if (ea.BasicProperties.Headers.TryGetValue(Consts.ConsumerRetryTimesStr, out object retryTimesObj))
             {
-                if (ea.BasicProperties.Headers.TryGetValue(Consts.ConsumerRetryTimesStr, out object retryTimesObj))
+                var retryTimes = Convert.ToInt32(retryTimesObj);
+                if (retryTimes <= Consumer.Config.MaxReenqueueTimes)
                 {
-                    var retryTimes = Convert.ToInt32(retryTimesObj);
-                    if (retryTimes <= Consumer.Config.MaxReenqueueTimes)
+                    retryTimes++;
+                    ea.BasicProperties.Headers[Consts.ConsumerRetryTimesStr] = retryTimes;
+                    ea.BasicProperties.Headers[Consts.ConsumerExceptionDetailsStr] = serializer.Serialize(exception, typeof(Exception));
+                    await Task.Delay((int)Math.Pow(2, retryTimes) * 1000).ContinueWith((task) =>
                     {
-                        retryTimes++;
-                        ea.BasicProperties.Headers[Consts.ConsumerRetryTimesStr] = retryTimes;
-                        ea.BasicProperties.Headers[Consts.ConsumerExceptionDetailsStr] = serializer.Serialize(exception, typeof(Exception));
-                        await Task.Delay((int)Math.Pow(2, retryTimes) * 1000).ContinueWith((task) =>
-                        {
-                            Model.Model.BasicReject(ea.DeliveryTag, true);
-                        });
-                    }
-                    else
+                        Model.Model.BasicReject(ea.DeliveryTag, true);
+                    });
+                }
+                else
+                {
+                    var errorQueueName = $"{Queue.Queue}{Consumer.Config.ErrorQueueSuffix}";
+                    var errorExchangeName = $"{Queue.Queue}{Consumer.Config.ErrorQueueSuffix}";
+                    Model.Model.ExchangeDeclare(errorExchangeName, "direct", true);
+                    Model.Model.QueueDeclare(errorQueueName, true, false, false, null);
+                    Model.Model.QueueBind(errorQueueName, errorExchangeName, string.Empty);
+                    if (!Consumer.Config.AutoAck)
                     {
-                        var errorQueueName = $"{Queue.Queue}{Consumer.Config.ErrorQueueSuffix}";
-                        var errorExchangeName = $"{Queue.Queue}{Consumer.Config.ErrorQueueSuffix}";
-                        Model.Model.ExchangeDeclare(errorExchangeName, "direct", true);
-                        Model.Model.QueueDeclare(errorQueueName, true, false, false, null);
-                        Model.Model.QueueBind(errorQueueName, errorExchangeName, string.Empty);
-                        if (!Consumer.Config.AutoAck)
-                        {
-                            Model.Model.BasicAck(ea.DeliveryTag, false);
-                        }
+                        Model.Model.BasicAck(ea.DeliveryTag, false);
                     }
                 }
             }

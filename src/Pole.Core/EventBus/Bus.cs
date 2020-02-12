@@ -1,5 +1,6 @@
 ﻿using Pole.Core.Abstraction;
 using Pole.Core.EventBus.Event;
+using Pole.Core.EventBus.Transaction;
 using Pole.Core.Serialization;
 using Pole.Core.Utils.Abstraction;
 using System;
@@ -16,6 +17,7 @@ namespace Pole.Core.EventBus
         private readonly IEventTypeFinder eventTypeFinder;
         private readonly ISerializer serializer;
         private readonly ISnowflakeIdGenerator snowflakeIdGenerator;
+        AsyncLocal<IDbTransactionAdapter> Transaction { get; }
         public Bus(IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, ISnowflakeIdGenerator snowflakeIdGenerator)
         {
             this.producer = producer;

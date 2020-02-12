@@ -15,10 +15,10 @@ namespace Pole.EventBus.RabbitMQ
             this.publisher = publisher;
             this.rabbitMQClient = rabbitMQClient;
         }
-        public ValueTask Publish(byte[] bytes, string hashKey)
+        public ValueTask Publish(byte[] bytes)
         {
             using var channel = rabbitMQClient.PullChannel();
-            channel.Publish(bytes, publisher.Exchange, publisher.GetRoute(hashKey), publisher.Persistent);
+            channel.Publish(bytes, publisher.Exchange, string.Empty, publisher.Persistent);
             return Consts.ValueTaskDone;
         }
     }

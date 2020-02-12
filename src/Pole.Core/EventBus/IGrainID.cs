@@ -4,6 +4,6 @@ namespace Pole.Core.EventBus
 {
     public interface IGrainID
     {
-        Type GrainType { get; }
+        Type EventHandlerType { get; }
     }
 }

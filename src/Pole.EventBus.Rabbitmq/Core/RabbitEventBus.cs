@@ -49,10 +49,7 @@ namespace Pole.EventBus.RabbitMQ
         /// </summary>
         public bool Persistent { get; set; }
         public List<RabbitConsumer> Consumers { get; set; } = new List<RabbitConsumer>();
-        public string GetRoute(string key)
-        {
-            return RoutePrefix;
-        }
+
         public RabbitEventBus BindEvent(Type eventType, string eventName)
         {
             Event = eventType;

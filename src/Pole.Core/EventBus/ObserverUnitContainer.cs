@@ -24,9 +24,9 @@ namespace Pole.Core.EventBus
                 {
                     foreach (var attribute in type.GetCustomAttributes(false))
                     {
-                        if (attribute is EventHandlerAttribute observer)
+                        if (attribute is EventHandlerAttribute eventHandlerAttribute)
                         {
-                            eventHandlerList.Add((type, observer));
+                            eventHandlerList.Add((type, eventHandlerAttribute));
                             break;
                         }
                     }
@@ -36,7 +36,7 @@ namespace Pole.Core.EventBus
             {
                 var unitType = typeof(ObserverUnit<>).MakeGenericType(new Type[] { typeof(string) });
                 var unit = (ObserverUnit<string>)Activator.CreateInstance(unitType, serviceProvider, eventHandler.Item1);
-
+                unit.Observer();
                 Register<string>(eventHandler.Item2.EventName, unit);
             }
         }
@@ -72,7 +72,7 @@ namespace Pole.Core.EventBus
             }
             if (!unitDict.TryAdd(observerName, new List<object> { observerUnit }))
             {
-                throw new ObserverUnitRepeatedException(observerUnit.GrainType.FullName);
+                throw new ObserverUnitRepeatedException(observerUnit.EventHandlerType.FullName);
             }
         }
 

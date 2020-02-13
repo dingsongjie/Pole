@@ -17,9 +17,13 @@ namespace Pole.Core.EventBus
         private readonly IEventTypeFinder eventTypeFinder;
         private readonly ISerializer serializer;
         private readonly ISnowflakeIdGenerator snowflakeIdGenerator;
-        AsyncLocal<IDbTransactionAdapter> Transaction { get; }
-        public Bus(IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, ISnowflakeIdGenerator snowflakeIdGenerator)
+        public IDbTransactionAdapter Transaction { get; set; }
+
+        public IServiceProvider ServiceProvider { get; }
+
+        public Bus(IServiceProvider serviceProvider, IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, ISnowflakeIdGenerator snowflakeIdGenerator)
         {
+            ServiceProvider = serviceProvider;
             this.producer = producer;
             this.eventTypeFinder = eventTypeFinder;
             this.serializer = serializer;

@@ -29,12 +29,21 @@ namespace Pole.EventStorage.PostgreSql
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            (DbTransaction as IDbTransaction)?.Dispose();
+            DbTransaction = null;
         }
 
-        public Task RollbackAsync(CancellationToken cancellationToken = default)
+        public async Task RollbackAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            switch (DbTransaction)
+            {
+                case IDbTransaction dbTransaction:
+                    dbTransaction.Rollback();
+                    break;
+                case IDbContextTransaction dbContextTransaction:
+                    await dbContextTransaction.RollbackAsync(cancellationToken);
+                    break;
+            }
         }
     }
 }

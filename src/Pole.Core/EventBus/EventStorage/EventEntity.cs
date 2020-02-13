@@ -10,7 +10,7 @@ namespace Pole.Core.EventBus.EventStorage
         public string Name { get; set; }
         public string Content { get; set; }
         public DateTime Added { get; set; }
-        public DateTime ExpiresAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
         public int Retries { get; set; }
         public string StatusName { get; set; }
     }

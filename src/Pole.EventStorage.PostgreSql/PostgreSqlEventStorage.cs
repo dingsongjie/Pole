@@ -51,7 +51,7 @@ namespace Pole.EventStorage.PostgreSql
 
         public async Task<IEnumerable<EventEntity>> GetPublishedMessagesOfNeedRetry()
         {
-            var fourMinAgo = DateTime.Now.AddMinutes(-4).ToString("O");
+            var fourMinAgo = DateTime.UtcNow.AddMinutes(-4).ToString("O");
             var sql =
                 $"SELECT * FROM {tableName} WHERE \"Retries\"<{producerOptions.FailedRetryCount} AND \"Added\"<'{fourMinAgo}' AND (\"StatusName\"='{EventStatus.Failed}' OR \"StatusName\"='{EventStatus.PrePublish}') LIMIT 200;";
 

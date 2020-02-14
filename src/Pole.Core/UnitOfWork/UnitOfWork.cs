@@ -12,6 +12,7 @@ using Pole.Core.Abstraction;
 using Pole.Core.Serialization;
 using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventStorage;
+using Microsoft.Extensions.Options;
 
 namespace Pole.Core.UnitOfWork
 {
@@ -21,13 +22,15 @@ namespace Pole.Core.UnitOfWork
         private readonly IEventTypeFinder eventTypeFinder;
         private readonly ISerializer serializer;
         private readonly IEventStorage eventStorage;
+        private readonly PoleOptions options;
         private IBus bus;
-        public UnitOfWork(IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, IEventStorage eventStorage)
+        public UnitOfWork(IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, IEventStorage eventStorage, IOptions<PoleOptions> options)
         {
             this.producer = producer;
             this.eventTypeFinder = eventTypeFinder;
             this.serializer = serializer;
             this.eventStorage = eventStorage;
+            this.options = options.Value;
         }
 
         public async Task CompeleteAsync(CancellationToken cancellationToken = default)
@@ -43,7 +46,8 @@ namespace Pole.Core.UnitOfWork
                 var bytesTransport = new EventBytesTransport(@event.Name, @event.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
                 await producer.Publish(bytes);
-                @event.StatusName = nameof(EventStatus.Published);           
+                @event.StatusName = nameof(EventStatus.Published);
+                @event.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);
             });
             await eventStorage.BulkChangePublishStateAsync(bufferedEvents);
         }

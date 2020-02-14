@@ -72,6 +72,7 @@ namespace Pole.Core.Processor
                 pendingMessage.Retries++;
                 await producer.Publish(bytes);
                 pendingMessage.StatusName = nameof(EventStatus.Published);
+                pendingMessage.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);
             }
             await eventStorage.BulkChangePublishStateAsync(pendingMessages);
         }

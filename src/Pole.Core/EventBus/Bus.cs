@@ -5,6 +5,7 @@ using Pole.Core.EventBus.Transaction;
 using Pole.Core.Serialization;
 using Pole.Core.Utils.Abstraction;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -14,7 +15,6 @@ namespace Pole.Core.EventBus
 {
     class Bus : IBus
     {
-        private readonly IProducer producer;
         private readonly IEventTypeFinder eventTypeFinder;
         private readonly ISerializer serializer;
         private readonly ISnowflakeIdGenerator snowflakeIdGenerator;
@@ -22,11 +22,12 @@ namespace Pole.Core.EventBus
         public IDbTransactionAdapter Transaction { get; set; }
 
         public IServiceProvider ServiceProvider { get; }
+        public BlockingCollection<EventEntity> PrePublishEventBuffer { get; } =
+     new BlockingCollection<EventEntity>(new ConcurrentQueue<EventEntity>());
 
-        public Bus(IServiceProvider serviceProvider, IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, ISnowflakeIdGenerator snowflakeIdGenerator, IEventStorage eventStorage)
+        public Bus(IServiceProvider serviceProvider, IEventTypeFinder eventTypeFinder, ISerializer serializer, ISnowflakeIdGenerator snowflakeIdGenerator, IEventStorage eventStorage)
         {
             ServiceProvider = serviceProvider;
-            this.producer = producer;
             this.eventTypeFinder = eventTypeFinder;
             this.serializer = serializer;
             this.snowflakeIdGenerator = snowflakeIdGenerator;
@@ -37,10 +38,10 @@ namespace Pole.Core.EventBus
             var eventType = @event.GetType();
             var eventTypeCode = eventTypeFinder.GetCode(eventType);
             var eventId = snowflakeIdGenerator.NextId();
-            var eventContentBytes = serializer.SerializeToUtf8Bytes(@event, eventType);
+            //var eventContentBytes = serializer.SerializeToUtf8Bytes(@event, eventType);
             var eventContent = serializer.Serialize(@event, eventType);
-            var bytesTransport = new EventBytesTransport(eventTypeCode, eventId, eventContentBytes);
-            var bytes = bytesTransport.GetBytes();
+            //var bytesTransport = new EventBytesTransport(eventTypeCode, eventId, eventContentBytes);
+            //var bytes = bytesTransport.GetBytes();
             var eventEntity = new EventEntity
             {
                 Added = DateTime.UtcNow,
@@ -59,15 +60,10 @@ namespace Pole.Core.EventBus
             {
                 var mediumMessage = await eventStorage.StoreMessage(eventEntity, Transaction.DbTransaction);
 
-                if (Transaction.AutoCommit)
-                {
-                    await Transaction.CommitAsync();
-                }
             }
-
-            await producer.Publish(bytes);
-
-            await eventStorage.ChangePublishStateAsync(eventEntity,EventStatus.Published);
+            PrePublishEventBuffer.Add(eventEntity);
+            //await producer.Publish(bytes);
+            //await eventStorage.ChangePublishStateAsync(eventEntity,EventStatus.Published);
 
             return true;
         }

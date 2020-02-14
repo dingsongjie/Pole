@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Pole.Core.EventBus.EventStorage;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -10,7 +12,6 @@ namespace Pole.Core.EventBus.Transaction
     {
         Task CommitAsync(CancellationToken cancellationToken = default);
         Task RollbackAsync(CancellationToken cancellationToken = default);
-        bool AutoCommit { get; set; }
         object DbTransaction { get; set; }
     }
 }

@@ -57,7 +57,7 @@ namespace Pole.Core.EventBus
             }
             else
             {
-                var mediumMessage = eventStorage.StoreMessage(eventEntity, Transaction.DbTransaction);
+                var mediumMessage = await eventStorage.StoreMessage(eventEntity, Transaction.DbTransaction);
 
                 if (Transaction.AutoCommit)
                 {
@@ -66,6 +66,9 @@ namespace Pole.Core.EventBus
             }
 
             await producer.Publish(bytes);
+
+            await eventStorage.ChangePublishStateAsync(eventEntity,EventStatus.Published);
+
             return true;
         }
     }

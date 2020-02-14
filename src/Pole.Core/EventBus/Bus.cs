@@ -38,10 +38,7 @@ namespace Pole.Core.EventBus
             var eventType = @event.GetType();
             var eventTypeCode = eventTypeFinder.GetCode(eventType);
             var eventId = snowflakeIdGenerator.NextId();
-            //var eventContentBytes = serializer.SerializeToUtf8Bytes(@event, eventType);
             var eventContent = serializer.Serialize(@event, eventType);
-            //var bytesTransport = new EventBytesTransport(eventTypeCode, eventId, eventContentBytes);
-            //var bytes = bytesTransport.GetBytes();
             var eventEntity = new EventEntity
             {
                 Added = DateTime.UtcNow,
@@ -50,7 +47,7 @@ namespace Pole.Core.EventBus
                 Id = eventId,
                 Name = eventTypeCode,
                 Retries = 0,
-                StatusName = nameof(EventStatus.PrePublish)
+                StatusName = nameof(EventStatus.Pending)
             };
             if (Transaction?.DbTransaction == null)
             {
@@ -62,8 +59,6 @@ namespace Pole.Core.EventBus
 
             }
             PrePublishEventBuffer.Add(eventEntity);
-            //await producer.Publish(bytes);
-            //await eventStorage.ChangePublishStateAsync(eventEntity,EventStatus.Published);
 
             return true;
         }

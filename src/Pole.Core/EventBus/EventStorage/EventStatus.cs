@@ -7,7 +7,7 @@ namespace Pole.Core.EventBus.EventStorage
     public enum EventStatus
     {
         Failed = -1,
-        PrePublish = 0,
+        Pending = 0,
         Published = 1
     }
 }

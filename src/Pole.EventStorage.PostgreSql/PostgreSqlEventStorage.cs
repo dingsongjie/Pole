@@ -7,6 +7,7 @@ using Pole.Core.EventBus.EventStorage;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,21 @@ namespace Pole.EventStorage.PostgreSql
             this.eventStorageInitializer = eventStorageInitializer;
             tableName = eventStorageInitializer.GetTableName();
         }
+
+        public async Task BulkChangePublishStateAsync(IEnumerable<EventEntity> events)
+        {
+            var sql =
+$"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusName\"=@StatusName WHERE \"Id\"= any @Ids";
+            using var connection = new NpgsqlConnection(options.ConnectionString);
+            await connection.ExecuteAsync(sql, events.Select(@event=> new
+            {
+                Ids = events.Select(@event=>@event.Id).ToArray(),
+                @event.Retries,
+                @event.ExpiresAt,
+                @event.StatusName
+            }).ToList());
+        }
+
         public async Task ChangePublishStateAsync(EventEntity message, EventStatus state)
         {
             var sql =
@@ -49,11 +65,11 @@ namespace Pole.EventStorage.PostgreSql
                 new { timeout, batchCount });
         }
 
-        public async Task<IEnumerable<EventEntity>> GetPublishedMessagesOfNeedRetry()
+        public async Task<IEnumerable<EventEntity>> GetMessagesOfNeedRetry()
         {
             var fourMinAgo = DateTime.UtcNow.AddMinutes(-4).ToString("O");
             var sql =
-                $"SELECT * FROM {tableName} WHERE \"Retries\"<{producerOptions.FailedRetryCount} AND \"Added\"<'{fourMinAgo}' AND (\"StatusName\"='{EventStatus.Failed}' OR \"StatusName\"='{EventStatus.PrePublish}') LIMIT 200;";
+                $"SELECT * FROM {tableName} WHERE \"Retries\"<{producerOptions.MaxFailedRetryCount} AND \"Added\"<'{fourMinAgo}' AND (\"StatusName\"='{EventStatus.Failed}' OR \"StatusName\"='{EventStatus.Pending}') for update skip locked LIMIT 200;";
 
             var result = new List<EventEntity>();
             using var connection = new NpgsqlConnection(options.ConnectionString);

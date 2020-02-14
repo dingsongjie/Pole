@@ -7,6 +7,7 @@ namespace Pole.Core
 {
     public class PoleOptions
     {
+        public int PendingMessageRetryIntervalSeconds { get; set; } = 30;
         public IServiceCollection Services { get; private set; }
     }
 }

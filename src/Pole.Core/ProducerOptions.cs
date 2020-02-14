@@ -6,6 +6,6 @@ namespace Pole.Core
 {
     public class ProducerOptions
     {
-        public int FailedRetryCount { get; set; }
+        public int MaxFailedRetryCount { get; set; } = 40;
     }
 }

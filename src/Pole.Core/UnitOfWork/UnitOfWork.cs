@@ -43,8 +43,9 @@ namespace Pole.Core.UnitOfWork
                 var bytesTransport = new EventBytesTransport(@event.Name, @event.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
                 await producer.Publish(bytes);
-                await eventStorage.ChangePublishStateAsync(@event, EventStatus.Published);
+                @event.StatusName = nameof(EventStatus.Published);           
             });
+            await eventStorage.BulkChangePublishStateAsync(bufferedEvents);
         }
 
         public void Dispose()

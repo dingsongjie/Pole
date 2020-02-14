@@ -57,13 +57,11 @@ namespace Pole.Core.EventBus
             }
             else
             {
-                var transaction = (IDbTransactionAdapter)Transaction;
+                var mediumMessage = eventStorage.StoreMessage(eventEntity, Transaction.DbTransaction);
 
-                var mediumMessage = eventStorage.StoreMessage(eventEntity, transaction.DbTransaction);
-
-                if (transaction.AutoCommit)
+                if (Transaction.AutoCommit)
                 {
-                    await transaction.CommitAsync();
+                    await Transaction.CommitAsync();
                 }
             }
 

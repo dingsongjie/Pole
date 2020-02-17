@@ -15,36 +15,10 @@ namespace Product.Api.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.0")
+                .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("Product.Api.Domain.ProductAggregate.Product", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("character varying(32)")
-                        .HasMaxLength(32);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("character varying(256)")
-                        .HasMaxLength(256);
-
-                    b.Property<long>("Price")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ProductTypeId")
-                        .IsRequired()
-                        .HasColumnType("character varying(32)")
-                        .HasMaxLength(32);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductTypeId");
-
-                    b.ToTable("Product");
-                });
-
-            modelBuilder.Entity("Product.Api.Domain.ProductTypeAggregate.ProductType", b =>
+            modelBuilder.Entity("Product.Api.Domain.AggregatesModel.ProductTypeAggregate.ProductType", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("character varying(32)")

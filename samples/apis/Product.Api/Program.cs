@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Orleans.Hosting;
+using Product.Api.Infrastructure;
+using Pole.Orleans.Provider.EntityframeworkCore;
+using Orleans;
+using Product.Api.Grains;
 
 namespace Product.Api
 {
@@ -21,6 +22,12 @@ namespace Product.Api
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .UseOrleans(siloBuilder =>
+                {
+                    siloBuilder.UseLocalhostClustering();
+                    siloBuilder.AddEfGrainStorageAsDefault<ProductDbContext>();
                 });
+
     }
 }

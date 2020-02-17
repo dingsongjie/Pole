@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Product.Api.Domain.AggregatesModel.ProductTypeAggregate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,20 +8,19 @@ using System.Threading.Tasks;
 
 namespace Product.Api.Infrastructure.EntityConfigurations
 {
-    public class ProductEntityTypeEntityTypeConfiguration : IEntityTypeConfiguration<Product.Api.Domain.ProductAggregate.Product>
+    public class ProductTypeEntityTypeConfiguration : IEntityTypeConfiguration<ProductType>
     {
-        public void Configure(EntityTypeBuilder<Product.Api.Domain.ProductAggregate.Product> builder)
+        public void Configure(EntityTypeBuilder<ProductType> builder)
         {
-            builder.ToTable(nameof(Product));
+            builder.ToTable(nameof(ProductType));
 
             builder.Property(m => m.Id).HasMaxLength(32);
             builder.Property(m => m.Name).HasMaxLength(256).IsRequired();
-            builder.Property(m => m.ProductTypeId).HasMaxLength(32).IsRequired();
 
             builder.Ignore(m => m.DomainEvents);
 
-            builder.HasIndex(m => m.ProductTypeId);
             builder.HasKey(m => m.Id);
         }
     }
+
 }

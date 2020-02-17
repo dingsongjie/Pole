@@ -20,6 +20,8 @@ namespace Pole.Core.Domain
             }
         }
         public List<IEvent> DomainEvents { get; private set; }
+
+        public bool IsPersisted { get; set; }
         public bool IsTransient()
         {
             return string.IsNullOrEmpty(this._id);

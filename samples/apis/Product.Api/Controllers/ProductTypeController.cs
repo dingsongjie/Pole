@@ -21,7 +21,7 @@ namespace Product.Api.Controllers
         [HttpGet("AddProductType")]
         public void AddProductType(string name = "test")
         {
-            var newId = Guid.NewGuid().ToString("N").ToLower();
+            var newId = "da8a489fa7b4409294ee1b358fbbfba5";
             var grain = clusterClient.GetGrain<IProductTypeGrain>(newId);
             grain.AddProductType(newId, name);
         }

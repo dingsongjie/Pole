@@ -18,6 +18,7 @@ namespace Product.Api.Infrastructure.EntityConfigurations
             builder.Property(m => m.Name).HasMaxLength(256).IsRequired();
 
             builder.Ignore(m => m.DomainEvents);
+            builder.Ignore(m => m.IsPersisted);
 
             builder.HasKey(m => m.Id);
         }

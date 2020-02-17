@@ -1,4 +1,5 @@
 ﻿using Orleans;
+using Pole.Core.Grains;
 using Product.Api.Domain.AggregatesModel.ProductTypeAggregate;
 using Product.Api.Grains.Abstraction;
 using System;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Product.Api.Grains
 {
-    public class ProductTypeGrain : Grain<ProductType>, IProductTypeGrain
+    public class ProductTypePoleGrainGrain : PoleGrain<ProductType>, IProductTypeGrain
     {
         public async Task<bool> AddProductType(string id, string name)
         {
@@ -20,6 +21,7 @@ namespace Product.Api.Grains
                 Name = name
             };
             State = productType;
+            Add(productType);
             await WriteStateAsync();
             return true;
         }

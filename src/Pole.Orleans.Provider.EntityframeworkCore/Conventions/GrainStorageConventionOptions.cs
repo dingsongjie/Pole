@@ -10,6 +10,6 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
 
         public string DefaultGrainKeyExtPropertyName { get; set; } = "KeyExt";
 
-        public string DefaultPersistenceCheckPropertyName { get; set; } = "Id";
+        public string DefaultPersistenceCheckPropertyName { get; set; } = "IsPersisted";
     }
 }

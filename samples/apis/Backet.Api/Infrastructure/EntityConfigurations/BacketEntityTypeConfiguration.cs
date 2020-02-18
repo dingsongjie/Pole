@@ -18,6 +18,7 @@ namespace Backet.Api.Infrastructure.EntityConfigurations
             builder.HasMany(m => m.BacketItems).WithOne().IsRequired().OnDelete(DeleteBehavior.Cascade).HasForeignKey("BacketId");
 
             builder.Ignore(m => m.DomainEvents);
+            builder.Ignore(m => m.IsPersisted);
 
             builder.HasKey(m => m.Id);
             builder.HasIndex(m => m.UserId);

@@ -25,59 +25,7 @@ namespace Product.Api
             services.AddDbContextPool<ProductDbContext>(options =>
                 options.UseNpgsql(Configuration["postgres:write"]));
             services.AddControllers();
-            //services.AddGrpc(option =>
-            //{
-            //    if (Environment.IsDevelopment())
-            //    {
-            //        option.EnableDetailedErrors = true;
-            //    }
-            //});
-
-            //services.AddGrpcValidation();
-            //services.AddGrpcRequestValidator(this.GetType().Assembly);
-
-            //services.AddPole(option =>
-            //{
-            //    option.AddManageredAssemblies(this.GetType().Assembly);
-            //    option.AutoInjectionDependency();
-            //    option.AutoInjectionCommandHandlersAndDomainEventHandlers();
-            //    option.AddPoleEntityFrameworkCoreDomain();
-
-            //    option.AddPoleReliableMessage(messageOption =>
-            //    {
-            //        messageOption.AddMasstransitRabbitmq(rabbitoption =>
-            //        {
-            //            rabbitoption.RabbitMqHostAddress = Configuration["RabbitmqConfig:HostAddress"];
-            //            rabbitoption.RabbitMqHostUserName = Configuration["RabbitmqConfig:HostUserName"];
-            //            rabbitoption.RabbitMqHostPassword = Configuration["RabbitmqConfig:HostPassword"];
-            //            rabbitoption.QueueNamePrefix = Configuration["ServiceName"];
-            //            rabbitoption.EventHandlerNameSuffix = "IntegrationEventHandler";
-            //            rabbitoption.RetryConfigure =
-            //                r =>
-            //                {
-            //                    r.Intervals(TimeSpan.FromSeconds(0.1)
-            //                           , TimeSpan.FromSeconds(1)
-            //                           , TimeSpan.FromSeconds(4)
-            //                           , TimeSpan.FromSeconds(16)
-            //                           , TimeSpan.FromSeconds(64)
-            //                           );
-            //                    r.Ignore<DbUpdateException>(exception =>
-            //                    {
-            //                        var sqlException = exception.InnerException as PostgresException;
-            //                        return sqlException != null && sqlException.SqlState == "23505";
-            //                    });
-            //                };
-            //        });
-            //        messageOption.AddMongodb(mongodbOption =>
-            //        {
-            //            mongodbOption.ServiceCollectionName = Configuration["ServiceName"];
-            //            mongodbOption.Servers = Configuration.GetSection("MongoConfig:Servers").Get<MongoHost[]>();
-            //        });
-            //        messageOption.AddEventAssemblies(typeof(Startup).Assembly)
-            //              .AddEventHandlerAssemblies(typeof(Startup).Assembly);
-            //        messageOption.NetworkInterfaceGatewayAddress = Configuration["ReliableMessageOption:NetworkInterfaceGatewayAddress"];
-            //    });
-            //});
+          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

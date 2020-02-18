@@ -1,38 +1,33 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20200117082211_Init.cs" />
-    <Compile Remove="Migrations\20200117082211_Init.Designer.cs" />
-    <Compile Remove="Migrations\20200117091659_Set_Backet_BacketItem_IsRequired_false.cs" />
-    <Compile Remove="Migrations\20200117091659_Set_Backet_BacketItem_IsRequired_false.Designer.cs" />
-    <Compile Remove="Migrations\20200119012712_Remove_BacketItem_FK_Constraint.cs" />
-    <Compile Remove="Migrations\20200119012712_Remove_BacketItem_FK_Constraint.Designer.cs" />
-    <Compile Remove="Migrations\20200119013717_Remove_BacketItem_FK_Constraint.cs" />
-    <Compile Remove="Migrations\20200119013717_Remove_BacketItem_FK_Constraint.Designer.cs" />
-    <Compile Remove="Migrations\20200119020005_Update_BacketItem_FK_Constraint.cs" />
-    <Compile Remove="Migrations\20200119020005_Update_BacketItem_FK_Constraint.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
+    <PackageReference Include="Grpc.AspNetCore" Version="2.26.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Orleans.Client" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Orleans.Core" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Orleans.OrleansRuntime" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="3.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Pole.Application\Pole.Application.csproj" />
-    <ProjectReference Include="..\..\..\src\Pole.Domain.EntityframeworkCore\Pole.Domain.EntityframeworkCore.csproj" />
-    <ProjectReference Include="..\..\..\src\Pole.Grpc\Pole.Grpc.csproj" />
-    <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Masstransit\Pole.ReliableMessage.Masstransit.csproj" />
-    <ProjectReference Include="..\..\..\src\Pole.ReliableMessage.Storage.Mongodb\Pole.ReliableMessage.Storage.Mongodb.csproj" />
-    <ProjectReference Include="..\..\intergrationEvents\Product.IntegrationEvents\Product.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.Core\Pole.Core.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.EventBus.Rabbitmq\Pole.EventBus.Rabbitmq.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.EventStorage.PostgreSql\Pole.EventStorage.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.Orleans.Provider.EntityframeworkCore\Pole.Orleans.Provider.EntityframeworkCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Application\IntegrationEvent\" />
   </ItemGroup>
 
 </Project>

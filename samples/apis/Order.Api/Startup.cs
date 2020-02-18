@@ -30,27 +30,7 @@ namespace ServiceA
         {
             services.AddControllers();
 
-            services.AddPoleReliableMessage(option =>
-            {
-                option.AddMasstransitRabbitmq(rabbitoption =>
-                {
-                    rabbitoption.RabbitMqHostAddress = Configuration["RabbitmqConfig:HostAddress"];
-                    rabbitoption.RabbitMqHostUserName = Configuration["RabbitmqConfig:HostUserName"];
-                    rabbitoption.RabbitMqHostPassword = Configuration["RabbitmqConfig:HostPassword"];
-                    rabbitoption.QueueNamePrefix = Configuration["ServiceName"];
-                });
-                option.AddMongodb(mongodbOption =>
-                {
-                    mongodbOption.ServiceCollectionName = Configuration["ServiceName"];
-                    mongodbOption.Servers = Configuration.GetSection("MongoConfig:Servers").Get<MongoHost[]>();
-                });
-                option.AddEventAssemblies(typeof(Startup).Assembly)
-                      .AddEventHandlerAssemblies(typeof(Startup).Assembly);
-                option.NetworkInterfaceGatewayAddress = Configuration["ReliableMessageOption:NetworkInterfaceGatewayAddress"];
-            });
-
-            services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<IBankRepository, BankRepository>();
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,7 +40,7 @@ namespace ServiceA
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
             });
         }
     }

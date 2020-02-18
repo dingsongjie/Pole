@@ -1,4 +1,4 @@
-﻿using Pole.Domain;
+﻿using Pole.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +8,6 @@ namespace Backet.Api.Domain.AggregatesModel.BacketAggregate
 {
     public class Backet : Entity, IAggregateRoot
     {
-        public Backet(string id,string userId)
-        {
-            Id = id;
-            UserId = userId;
-        }
         public void AddBacketItem(string productId, string productName, long Price)
         {
             BacketItem backetItem = new BacketItem()
@@ -32,7 +27,7 @@ namespace Backet.Api.Domain.AggregatesModel.BacketAggregate
                 TotalPrice += item.Price;
             }
         }
-        public string UserId { get; private set; }
+        public string UserId { get; set; }
         public List<BacketItem> BacketItems { get; private set; } = new List<BacketItem>();
         public long TotalPrice { get; private set; }
     }

@@ -18,10 +18,15 @@ namespace Order.Api
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+             Host.CreateDefaultBuilder(args)
+                 .ConfigureWebHostDefaults(webBuilder =>
+                 {
+                     webBuilder.UseStartup<Startup>();
+                 })
+                 .UseOrleans(siloBuilder =>
+                 {
+                     siloBuilder.UseLocalhostClustering();
+                     siloBuilder.AddEfGrainStorageAsDefault<ProductDbContext>();
+                 });
     }
 }

@@ -12,10 +12,12 @@ namespace Pole.Core.Grains
         public void Update(TAggregateRoot aggregateRoot)
         {
             aggregateRoot.IsPersisted = true;
+            State = aggregateRoot;
         }
         public void Add(TAggregateRoot aggregateRoot)
         {
             aggregateRoot.IsPersisted = false;
+            State = aggregateRoot;
         }
     }
 }

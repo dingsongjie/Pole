@@ -9,15 +9,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backet.Api.Migrations
 {
     [DbContext(typeof(BacketDbContext))]
-    [Migration("20200119020249_Update_BacketItem_FK_Constraint")]
-    partial class Update_BacketItem_FK_Constraint
+    [Migration("20200218022312_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.0")
+                .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet", b =>

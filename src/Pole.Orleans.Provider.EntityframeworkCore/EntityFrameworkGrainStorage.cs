@@ -2,6 +2,7 @@
 using Orleans;
 using Orleans.Runtime;
 using Orleans.Storage;
+using Pole.Core.Domain;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,6 +33,8 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
 
         public Task ReadStateAsync(string grainType, GrainReference grainReference, IGrainState grainState)
         {
+            if (!typeof(Entity).IsAssignableFrom(grainState.Type)) return Task.CompletedTask;
+
             if (!_storage.TryGetValue(grainType, out IGrainStorage storage))
                 storage = CreateStorage(grainType, grainState);
 

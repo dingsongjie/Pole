@@ -1,4 +1,4 @@
-﻿using Pole.Domain;
+﻿using Pole.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;

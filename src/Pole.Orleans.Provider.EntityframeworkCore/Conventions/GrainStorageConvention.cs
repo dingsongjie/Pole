@@ -258,9 +258,20 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
                 if (options.KeyExtSelector == null)
                     throw new GrainStorageConfigurationException($"KeyExtSelector is not defined for " +
                                                                  $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+                Func<TContext, string, Task<TEntity>> compiledQuery = null;
+                if (options.DbSetAccessor != null)
+                {
+                    var predicate = CreateKeyPredicate<TEntity, string>(options);
+                    compiledQuery = EF.CompileAsyncQuery((TContext context, string grainKey)
+                   => options.DbSetAccessor(context)
+                       .SingleOrDefault(predicate));
+                }
+                else
+                {
+                    compiledQuery = CreateCompiledQuery<TContext, TGrain, TEntity, string>(options);
+                }
 
-                Func<TContext, string, Task<TEntity>> compiledQuery
-                    = CreateCompiledQuery<TContext, TGrain, TEntity, string>(options);
+
 
                 return (TContext context, IAddressable grainRef) =>
                 {
@@ -271,7 +282,18 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
 
             throw new InvalidOperationException($"Unexpected grain type \"{typeof(TGrain).FullName}\"");
         }
+        private static Expression<Func<TEntity, bool>> CreateKeyPredicate<TEntity, TKey>(
+    GrainStorageOptions options,
+    string grainKeyParamName = "__grainKey")
+        {
+            ParameterExpression stateParam = Expression.Parameter(typeof(TEntity), "state");
+            ParameterExpression grainKeyParam = Expression.Parameter(typeof(TKey), grainKeyParamName);
+            MemberExpression stateKeyParam = Expression.Property(stateParam, options.KeyPropertyName);
 
+            BinaryExpression equals = Expression.Equal(grainKeyParam, stateKeyParam);
+
+            return Expression.Lambda<Func<TEntity, bool>>(equals, stateParam);
+        }
         public virtual void SetDefaultKeySelectors<TContext, TGrain, TEntity>(
             GrainStorageOptions<TContext, TGrain, TEntity> options)
             where TContext : DbContext

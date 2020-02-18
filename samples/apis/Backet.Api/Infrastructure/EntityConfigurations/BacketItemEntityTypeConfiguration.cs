@@ -20,6 +20,7 @@ namespace Backet.Api.Infrastructure.EntityConfigurations
             builder.Property(m => m.BacketId).HasMaxLength(32).IsRequired();
 
             builder.Ignore(m => m.DomainEvents);
+            builder.Ignore(m => m.IsPersisted);
 
             builder.HasKey(m => m.Id);
             builder.HasIndex(m => m.ProductId);

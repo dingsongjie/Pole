@@ -20,7 +20,6 @@ namespace Product.Api.Grains
                 Id = id,
                 Name = name
             };
-            State = productType;
             Add(productType);
             await WriteStateAsync();
             return true;

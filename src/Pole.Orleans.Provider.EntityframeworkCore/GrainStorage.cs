@@ -7,9 +7,12 @@ using Microsoft.Extensions.Options;
 using Orleans;
 using Orleans.Runtime;
 using Orleans.Storage;
+using Pole.Core.Domain;
+using Pole.Core.EventBus.Event;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +22,7 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
         where TContext : DbContext
         where TGrain : Grain<TGrainState>
         where TGrainState : class, new()
-        where TEntity : class
+        where TEntity : Entity
     {
         private readonly GrainStorageOptions<TContext, TGrain, TEntity> _options;
         private readonly IServiceScopeFactory _scopeFactory;
@@ -75,13 +78,18 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
                 else
                 {
                     bool isPersisted = _options.IsPersistedFunc(entity);
+                    if (isPersisted)
+                    {
+                        TEntity entityInDb = await _options.ReadStateAsync(context, grainReference)
+                                                            .ConfigureAwait(false);
+                        Copy(entity, entityInDb);
+                    }
+                    else
+                    {
+                        context.Set<TEntity>().Add(entity);
+                    }
 
-                    _entryConfigurator.ConfigureSaveEntry(
-                        new ConfigureSaveEntryContext<TContext, TEntity>(
-                            context, entity)
-                        {
-                            IsPersisted = isPersisted
-                        });
+
                 }
 
                 try
@@ -118,7 +126,20 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
             }
         }
 
-
+        public static void Copy<T>(T from, T to) where T : Entity
+        {
+            if (ReferenceEquals(from, null))
+                throw new ArgumentNullException("from");
+            if (ReferenceEquals(to, null))
+                throw new ArgumentNullException("to");
+            Type type = from.GetType();
+            PropertyInfo[] Properties = type.GetProperties();
+            foreach (PropertyInfo p in Properties)
+            {
+                if (p.Name == "DomainEvents" || p.Name == "Id") continue;
+                p.SetValue(to, p.GetValue(from));
+            }
+        }
         private GrainStorageOptions<TContext, TGrain, TEntity> GetOrCreateDefaultOptions(string grainType)
         {
             var options

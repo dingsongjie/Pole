@@ -259,17 +259,9 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
                     throw new GrainStorageConfigurationException($"KeyExtSelector is not defined for " +
                                                                  $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
                 Func<TContext, string, Task<TEntity>> compiledQuery = null;
-                if (options.DbSetAccessor != null)
-                {
-                    var predicate = CreateKeyPredicate<TEntity, string>(options);
-                    compiledQuery = EF.CompileAsyncQuery((TContext context, string grainKey)
-                   => options.DbSetAccessor(context)
-                       .SingleOrDefault(predicate));
-                }
-                else
-                {
-                    compiledQuery = CreateCompiledQuery<TContext, TGrain, TEntity, string>(options);
-                }
+
+                compiledQuery = CreateCompiledQuery<TContext, TGrain, TEntity, string>(options);
+
 
 
 
@@ -415,16 +407,28 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
             var keyParameter = Expression.Parameter(typeof(TKey), "grainKey");
             var predicate = CreateKeyPredicate<TEntity, TKey>(options, keyParameter);
 
-            var queryable = Expression.Call(
+            MethodCallExpression queryable = null;
+
+            if (options.DbSetAccessor.Method.IsStatic)
+            {
+                queryable = Expression.Call(
                 options.DbSetAccessor.Method,
                 Expression.Constant(options.DbSetAccessor),
                 contextParameter);
+            }
+            else
+            {
+                queryable = Expression.Call(
+                Expression.Constant(options.DbSetAccessor.Target),
+                options.DbSetAccessor.Method,
+                contextParameter);
+            } 
 
             var compiledLambdaBody = Expression.Call(
                 typeof(Queryable).GetMethods().Single(mi =>
                         mi.Name == nameof(Queryable.SingleOrDefault) && mi.GetParameters().Count() == 2)
                     .MakeGenericMethod(typeof(TEntity)),
-                queryable,
+                 queryable,
                 Expression.Quote(predicate));
 
             var lambdaExpression = Expression.Lambda<Func<TContext, TKey, TEntity>>(

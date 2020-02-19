@@ -13,11 +13,20 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
     {
         public void ConfigureSaveEntry(ConfigureSaveEntryContext<TContext, TEntity> context)
         {
-            EntityEntry<TEntity> entry = context.DbContext.Entry(context.Entity);
+            if (context.IsPersisted)
+            {
+                // todo update necessary table
+                //EntityEntry<TEntity> entry = context.DbContext.Set<TEntity>().Update(context.Entity);
+            }
+            else
+            {
+                EntityEntry<TEntity> entry = context.DbContext.Set<TEntity>().Add(context.Entity);
+            }
 
-            entry.State = context.IsPersisted
-                ? EntityState.Modified
-                : EntityState.Added;
+
+            //entry.State = context.IsPersisted
+            //    ? EntityState.Modified
+            //    : EntityState.Added;
         }
     }
 }

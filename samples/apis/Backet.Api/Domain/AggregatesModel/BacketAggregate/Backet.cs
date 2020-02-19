@@ -20,6 +20,10 @@ namespace Backet.Api.Domain.AggregatesModel.BacketAggregate
             BacketItems.Add(backetItem);
             SetBacketTotalPrice();
         }
+        public void ModifyItemProductId(string productId)
+        {
+            BacketItems.ForEach(m => m.ProductId = productId);
+        }
         private void SetBacketTotalPrice()
         {
             foreach (var item in BacketItems)

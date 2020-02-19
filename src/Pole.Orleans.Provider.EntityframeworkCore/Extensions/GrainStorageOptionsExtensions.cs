@@ -1,19 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Orleans.Runtime;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Orleans.Runtime;
+using Pole.Orleans.Provider.EntityframeworkCore;
 
-namespace Pole.Orleans.Provider.EntityframeworkCore
+namespace Orleans.Providers.EntityFramework.Extensions
 {
     public static class GrainStorageOptionsExtensions
     {
         public static GrainStorageOptions<TContext, TGrain, TGrainState> UseQuery<TContext, TGrain, TGrainState>(
             this GrainStorageOptions<TContext, TGrain, TGrainState> options,
-            Func<TContext, IQueryable<TGrainState>>queryFunc)
+            Func<TContext, IQueryable<TGrainState>> queryFunc)
             where TContext : DbContext
             where TGrainState : class
         {

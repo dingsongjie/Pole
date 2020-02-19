@@ -26,5 +26,25 @@ namespace Backet.Api.Grains
             await WriteStateAsync();
             return true;
         }
+
+        public async Task<bool> AddBacketItem(string productId,string productName,long price)
+        {
+            if (State == null) return false;
+
+            State.AddBacketItem(productId, productName, price);
+            Update(State);
+            await WriteStateAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateBacket(string userId)
+        {
+            if (State == null) return false;
+            State.UserId = userId;
+            State.ModifyItemProductId(userId);
+            Update(State);
+            await WriteStateAsync();
+            return true;
+        }
     }
 }

@@ -9,6 +9,8 @@ namespace Backet.Api.Grains.Abstraction
     public interface IBacketGrain: IGrainWithStringKey
     {
         Task<bool> AddBacket(BacketDto backet);
+        Task<bool> UpdateBacket(string userId);
+        Task<bool> AddBacketItem(string productId, string productName, long price);
     }
     public class BacketItemDto
     {

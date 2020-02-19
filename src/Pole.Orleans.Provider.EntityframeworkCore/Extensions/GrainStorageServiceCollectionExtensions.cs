@@ -1,15 +1,17 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Orleans.Providers.EntityFramework.Conventions;
+using Orleans;
+using Orleans.Providers;
 using Orleans.Runtime;
 using Orleans.Storage;
-using Pole.Orleans.Provider.EntityframeworkCore;
 using Pole.Orleans.Provider.EntityframeworkCore.Conventions;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Orleans.Providers.EntityFramework.Extensions
+namespace Pole.Orleans.Provider.EntityframeworkCore
 {
     public static class GrainStorageServiceCollectionExtensions
     {

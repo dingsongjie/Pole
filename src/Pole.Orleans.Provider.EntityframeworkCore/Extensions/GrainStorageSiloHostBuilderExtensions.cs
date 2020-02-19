@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Orleans.Hosting;
+using Orleans.Providers;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Orleans.Providers.EntityFramework.Extensions
+namespace Pole.Orleans.Provider.EntityframeworkCore
 {
     public static class GrainStorageSiloHostBuilderExtensions
     {
@@ -15,15 +19,12 @@ namespace Orleans.Providers.EntityFramework.Extensions
             string providerName)
             where TContext : DbContext
         {
-
             return builder
-                .ConfigureServices(services =>
-                {
-                    services.AddEfGrainStorage<TContext>(providerName);
-                });
+                .ConfigureServices(services => { services.AddEfGrainStorage<TContext>(providerName); });
         }
+
         public static ISiloBuilder AddEfGrainStorageAsDefault<TContext>(this ISiloBuilder builder)
-    where TContext : DbContext
+            where TContext : DbContext
         {
             return builder.AddEfGrainStorage<TContext>(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME);
         }

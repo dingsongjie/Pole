@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Orleans.Providers.EntityFramework.Exceptions
+namespace Pole.Orleans.Provider.EntityframeworkCore
 {
     // todo: Use for configuration errors
     public class GrainStorageConfigurationException : Exception

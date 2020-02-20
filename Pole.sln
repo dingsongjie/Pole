@@ -51,7 +51,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Core.Test", "test\Pole
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.EventStorage.PostgreSql", "src\Pole.EventStorage.PostgreSql\Pole.EventStorage.PostgreSql.csproj", "{548EFDBB-252F-48DD-87F4-58ABFBD4963C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pole.Orleans.Provider.EntityframeworkCore", "src\Pole.Orleans.Provider.EntityframeworkCore\Pole.Orleans.Provider.EntityframeworkCore.csproj", "{0DA75F4A-BF47-4B52-B932-48BB6A709934}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Orleans.Provider.EntityframeworkCore", "src\Pole.Orleans.Provider.EntityframeworkCore\Pole.Orleans.Provider.EntityframeworkCore.csproj", "{0DA75F4A-BF47-4B52-B932-48BB6A709934}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

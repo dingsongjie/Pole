@@ -10,15 +10,15 @@ namespace Pole.Core.Utils
 {
     public class AssemblyHelper
     {
-        private static IList<Assembly> Assemblies;
+        private static IList<Assembly> assemblies;
         public static IList<Assembly> GetAssemblies(ILogger logger = default)
         {
-            if (Assemblies != null)
+            if (assemblies != null)
             {
-                return Assemblies;
+                return assemblies;
             }
             var libs = DependencyContext.Default.CompileLibraries.Where(lib => !lib.Serviceable && !lib.Name.StartsWith("Microsoft") && !lib.Name.StartsWith("System"));
-            Assemblies = libs.Select(lib =>
+            assemblies = libs.Select(lib =>
               {
                   try
                   {
@@ -31,7 +31,7 @@ namespace Pole.Core.Utils
                       return default;
                   }
               }).Where(assembly => assembly != default).ToList();
-            return Assemblies;
+            return assemblies;
         }
     }
 }

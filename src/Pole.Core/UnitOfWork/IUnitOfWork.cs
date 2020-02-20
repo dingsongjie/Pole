@@ -14,6 +14,6 @@ namespace Pole.Core.UnitOfWork
     {
         Task CompeleteAsync(CancellationToken cancellationToken = default);
         Task Rollback(CancellationToken cancellationToken = default);
-        IUnitOfWork Enlist(IDbTransaction dbTransaction, IBus bus);
+        IUnitOfWork Enlist(IDbTransactionAdapter dbTransactionAdapter, IBus bus);
     }
 }

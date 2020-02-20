@@ -8,7 +8,10 @@ using Orleans;
 using Orleans.Runtime;
 using Orleans.Storage;
 using Pole.Core.Domain;
+using Pole.Core.EventBus;
 using Pole.Core.EventBus.Event;
+using Pole.Core.EventBus.Transaction;
+using Pole.Core.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,11 +98,36 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
 
                 try
                 {
-                    await context.SaveChangesAsync()
-                        .ConfigureAwait(false);
+                    if (entity.DomainEvents.Count != 0)
+                    {
+                        using (var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>())
+                        {
+                            using (var dbTransactionAdapter = scope.ServiceProvider.GetRequiredService<IDbTransactionAdapter>())
+                            {
+                                var bus = scope.ServiceProvider.GetRequiredService<IBus>();
+                                using (var transaction = await context.Database.BeginTransactionAsync())
+                                {
+                                    dbTransactionAdapter.DbTransaction = transaction;
+                                    unitOfWork.Enlist(dbTransactionAdapter, bus);
+                                    var publishTasks = entity.DomainEvents.Select(m => bus.Publish(m));
+                                    await Task.WhenAll(publishTasks);
+                                    await context.SaveChangesAsync().ConfigureAwait(false);
 
-                    if (_options.CheckForETag)
-                        grainState.ETag = _options.GetETagFunc(entity);
+                                    if (_options.CheckForETag)
+                                        grainState.ETag = _options.GetETagFunc(entity);
+
+                                    await unitOfWork.CompeleteAsync();
+                                }
+                            }                            
+                        };
+                    }
+                    else
+                    {
+                        await context.SaveChangesAsync().ConfigureAwait(false);
+
+                        if (_options.CheckForETag)
+                            grainState.ETag = _options.GetETagFunc(entity);
+                    }
                 }
                 catch (DbUpdateConcurrencyException e)
                 {

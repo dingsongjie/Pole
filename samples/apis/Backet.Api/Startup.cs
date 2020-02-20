@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 using Backet.Api.Grains;
 using Backet.Api.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -39,9 +34,6 @@ namespace Backet.Api
                         .Include(box => box.BacketItems));
                 options.IsRelatedData = true;
             });
-
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -57,10 +57,9 @@ namespace Pole.Core.UnitOfWork
             bus = null;
         }
 
-        public IUnitOfWork Enlist(IDbTransaction dbTransaction, IBus bus)
+        public IUnitOfWork Enlist(IDbTransactionAdapter dbTransactionAdapter, IBus bus)
         {
-            bus.Transaction = bus.ServiceProvider.GetService<IDbTransactionAdapter>();
-            bus.Transaction.DbTransaction = dbTransaction;
+            bus.Transaction = dbTransactionAdapter;
             this.bus = bus;
             return this;
         }

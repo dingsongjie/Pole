@@ -15,7 +15,7 @@ namespace Pole.EventStorage.PostgreSql
     {
         private readonly PostgreSqlOptions options;
         private readonly ILogger logger;
-        public PostgreSqlEventStorageInitializer(IOptions<PostgreSqlOptions> options,Logger<PostgreSqlEventStorageInitializer> logger)
+        public PostgreSqlEventStorageInitializer(IOptions<PostgreSqlOptions> options,ILogger<PostgreSqlEventStorageInitializer> logger)
         {
             this.options = options.Value;
             this.logger = logger;

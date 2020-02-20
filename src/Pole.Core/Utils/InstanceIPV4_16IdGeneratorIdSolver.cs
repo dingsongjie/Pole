@@ -24,8 +24,10 @@ namespace Pole.Core.Utils
                 .Select(c => c.Address)
                 .FirstOrDefault();
 
-            var bytes = firstIpV4Address.GetAddressBytes();
-            generatorId = BitConverter.ToInt32(bytes, 2);
+            var bytes = firstIpV4Address.GetAddressBytes().TakeLast(2).Reverse().ToList();
+            bytes.Add(0);
+            bytes.Add(0);
+            generatorId = BitConverter.ToInt32(bytes.ToArray());
         }
         public int GetGeneratorId()
         {

@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class PoleServiceCollectionExtensions
     {
-        public static IServiceCollection AddPole(this IServiceCollection services,Action<StartupConfig> config)
+        public static IServiceCollection AddPole(this IServiceCollection services, Action<StartupConfig> config)
         {
             StartupConfig startupOption = new StartupConfig(services);
             if (startupOption.PoleOptionsConfig == null)
@@ -30,7 +30,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IUnitOfWork, Pole.Core.UnitOfWork.UnitOfWork>();
             services.AddSingleton<ISerializer, DefaultJsonSerializer>();
             services.AddSingleton<IGeneratorIdSolver, InstanceIPV4_16IdGeneratorIdSolver>();
-            services.AddSingleton<ISnowflakeIdGenerator, SnowflakeIdGenerator>();
+            services.AddSingleton<IObserverUnitContainer, ObserverUnitContainer>();
+            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                var generatorIdSolver = serviceProvider.GetService<IGeneratorIdSolver>();
+                services.AddSingleton(typeof(ISnowflakeIdGenerator), factory => new SnowflakeIdGenerator(new DateTime(2020, 1, 1), 16, generatorIdSolver.GetGeneratorId()));
+            }
 
             services.AddSingleton<IProcessor, PendingMessageRetryProcessor>();
             services.AddSingleton<IProcessor, ExpiredEventsCollectorProcessor>();

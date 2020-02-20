@@ -17,17 +17,18 @@ namespace Pole.Core.Processor
     {
         private readonly IEventStorage eventStorage;
         private readonly PoleOptions options;
-        private readonly IProducer producer;
+        private readonly IProducerContainer producerContainer;
         private readonly IEventTypeFinder eventTypeFinder;
         private readonly ISerializer serializer;
         private readonly ILogger<PendingMessageRetryProcessor> logger;
         private readonly ProducerOptions producerOptions;
-        public PendingMessageRetryProcessor(IEventStorage eventStorage, IOptions<PoleOptions> options, ILogger<PendingMessageRetryProcessor> logger, IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, IOptions<ProducerOptions> producerOptions)
+        public PendingMessageRetryProcessor(IEventStorage eventStorage, IOptions<PoleOptions> options, ILogger<PendingMessageRetryProcessor> logger,
+            IProducerContainer producerContainer, IEventTypeFinder eventTypeFinder, ISerializer serializer, IOptions<ProducerOptions> producerOptions)
         {
             this.eventStorage = eventStorage;
             this.options = options.Value ?? throw new Exception($"{nameof(PoleOptions)} Must be injected");
             this.logger = logger;
-            this.producer = producer;
+            this.producerContainer = producerContainer;
             this.eventTypeFinder = eventTypeFinder;
             this.serializer = serializer;
             this.producerOptions = producerOptions.Value ?? throw new Exception($"{nameof(ProducerOptions)} Must be injected");
@@ -70,6 +71,7 @@ namespace Pole.Core.Processor
                     pendingMessage.ExpiresAt = DateTime.UtcNow;
                 }
                 pendingMessage.Retries++;
+                var producer = await producerContainer.GetProducer(eventType);
                 await producer.Publish(bytes);
                 pendingMessage.StatusName = nameof(EventStatus.Published);
                 pendingMessage.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);

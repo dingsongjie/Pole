@@ -18,15 +18,15 @@ namespace Pole.Core.UnitOfWork
 {
     class UnitOfWork : IUnitOfWork
     {
-        private readonly IProducer producer;
+        private readonly IProducerContainer producerContainer;
         private readonly IEventTypeFinder eventTypeFinder;
         private readonly ISerializer serializer;
         private readonly IEventStorage eventStorage;
         private readonly PoleOptions options;
         private IBus bus;
-        public UnitOfWork(IProducer producer, IEventTypeFinder eventTypeFinder, ISerializer serializer, IEventStorage eventStorage, IOptions<PoleOptions> options)
+        public UnitOfWork(IProducerContainer producerContainer, IEventTypeFinder eventTypeFinder, ISerializer serializer, IEventStorage eventStorage, IOptions<PoleOptions> options)
         {
-            this.producer = producer;
+            this.producerContainer = producerContainer;
             this.eventTypeFinder = eventTypeFinder;
             this.serializer = serializer;
             this.eventStorage = eventStorage;
@@ -45,6 +45,7 @@ namespace Pole.Core.UnitOfWork
                 var eventContentBytes = serializer.SerializeToUtf8Bytes(@event, eventType);
                 var bytesTransport = new EventBytesTransport(@event.Name, @event.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
+                var producer = await producerContainer.GetProducer(eventType);
                 await producer.Publish(bytes);
                 @event.StatusName = nameof(EventStatus.Published);
                 @event.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);

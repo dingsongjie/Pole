@@ -29,14 +29,16 @@ namespace Backet.Api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContextPool<BacketDbContext>(options =>options.UseNpgsql(Configuration["postgres:write"]));
+            services.AddDbContextPool<BacketDbContext>(options => options.UseNpgsql(Configuration["postgres:write"]));
             services.AddControllers();
 
             services.ConfigureGrainStorageOptions<BacketDbContext, BacketGrain, Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>(
-            options => options
-                .UseQuery(context => context.Backets
-                .Include(box => box.BacketItems)
-            ));
+            options =>
+            {
+                options.UseQuery(context => context.Backets
+                        .Include(box => box.BacketItems));
+                options.IsRelatedData = true;
+            });
 
 
 

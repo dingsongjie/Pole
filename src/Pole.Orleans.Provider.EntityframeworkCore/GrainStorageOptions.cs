@@ -50,6 +50,8 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
 
         internal Func<TEntity, long> LongKeySelector { get; set; }
 
+        public bool IsRelatedData { get; set; }
+
         internal Func<TContext, IAddressable, Task<TEntity>> ReadStateAsync { get; set; }
 
         internal Action<IGrainState, TEntity> SetEntity { get; set; }

@@ -11,6 +11,7 @@ namespace Backet.Api.Grains.Abstraction
         Task<bool> AddBacket(BacketDto backet);
         Task<bool> UpdateBacket(string userId);
         Task<bool> AddBacketItem(string productId, string productName, long price);
+        Task<bool> RemoveFirstItem();
     }
     public class BacketItemDto
     {

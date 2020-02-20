@@ -80,16 +80,21 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
                     bool isPersisted = _options.IsPersistedFunc(entity);
                     if (isPersisted)
                     {
-                        TEntity entityInDb = await _options.ReadStateAsync(context, grainReference)
-                                                            .ConfigureAwait(false);
-                        Copy(entity, entityInDb);
+                        if (_options.IsRelatedData)
+                        {
+                            TEntity entityInDb = await _options.ReadStateAsync(context, grainReference)
+                                    .ConfigureAwait(false);
+                            Copy(entity, entityInDb);
+                        }
+                        else
+                        {
+                            context.Entry(entity).State = EntityState.Modified;
+                        }
                     }
                     else
                     {
                         context.Set<TEntity>().Add(entity);
                     }
-
-
                 }
 
                 try

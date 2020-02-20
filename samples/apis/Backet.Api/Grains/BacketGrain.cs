@@ -37,6 +37,14 @@ namespace Backet.Api.Grains
             return true;
         }
 
+        public async Task<bool> RemoveFirstItem()
+        {
+            State.RemoveFirstItem();
+            Update(State);
+            await WriteStateAsync();
+            return true;
+        }
+
         public async Task<bool> UpdateBacket(string userId)
         {
             if (State == null) return false;

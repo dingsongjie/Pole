@@ -40,5 +40,12 @@ namespace Backet.Api.Controllers
             var grain = clusterClient.GetGrain<IBacketGrain>(id);
            return grain.AddBacketItem("55","测试3",1000);
         }
+        [HttpPost("api/backet/RemoveFirstItem")]
+        public Task<bool> RemoveFirstItem()
+        {
+            var id = "da8a489fa7b4409294ee1b358fbbfba5";
+            var grain = clusterClient.GetGrain<IBacketGrain>(id);
+            return grain.RemoveFirstItem();
+        }
     }
 }

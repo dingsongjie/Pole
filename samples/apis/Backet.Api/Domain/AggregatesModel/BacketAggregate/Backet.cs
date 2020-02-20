@@ -28,11 +28,21 @@ namespace Backet.Api.Domain.AggregatesModel.BacketAggregate
         {
             foreach (var item in BacketItems)
             {
-                TotalPrice += item.Price;
+                TotalPrice = BacketItems.Sum(m=>m.Price);
             }
         }
         public string UserId { get; set; }
         public List<BacketItem> BacketItems { get; private set; } = new List<BacketItem>();
         public long TotalPrice { get; private set; }
+
+        internal void RemoveFirstItem()
+        {
+            var first = BacketItems.FirstOrDefault();
+            if (first != null)
+            {
+                BacketItems.Remove(first);
+                SetBacketTotalPrice();
+            }
+        }
     }
 }

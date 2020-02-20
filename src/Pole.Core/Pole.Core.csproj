@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.0.2" />
     <PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.0.2" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />

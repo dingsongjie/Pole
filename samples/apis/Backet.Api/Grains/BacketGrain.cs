@@ -1,4 +1,5 @@
-﻿using Backet.Api.Grains.Abstraction;
+﻿using Backet.Api.Domain.Event;
+using Backet.Api.Grains.Abstraction;
 using Pole.Core.Grains;
 using System;
 using System.Collections.Generic;
@@ -16,18 +17,20 @@ namespace Backet.Api.Grains
             Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet backet = new Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet
             {
                 Id = backetDto.Id,
-                UserId= backetDto.UserId
+                UserId = backetDto.UserId
             };
             if (backetDto.BacketItems == null || backetDto.BacketItems.Count == 0) return false;
-            backetDto.BacketItems.ForEach(item => {
+            backetDto.BacketItems.ForEach(item =>
+            {
                 backet.AddBacketItem(item.ProductId, item.ProductName, item.Price);
             });
             Add(backet);
+            backet.AddDomainEvent(new BacketCreatedEvent() { BacketId = backet.Id });
             await WriteStateAsync();
             return true;
         }
 
-        public async Task<bool> AddBacketItem(string productId,string productName,long price)
+        public async Task<bool> AddBacketItem(string productId, string productName, long price)
         {
             if (State == null) return false;
 

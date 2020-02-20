@@ -42,7 +42,7 @@ namespace Pole.Core.UnitOfWork
             bufferedEvents.ForEach(async @event =>
             {
                 var eventType = eventTypeFinder.FindType(@event.Name);
-                var eventContentBytes = serializer.SerializeToUtf8Bytes(@event, eventType);
+                var eventContentBytes = Encoding.UTF8.GetBytes(@event.Content);
                 var bytesTransport = new EventBytesTransport(@event.Name, @event.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
                 var producer = await producerContainer.GetProducer(eventType);

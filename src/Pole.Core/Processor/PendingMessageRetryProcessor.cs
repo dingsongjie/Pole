@@ -63,7 +63,7 @@ namespace Pole.Core.Processor
             foreach (var pendingMessage in pendingMessages)
             {
                 var eventType = eventTypeFinder.FindType(pendingMessage.Name);
-                var eventContentBytes = serializer.SerializeToUtf8Bytes(pendingMessage, eventType);
+                var eventContentBytes = Encoding.UTF8.GetBytes(pendingMessage.Content);
                 var bytesTransport = new EventBytesTransport(pendingMessage.Name, pendingMessage.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
                 if (pendingMessage.Retries > producerOptions.MaxFailedRetryCount)

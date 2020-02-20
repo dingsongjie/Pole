@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,5 +28,14 @@ namespace Pole.Core
             public int SortIndex { get; set; }
             public Func<IServiceProvider, Task> Func { get; set; }
         }
+    }
+    public class StartupConfig
+    {
+        public StartupConfig(IServiceCollection services)
+        {
+            Services = services;
+        }
+        public IServiceCollection Services { get; }
+        public Action<PoleOptions> PoleOptionsConfig { get; set; }
     }
 }

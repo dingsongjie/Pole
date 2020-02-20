@@ -44,8 +44,7 @@ namespace Backet.Api.Controllers
         public Task<bool> RemoveFirstItem()
         {
             var id = "da8a489fa7b4409294ee1b358fbbfba5";
-            var grain = clusterClient.GetGrain<IBacketGrain>(id);
-            clusterClient.
+            var grain = clusterClient.GetGrain<IBacketGrain>(id);         
             return grain.RemoveFirstItem();
         }
     }

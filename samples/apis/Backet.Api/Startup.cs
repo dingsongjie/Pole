@@ -27,6 +27,15 @@ namespace Backet.Api
             services.AddDbContextPool<BacketDbContext>(options => options.UseNpgsql(Configuration["postgres:write"]));
             services.AddControllers();
 
+            services.AddPole(config => {
+                config.AddRabbitMQ(option =>
+                {
+                    option.Hosts = new string[1] { Configuration["RabbitmqConfig:HostAddress"] };
+                    option.Password = Configuration["RabbitmqConfig:HostPassword"];
+                    option.UserName = Configuration["RabbitmqConfig:HostUserName"];
+                });
+            });
+
             services.ConfigureGrainStorageOptions<BacketDbContext, BacketGrain, Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>(
             options =>
             {
@@ -44,6 +53,7 @@ namespace Backet.Api
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UsePole();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>

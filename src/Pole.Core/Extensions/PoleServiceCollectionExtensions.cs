@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pole.Core;
 using Pole.Core.Abstraction;
 using Pole.Core.Channels;
 using Pole.Core.EventBus;
@@ -12,12 +13,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Core.Extensions
+namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class IServiceCollectionExtensions
+    public static class PoleServiceCollectionExtensions
     {
-        public static IServiceCollection AddPole(this IServiceCollection services,Action<PoleOptions> config)
+        public static IServiceCollection AddPole(this IServiceCollection services,Action<StartupConfig> config)
         {
+            StartupConfig startupOption = new StartupConfig(services);
+            if (startupOption.PoleOptionsConfig == null)
+            {
+                services.Configure<PoleOptions>(option => { });
+            }
             services.AddSingleton<IEventTypeFinder, EventTypeFinder>();
             services.AddTransient(typeof(IMpscChannel<>), typeof(MpscChannel<>));
             services.AddScoped<IBus, Bus>();
@@ -26,10 +32,11 @@ namespace Pole.Core.Extensions
             services.AddSingleton<IGeneratorIdSolver, InstanceIPV4_16IdGeneratorIdSolver>();
             services.AddSingleton<ISnowflakeIdGenerator, SnowflakeIdGenerator>();
 
-
             services.AddSingleton<IProcessor, PendingMessageRetryProcessor>();
             services.AddSingleton<IProcessor, ExpiredEventsCollectorProcessor>();
             services.AddHostedService<BackgroundServiceBasedProcessorServer>();
+
+            config(startupOption);
             return services;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Pole.Core.EventBus.EventStorage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace Pole.Core.Processor.Server
         }
         public async Task Start(CancellationToken stoppingToken)
         {
+            var eventStorageInitializer = _serviceProvider.GetService<IEventStorageInitializer>();
+            await eventStorageInitializer.InitializeAsync(stoppingToken);
 
             ProcessingContext processingContext = new ProcessingContext(stoppingToken);
             List<LoopProcessor> loopProcessors = new List<LoopProcessor>();

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Pole.Core.Observer;
 using Pole.Core.Utils;
 using System;
 using System.Collections.Concurrent;

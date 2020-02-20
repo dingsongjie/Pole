@@ -28,7 +28,6 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<GrainStorage<TContext, TGrain, TGrainState, TEntity>> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IGrainStateEntryConfigurator<TContext, TGrain, TEntity> _entryConfigurator;
 
         public GrainStorage(string grainType, IServiceProvider serviceProvider)
         {
@@ -36,9 +35,6 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
 
             _serviceProvider = serviceProvider
                                ?? throw new ArgumentNullException(nameof(serviceProvider));
-
-            _entryConfigurator = (IGrainStateEntryConfigurator<TContext, TGrain, TEntity>)serviceProvider.GetRequiredService(
-                typeof(IGrainStateEntryConfigurator<TContext, TGrain, TEntity>));
 
             var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
             _logger = loggerFactory?.CreateLogger<GrainStorage<TContext, TGrain, TGrainState, TEntity>>()

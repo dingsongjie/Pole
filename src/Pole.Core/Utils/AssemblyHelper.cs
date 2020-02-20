@@ -10,22 +10,28 @@ namespace Pole.Core.Utils
 {
     public class AssemblyHelper
     {
+        private static IList<Assembly> Assemblies;
         public static IList<Assembly> GetAssemblies(ILogger logger = default)
         {
-            var libs = DependencyContext.Default.CompileLibraries.Where(lib => !lib.Serviceable);
-            return libs.Select(lib =>
-             {
-                 try
-                 {
-                     return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(lib.Name));
-                 }
-                 catch (Exception ex)
-                 {
-                     if (logger != default)
-                         logger.LogWarning(ex, ex.Message);
-                     return default;
-                 }
-             }).Where(assembly => assembly != default).ToList();
+            if (Assemblies != null)
+            {
+                return Assemblies;
+            }
+            var libs = DependencyContext.Default.CompileLibraries.Where(lib => !lib.Serviceable && !lib.Name.StartsWith("Microsoft") && !lib.Name.StartsWith("System"));
+            Assemblies = libs.Select(lib =>
+              {
+                  try
+                  {
+                      return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(lib.Name));
+                  }
+                  catch (Exception ex)
+                  {
+                      if (logger != default)
+                          logger.LogWarning(ex, ex.Message);
+                      return default;
+                  }
+              }).Where(assembly => assembly != default).ToList();
+            return Assemblies;
         }
     }
 }

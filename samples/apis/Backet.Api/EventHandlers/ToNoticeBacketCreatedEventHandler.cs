@@ -10,14 +10,14 @@ namespace Backet.Api.EventHandlers
 {
     public class ToNoticeBacketCreatedEventHandler : PoleEventHandler<BacketCreatedEvent>, IToNoticeBacketCreatedEventHandler
     {
-        public Task BulkEventsHandle(List<BacketCreatedEvent> @event)
+        public async Task BulkEventsHandle(List<BacketCreatedEvent> @event)
         {
-            return Task.CompletedTask;
+            await Task.Delay(1500);
         }
 
-        public Task EventHandle(BacketCreatedEvent @event)
+        public async Task EventHandle(BacketCreatedEvent @event)
         {
-            return Task.CompletedTask;
+            await Task.Delay(1200);
         }
     }
 }

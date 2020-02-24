@@ -121,6 +121,7 @@ namespace Pole.EventBus.RabbitMQ
 
         private async Task ProcessComsumerErrors(BasicDeliverEventArgs ea, Exception exception)
         {
+            // todo 这里需要添加断路器 防止超量的 Task.Delay
             if (ea.BasicProperties.Headers.TryGetValue(Consts.ConsumerRetryTimesStr, out object retryTimesObj))
             {
                 var retryTimesStr = Encoding.UTF8.GetString((byte[])retryTimesObj);

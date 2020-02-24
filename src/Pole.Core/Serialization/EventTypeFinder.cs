@@ -30,9 +30,9 @@ namespace Pole.Core.Serialization
                     {
                         eventCode = attribute.EventName;
                     }
-                    typeDict.TryAdd(type, type.FullName);
+                    typeDict.TryAdd(type, eventCode);
 
-                    if (!codeDict.TryAdd(type.FullName, type))
+                    if (!codeDict.TryAdd(eventCode, type))
                     {
                         throw new TypeCodeRepeatedException(type.FullName, type.FullName);
                     }

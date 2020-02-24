@@ -1,4 +1,4 @@
-﻿using Pole.Core.Abstraction;
+﻿
 using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventStorage;
 using Pole.Core.EventBus.Transaction;
@@ -22,8 +22,7 @@ namespace Pole.Core.EventBus
         public IDbTransactionAdapter Transaction { get; set; }
 
         public IServiceProvider ServiceProvider { get; }
-        public BlockingCollection<EventEntity> PrePublishEventBuffer { get; } =
-     new BlockingCollection<EventEntity>(new ConcurrentQueue<EventEntity>());
+        public BlockingCollection<EventEntity> PrePublishEventBuffer { get; } = new BlockingCollection<EventEntity>(new ConcurrentQueue<EventEntity>());
 
         public Bus(IServiceProvider serviceProvider, IEventTypeFinder eventTypeFinder, ISerializer serializer, ISnowflakeIdGenerator snowflakeIdGenerator, IEventStorage eventStorage)
         {
@@ -51,11 +50,11 @@ namespace Pole.Core.EventBus
             };
             if (Transaction?.DbTransaction == null)
             {
-                var mediumMessage = await eventStorage.StoreMessage(eventEntity);
+                await eventStorage.StoreMessage(eventEntity);
             }
             else
             {
-                var mediumMessage = await eventStorage.StoreMessage(eventEntity, Transaction.DbTransaction);
+                await eventStorage.StoreMessage(eventEntity, Transaction.DbTransaction);
 
             }
             PrePublishEventBuffer.Add(eventEntity);

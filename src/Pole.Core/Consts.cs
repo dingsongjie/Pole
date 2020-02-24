@@ -10,7 +10,5 @@ namespace Pole.Core
         public static ValueTask ValueTaskDone = new ValueTask();
         public const string ConsumerRetryTimesStr = "pole-consumer-retry-times";
         public const string ConsumerExceptionDetailsStr = "pole-consumer-exception-details";
-        public const string EventHandlerMethodName = "EventHandler";
-        public const string BatchEventsHandlerMethodName = "BatchEventsHandler";
     }
 }

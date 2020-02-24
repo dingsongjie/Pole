@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
-using Pole.Core.Abstraction;
 using Pole.Core.EventBus;
 using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventStorage;

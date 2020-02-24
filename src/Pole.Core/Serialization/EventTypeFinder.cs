@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using Pole.Core.Abstraction;
 using Pole.Core.EventBus.Event;
 using Pole.Core.Exceptions;
 using Pole.Core.Utils;
+using Pole.Core.Utils.Abstraction;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

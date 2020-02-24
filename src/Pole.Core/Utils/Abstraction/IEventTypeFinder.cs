@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Core.Abstraction
+namespace Pole.Core.Utils.Abstraction
 {
     public interface IEventTypeFinder
     {

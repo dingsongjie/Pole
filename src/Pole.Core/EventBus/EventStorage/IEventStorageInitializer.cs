@@ -9,7 +9,6 @@ namespace Pole.Core.EventBus.EventStorage
     public interface IEventStorageInitializer
     {
         Task InitializeAsync(CancellationToken cancellationToken);
-
         string GetTableName();
     }
 }

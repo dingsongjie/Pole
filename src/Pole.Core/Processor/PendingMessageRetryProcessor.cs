@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Pole.Core.Abstraction;
 using Pole.Core.EventBus;
 using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventStorage;

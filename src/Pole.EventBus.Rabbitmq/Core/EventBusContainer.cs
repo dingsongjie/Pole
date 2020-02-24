@@ -13,7 +13,6 @@ using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventHandler;
 using Microsoft.Extensions.Options;
 using System.Linq;
-using Pole.Core.Abstraction;
 
 namespace Pole.EventBus.RabbitMQ
 {
@@ -39,7 +38,6 @@ namespace Pole.EventBus.RabbitMQ
         }
         public async Task AutoRegister()
         {
-            var observableList = new List<(Type type, ProducerAttribute config)>();
             var eventList = new List<(Type type, EventAttribute config)>();
             var evenHandlertList = new List<(Type type, EventHandlerAttribute config)>();
             AddEventAndEventHandlerInfoList(eventList, evenHandlertList);

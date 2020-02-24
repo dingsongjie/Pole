@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pole.Core;
-using Pole.Core.Abstraction;
 using Pole.Core.Channels;
 using Pole.Core.EventBus;
 using Pole.Core.Processor;

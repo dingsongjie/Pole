@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Pole.Core.Abstraction;
 using Pole.Core.Serialization;
 using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventStorage;
 using Microsoft.Extensions.Options;
+using Pole.Core.Utils.Abstraction;
 
 namespace Pole.Core.UnitOfWork
 {

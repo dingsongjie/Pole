@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
-using Pole.Core.Abstraction;
 using Pole.Core.EventBus.Event;
 using Pole.Core.Serialization;
 using System;
@@ -13,6 +12,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using Pole.Core.Exceptions;
 using Orleans;
+using Pole.Core.Utils.Abstraction;
 
 namespace Pole.Core.EventBus.EventHandler
 {
@@ -52,7 +52,7 @@ namespace Pole.Core.EventBus.EventHandler
             if (this is IPoleEventHandler<TEvent> handler)
             {
                 var result = handler.EventHandle((TEvent)eventObj);
-                logger.LogTrace($"{nameof(PoleEventHandler<TEvent>)} Invoke completed: {0}->{1}->{2}", grainType.FullName, Consts.EventHandlerMethodName, serializer.Serialize(eventObj));
+                logger.LogTrace($"{nameof(PoleEventHandler<TEvent>)} Invoke completed: {0}->{1}->{2}", grainType.FullName, nameof(handler.EventHandle), serializer.Serialize(eventObj));
                 return result;
             }
             else
@@ -71,14 +71,14 @@ namespace Pole.Core.EventBus.EventHandler
                 if (this is IPoleBulkEventsHandler<TEvent> batchHandler)
                 {
                     await batchHandler.BulkEventsHandle(eventObjs);
-                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", grainType.FullName, Consts.EventHandlerMethodName, serializer.Serialize(eventObjs));
+                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", grainType.FullName, nameof(batchHandler.BulkEventsHandle), serializer.Serialize(eventObjs));
                     return;
                 }
                 else if (this is IPoleEventHandler<TEvent> handler)
                 {
                     var handleTasks = eventObjs.Select(m => handler.EventHandle(m));
                     await Task.WhenAll(handleTasks);
-                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", grainType.FullName, Consts.EventHandlerMethodName, serializer.Serialize(eventObjs));
+                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", grainType.FullName, nameof(handler.EventHandle), serializer.Serialize(eventObjs));
                     return;
                 }
                 else

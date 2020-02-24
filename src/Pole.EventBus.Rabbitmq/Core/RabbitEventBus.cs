@@ -68,7 +68,7 @@ namespace Pole.EventBus.RabbitMQ
                     observerUnit.GetBatchEventHandler())
                 {
                     EventBus = this,
-                    QueueInfo = new QueueInfo { RoutingKey = RoutePrefix, Queue = $"{RoutePrefix}_{queueNameSuffix}" },
+                    QueueInfo = new QueueInfo { RoutingKey = string.Empty, Queue = $"{RoutePrefix}_{queueNameSuffix}" },
                     Config = ConsumerConfig
                 };
                 Consumers.Add(consumer);

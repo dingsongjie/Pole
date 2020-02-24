@@ -25,9 +25,9 @@ namespace Backet.Api
                     siloBuilder.UseLocalhostClustering();
                     siloBuilder.AddEfGrainStorageAsDefault<BacketDbContext>();
                 })
-                            .ConfigureWebHostDefaults(webBuilder =>
-                            {
-                                webBuilder.UseStartup<Startup>();
-                            });
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }

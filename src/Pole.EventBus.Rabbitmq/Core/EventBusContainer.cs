@@ -38,8 +38,8 @@ namespace Pole.EventBus.RabbitMQ
         }
         public async Task AutoRegister()
         {
-            var eventList = new List<(Type type, EventAttribute config)>();
-            var evenHandlertList = new List<(Type type, EventHandlerAttribute config)>();
+            var eventList = new List<(Type type, EventInfoAttribute config)>();
+            var evenHandlertList = new List<(Type type, EventInfoAttribute config)>();
             AddEventAndEventHandlerInfoList(eventList, evenHandlertList);
             foreach (var (type, config) in eventList)
             {
@@ -110,21 +110,21 @@ namespace Pole.EventBus.RabbitMQ
 
 
         #region helpers
-        private void AddEventAndEventHandlerInfoList(List<(Type type, EventAttribute config)> eventList, List<(Type type, EventHandlerAttribute config)> eventHandlertList)
+        private void AddEventAndEventHandlerInfoList(List<(Type type, EventInfoAttribute config)> eventList, List<(Type type, EventInfoAttribute config)> eventHandlertList)
         {
             foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
             {
                 foreach (var type in assembly.GetTypes().Where(m => typeof(IEvent).IsAssignableFrom(m) && m.IsClass))
                 {
-                    var attribute = type.GetCustomAttributes(typeof(EventAttribute), false).FirstOrDefault();
+                    var attribute = type.GetCustomAttributes(typeof(EventInfoAttribute), false).FirstOrDefault();
 
                     if (attribute != null)
                     {
-                        eventList.Add((type, (EventAttribute)attribute));
+                        eventList.Add((type, (EventInfoAttribute)attribute));
                     }
                     else
                     {
-                        eventList.Add((type, new EventAttribute() { EventName = type.FullName }));
+                        eventList.Add((type, new EventInfoAttribute() { EventName = type.FullName }));
                     }
                 }
             }
@@ -132,13 +132,25 @@ namespace Pole.EventBus.RabbitMQ
             foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
             {
 
-                foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract&&!typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
+                foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract && !typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
                 {
-                    var attribute = type.GetCustomAttributes(typeof(EventHandlerAttribute), false).FirstOrDefault();
+                    var eventHandlerInterface = type.GetInterfaces().FirstOrDefault(type => typeof(IPoleEventHandler).IsAssignableFrom(type) && !type.IsGenericType);
+                    var basePoleEventHandlerInterface = eventHandlerInterface.GetInterfaces().FirstOrDefault(m => m.IsGenericType);
+
+                    if (basePoleEventHandlerInterface == null)
+                    {
+                        throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
+                    }
+                    var eventType = basePoleEventHandlerInterface.GetGenericArguments().FirstOrDefault();
+                    if (eventType == null)
+                    {
+                        throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
+                    }
+                    var attribute = eventType.GetCustomAttributes(typeof(EventInfoAttribute), false).FirstOrDefault();
 
                     if (attribute != null)
                     {
-                        eventHandlertList.Add((type, (EventHandlerAttribute)attribute));
+                        eventHandlertList.Add((eventHandlerInterface, (EventInfoAttribute)attribute));
                     }
                     else
                     {

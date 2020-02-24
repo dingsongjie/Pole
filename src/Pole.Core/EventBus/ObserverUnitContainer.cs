@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Pole.Core.EventBus.EventHandler;
 using System.Linq;
 using Pole.Core.Exceptions;
+using Pole.Core.EventBus.Event;
 
 namespace Pole.Core.EventBus
 {
@@ -16,17 +17,28 @@ namespace Pole.Core.EventBus
         readonly ConcurrentDictionary<string, List<object>> unitDict = new ConcurrentDictionary<string, List<object>>();
         public ObserverUnitContainer(IServiceProvider serviceProvider)
         {
-            var eventHandlerList = new List<(Type, EventHandlerAttribute)>();
+            var eventHandlerList = new List<(Type, EventInfoAttribute)>();
             foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<ObserverUnitContainer>>()))
             {
                 foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract && !typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
                 {
-                    var attribute = type.GetCustomAttributes(typeof(EventHandlerAttribute), false).FirstOrDefault();
                     var eventHandlerInterface = type.GetInterfaces().FirstOrDefault(type => typeof(IPoleEventHandler).IsAssignableFrom(type) && !type.IsGenericType);
+                    var basePoleEventHandlerInterface= eventHandlerInterface.GetInterfaces().FirstOrDefault(m=>m.IsGenericType);
+
+                    if (basePoleEventHandlerInterface == null)
+                    {
+                        throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
+                    }
+                    var eventType= basePoleEventHandlerInterface.GetGenericArguments().FirstOrDefault();
+                    if (eventType == null)
+                    {
+                        throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
+                    }
+                    var attribute = eventType.GetCustomAttributes(typeof(EventInfoAttribute), false).FirstOrDefault();
 
                     if (attribute != null)
                     {
-                        eventHandlerList.Add((eventHandlerInterface, (EventHandlerAttribute)attribute));
+                        eventHandlerList.Add((eventHandlerInterface, (EventInfoAttribute)attribute));
                     }
                     else
                     {

@@ -25,8 +25,8 @@ namespace Pole.Core.Serialization
                 foreach (var type in assembly.GetTypes().Where(m => baseEventType.IsAssignableFrom(m)&&!m.IsAbstract))
                 {
                     var eventCode = type.FullName;
-                    var eventAttribute = type.GetCustomAttributes(typeof(EventAttribute),false).FirstOrDefault();
-                    if (eventAttribute is EventAttribute attribute )
+                    var eventAttribute = type.GetCustomAttributes(typeof(EventInfoAttribute),false).FirstOrDefault();
+                    if (eventAttribute is EventInfoAttribute attribute )
                     {
                         eventCode = attribute.EventName;
                     }

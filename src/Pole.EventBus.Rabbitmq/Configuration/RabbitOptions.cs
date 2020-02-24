@@ -7,7 +7,8 @@ namespace Pole.EventBus.RabbitMQ
     {
         public string UserName { get; set; }
         public string Password { get; set; }
-        public string VirtualHost { get; set; }
+        public string VirtualHost { get; set; } = "/";
+        public int Port { get; set; } = 5672;
         public int MasChannelsPerConnection { get; set; } = 200;
         /// <summary>
         /// 目前为一个连接 当消息数量非常大时,单个TCP连接的运输能力有限,可以修改这个最大连接数提高运输能力

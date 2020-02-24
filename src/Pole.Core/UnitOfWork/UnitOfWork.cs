@@ -45,7 +45,7 @@ namespace Pole.Core.UnitOfWork
                 var eventContentBytes = Encoding.UTF8.GetBytes(@event.Content);
                 var bytesTransport = new EventBytesTransport(@event.Name, @event.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
-                var producer = await producerContainer.GetProducer(eventType);
+                var producer = await producerContainer.GetProducer(@event.Name);
                 await producer.Publish(bytes);
                 @event.StatusName = nameof(EventStatus.Published);
                 @event.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);

@@ -8,6 +8,5 @@ namespace Pole.Core.EventBus.EventHandler
     public class EventHandlerAttribute: Attribute
     {
         public string EventName { get; set; }
-        public string EventHandlerName { get; set; }
     }
 }

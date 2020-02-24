@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
 namespace Pole.Core.Serialization
 {
     public class DefaultJsonSerializer : ISerializer
     {
-        static readonly JsonSerializerOptions options = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) };
+        static readonly JsonSerializerOptions options = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All), MaxDepth = 5, ReferenceHandling = ReferenceHandling.Preserve, WriteIndented =true};
         public T Deserialize<T>(string json) where T : class, new()
         {
             return JsonSerializer.Deserialize<T>(json);

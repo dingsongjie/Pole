@@ -31,11 +31,11 @@ namespace Pole.EventStorage.PostgreSql
         public async Task BulkChangePublishStateAsync(IEnumerable<EventEntity> events)
         {
             var sql =
-$"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusName\"=@StatusName WHERE \"Id\"= any @Ids";
+$"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusName\"=@StatusName WHERE \"Id\" IN (@Ids)";
             using var connection = new NpgsqlConnection(options.ConnectionString);
             await connection.ExecuteAsync(sql, events.Select(@event=> new
             {
-                Ids = events.Select(@event=>@event.Id).ToArray(),
+                Ids =string.Join(',',events.Select(@event=>@event.Id).ToArray()),
                 @event.Retries,
                 @event.ExpiresAt,
                 @event.StatusName
@@ -79,6 +79,8 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
                 result.Add(new EventEntity
                 {
                     Id = reader.GetString(0),
+                    Name=reader.GetString(2),
+                    Content=reader.GetString(3),
                     Retries = reader.GetInt32(4),
                     Added = reader.GetDateTime(5)
                 });

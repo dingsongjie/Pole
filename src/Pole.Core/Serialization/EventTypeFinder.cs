@@ -6,6 +6,7 @@ using Pole.Core.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Pole.Core.Serialization
@@ -21,16 +22,13 @@ namespace Pole.Core.Serialization
             var baseEventType = typeof(IEvent);
             foreach (var assembly in AssemblyHelper.GetAssemblies(this.logger))
             {
-                foreach (var type in assembly.GetTypes())
+                foreach (var type in assembly.GetTypes().Where(m => baseEventType.IsAssignableFrom(m)&&!m.IsAbstract))
                 {
-                    if (baseEventType.IsAssignableFrom(type))
-                    {
-                        typeDict.TryAdd(type, type.FullName);
+                    typeDict.TryAdd(type, type.FullName);
 
-                        if (!codeDict.TryAdd(type.FullName, type))
-                        {
-                            throw new TypeCodeRepeatedException(type.FullName, type.FullName);
-                        }
+                    if (!codeDict.TryAdd(type.FullName, type))
+                    {
+                        throw new TypeCodeRepeatedException(type.FullName, type.FullName);
                     }
                 }
             }

@@ -3,6 +3,7 @@ using Pole.Core;
 using Pole.Core.Exceptions;
 using RabbitMQ.Client;
 using System;
+using System.Collections.Generic;
 
 namespace Pole.EventBus.RabbitMQ
 {
@@ -23,10 +24,37 @@ namespace Pole.EventBus.RabbitMQ
             var consumeRetryTimesStr = consumeRetryTimes.ToString();
             persistentProperties = Model.CreateBasicProperties();
             persistentProperties.Persistent = true;
+            persistentProperties.Headers = new Dictionary<string, object>();
             persistentProperties.Headers.Add(Consts.ConsumerRetryTimesStr, consumeRetryTimesStr);
             noPersistentProperties = Model.CreateBasicProperties();
             noPersistentProperties.Persistent = false;
+            noPersistentProperties.Headers = new Dictionary<string, object>();
             noPersistentProperties.Headers.Add(Consts.ConsumerRetryTimesStr, consumeRetryTimesStr);
+        }
+        public void Publish(byte[] msg, IDictionary<string, object> headers, string exchange, string routingKey, bool persistent = true)
+        {
+            if (persistent)
+            {
+                persistentProperties.Headers = headers;
+            }
+            else
+            {
+                noPersistentProperties.Headers = headers;
+            }
+            Model.ConfirmSelect();
+            Model.BasicPublish(exchange, routingKey, persistent ? persistentProperties : noPersistentProperties, msg);
+            if (!Model.WaitForConfirms(TimeSpan.FromSeconds(Connection.Options.ProducerConfirmWaitTimeoutSeconds), out bool isTimeout))
+            {
+                if (isTimeout)
+                {
+                    throw new ProducerConfirmTimeOutException(Connection.Options.ProducerConfirmWaitTimeoutSeconds);
+                }
+                else
+                {
+                    throw new ProducerReceivedNAckException();
+                }
+            }
+
         }
         public void Publish(byte[] msg, string exchange, string routingKey, bool persistent = true)
         {

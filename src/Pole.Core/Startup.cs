@@ -13,7 +13,7 @@ namespace Pole.Core
         {
             tasks.Add(new StartupTask(sortIndex, method));
         }
-        internal static Task StartRay(IServiceProvider serviceProvider)
+        internal static Task StartPole(IServiceProvider serviceProvider)
         {
             tasks = tasks.OrderBy(func => func.SortIndex).ToList();
             return Task.WhenAll(tasks.Select(value => value.Func(serviceProvider)));

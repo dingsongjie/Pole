@@ -10,7 +10,7 @@ namespace  Microsoft.AspNetCore.Builder
     {
         public static IApplicationBuilder UsePole(this IApplicationBuilder applicationBuilder)
         {
-            Startup.StartRay(applicationBuilder.ApplicationServices);
+            Startup.StartPole(applicationBuilder.ApplicationServices).GetAwaiter().GetResult();
             return applicationBuilder;
         }
     }

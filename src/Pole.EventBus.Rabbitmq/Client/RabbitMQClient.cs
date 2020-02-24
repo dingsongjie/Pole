@@ -14,6 +14,7 @@ namespace Pole.EventBus.RabbitMQ
             options = config.Value;
             connectionFactory = new ConnectionFactory
             {
+                Port=options.Port,
                 UserName = options.UserName,
                 Password = options.Password,
                 VirtualHost = options.VirtualHost,

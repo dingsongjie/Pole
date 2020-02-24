@@ -12,17 +12,20 @@ using System.Threading.Tasks;
 using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventHandler;
 using Microsoft.Extensions.Options;
+using System.Linq;
+using Pole.Core.Abstraction;
 
 namespace Pole.EventBus.RabbitMQ
 {
     public class EventBusContainer : IRabbitEventBusContainer, IProducerContainer
     {
-        private readonly ConcurrentDictionary<Type, RabbitEventBus> eventBusDictionary = new ConcurrentDictionary<Type, RabbitEventBus>();
+        private readonly ConcurrentDictionary<string, RabbitEventBus> eventBusDictionary = new ConcurrentDictionary<string, RabbitEventBus>();
         private readonly List<RabbitEventBus> eventBusList = new List<RabbitEventBus>();
         readonly IRabbitMQClient rabbitMQClient;
         readonly IServiceProvider serviceProvider;
         private readonly IObserverUnitContainer observerUnitContainer;
         private readonly RabbitOptions rabbitOptions;
+        public bool IsAutoRegisterFinished { get; private set; }
         public EventBusContainer(
             IServiceProvider serviceProvider,
             IObserverUnitContainer observerUnitContainer,
@@ -42,16 +45,21 @@ namespace Pole.EventBus.RabbitMQ
             AddEventAndEventHandlerInfoList(eventList, evenHandlertList);
             foreach (var (type, config) in eventList)
             {
-                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name.ToLower() : config.EventName;
+                var eventName = config.EventName;
                 var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, false, true, true).BindEvent(type, eventName);
                 await eventBus.AddGrainConsumer<string>();
             }
             foreach (var (type, config) in evenHandlertList)
             {
-                var eventName = string.IsNullOrEmpty(config.EventName) ? type.Name.ToLower() : config.EventName;
-                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, false, true, true).BindEvent(type, eventName);
-                await eventBus.AddGrainConsumer<string>();
+                var eventName = config.EventName;
+
+                if (!eventBusDictionary.TryGetValue(eventName, out RabbitEventBus rabbitEventBus))
+                {
+                    var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, false, true, true).BindEvent(type, eventName);
+                    await eventBus.AddGrainConsumer<string>();
+                }
             }
+            IsAutoRegisterFinished = true;
         }
 
         public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool autoAck = false, bool reenqueue = true, bool persistent = true)
@@ -60,35 +68,37 @@ namespace Pole.EventBus.RabbitMQ
         }
         public Task Work(RabbitEventBus bus)
         {
-            if (eventBusDictionary.TryAdd(bus.Event, bus))
+            if (eventBusDictionary.TryAdd(bus.EventName, bus))
             {
                 eventBusList.Add(bus);
                 using var channel = rabbitMQClient.PullChannel();
-                channel.Model.ExchangeDeclare(bus.Exchange, "direct", true);
+                channel.Model.ExchangeDeclare($"{rabbitOptions.Prefix}{bus.Exchange}", "direct", true);
                 return Task.CompletedTask;
             }
             else
                 throw new EventBusRepeatException(bus.Event.FullName);
         }
 
-        readonly ConcurrentDictionary<Type, IProducer> producerDict = new ConcurrentDictionary<Type, IProducer>();
-        public ValueTask<IProducer> GetProducer(Type type)
+        readonly ConcurrentDictionary<string, IProducer> producerDict = new ConcurrentDictionary<string, IProducer>();
+
+
+        public ValueTask<IProducer> GetProducer(string typeName)
         {
-            if (eventBusDictionary.TryGetValue(type, out var eventBus))
+            if (eventBusDictionary.TryGetValue(typeName, out var eventBus))
             {
-                return new ValueTask<IProducer>(producerDict.GetOrAdd(type, key =>
+                return new ValueTask<IProducer>(producerDict.GetOrAdd(typeName, key =>
                 {
-                    return new RabbitProducer(rabbitMQClient, eventBus);
+                    return new RabbitProducer(rabbitMQClient, eventBus, rabbitOptions);
                 }));
             }
             else
             {
-                throw new NotImplementedException($"{nameof(IProducer)} of {type.FullName}");
+                throw new NotImplementedException($"{nameof(IProducer)} of {typeName}");
             }
         }
         public ValueTask<IProducer> GetProducer<T>()
         {
-            return GetProducer(typeof(T));
+            return GetProducer(typeof(T).FullName);
         }
         public List<IConsumer> GetConsumers()
         {
@@ -102,37 +112,44 @@ namespace Pole.EventBus.RabbitMQ
 
 
         #region helpers
-        private void AddEventAndEventHandlerInfoList(List<(Type type, EventAttribute config)> eventList, List<(Type type, EventHandlerAttribute config)> evenHandlertList)
+        private void AddEventAndEventHandlerInfoList(List<(Type type, EventAttribute config)> eventList, List<(Type type, EventHandlerAttribute config)> eventHandlertList)
         {
             foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
             {
-                foreach (var type in assembly.GetTypes())
+                foreach (var type in assembly.GetTypes().Where(m => typeof(IEvent).IsAssignableFrom(m) && m.IsClass))
                 {
-                    foreach (var attribute in type.GetCustomAttributes(false))
+                    var attribute = type.GetCustomAttributes(typeof(EventAttribute), false).FirstOrDefault();
+
+                    if (attribute != null)
                     {
-                        if (attribute is EventAttribute config)
-                        {
-                            eventList.Add((type, config));
-                            break;
-                        }
+                        eventList.Add((type, (EventAttribute)attribute));
+                    }
+                    else
+                    {
+                        eventList.Add((type, new EventAttribute() { EventName = type.FullName }));
                     }
                 }
             }
+
             foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
             {
-                foreach (var type in assembly.GetTypes())
+
+                foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract&&!typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
                 {
-                    foreach (var attribute in type.GetCustomAttributes(false))
+                    var attribute = type.GetCustomAttributes(typeof(EventHandlerAttribute), false).FirstOrDefault();
+
+                    if (attribute != null)
                     {
-                        if (attribute is EventHandlerAttribute config)
-                        {
-                            evenHandlertList.Add((type, config));
-                            break;
-                        }
+                        eventHandlertList.Add((type, (EventHandlerAttribute)attribute));
+                    }
+                    else
+                    {
+                        throw new PoleEventHandlerImplementException("Can not found EventHandlerAttribute in PoleEventHandler");
                     }
                 }
+
             }
-        } 
+        }
         #endregion
     }
 }

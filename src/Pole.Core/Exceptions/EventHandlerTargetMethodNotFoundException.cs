@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Pole.Core.Exceptions
 {
-   public class EventHandlerTargetMethodNotFoundException: Exception
+   public class EventHandlerImplementedNotRightException: Exception
     {
-        public EventHandlerTargetMethodNotFoundException(string methodName,string eventTypeName):base($"EventHandler method:{methodName} not found when eventHandler invoke , eventType:{eventTypeName}")
+        public EventHandlerImplementedNotRightException(string methodName,string eventTypeName,string eventHandlerName):base($"EventHandler method:{methodName} errors, when eventHandler: {eventHandlerName} invoke , eventType:{eventTypeName}")
         {
 
         }

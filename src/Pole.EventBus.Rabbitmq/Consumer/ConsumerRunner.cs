@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Pole.Core;
 using Pole.Core.Serialization;
+using Microsoft.Extensions.Options;
+using System.Text;
 
 namespace Pole.EventBus.RabbitMQ
 {
@@ -16,11 +18,13 @@ namespace Pole.EventBus.RabbitMQ
     {
         readonly IMpscChannel<BasicDeliverEventArgs> mpscChannel;
         readonly ISerializer serializer;
+        readonly RabbitOptions rabbitOptions;
         public ConsumerRunner(
             IRabbitMQClient client,
             IServiceProvider provider,
             RabbitConsumer consumer,
-            QueueInfo queue)
+            QueueInfo queue,
+            RabbitOptions rabbitOptions)
         {
             Client = client;
             Logger = provider.GetService<ILogger<ConsumerRunner>>();
@@ -29,6 +33,9 @@ namespace Pole.EventBus.RabbitMQ
             mpscChannel.BindConsumer(BatchExecuter);
             Consumer = consumer;
             Queue = queue;
+            this.rabbitOptions = rabbitOptions;
+
+
         }
         public ILogger<ConsumerRunner> Logger { get; }
         public IRabbitMQClient Client { get; }
@@ -45,27 +52,21 @@ namespace Pole.EventBus.RabbitMQ
             if (isFirst)
             {
                 isFirst = false;
-                Model.Model.ExchangeDeclare(Consumer.EventBus.Exchange, "direct", true);
+                Model.Model.ExchangeDeclare($"{rabbitOptions.Prefix}{Consumer.EventBus.Exchange}", "direct", true);
                 Model.Model.ExchangeDeclare(Queue.Queue, "direct", true);
-                Model.Model.ExchangeBind(Consumer.EventBus.Exchange, Queue.Queue, string.Empty);
+                Model.Model.ExchangeBind(Queue.Queue, $"{rabbitOptions.Prefix}{Consumer.EventBus.Exchange}", string.Empty);
                 Model.Model.QueueDeclare(Queue.Queue, true, false, false, null);
                 Model.Model.QueueBind(Queue.Queue, Queue.Queue, string.Empty);
             }
             Model.Model.BasicQos(0, Model.Connection.Options.CunsumerMaxBatchSize, false);
             BasicConsumer = new EventingBasicConsumer(Model.Model);
-            BasicConsumer.Received += async (ch, ea) => await mpscChannel.WriteAsync(ea);
+            BasicConsumer.Received += async (ch, ea) =>
+            {
+
+                await mpscChannel.WriteAsync(ea);
+            };
             BasicConsumer.ConsumerTag = Model.Model.BasicConsume(Queue.Queue, Consumer.Config.AutoAck, BasicConsumer);
             return Task.CompletedTask;
-        }
-        public Task HeathCheck()
-        {
-            if (IsUnAvailable)
-            {
-                Close();
-                return Run();
-            }
-            else
-                return Task.CompletedTask;
         }
         private async Task BatchExecuter(List<BasicDeliverEventArgs> list)
         {
@@ -88,6 +89,7 @@ namespace Pole.EventBus.RabbitMQ
                         {
                             await ProcessComsumerErrors(item, exception);
                         }
+                        return;
                     }
                 }
                 if (!Consumer.Config.AutoAck)
@@ -108,6 +110,7 @@ namespace Pole.EventBus.RabbitMQ
                 if (Consumer.Config.Reenqueue)
                 {
                     await ProcessComsumerErrors(ea, exception);
+                    return;
                 }
             }
             if (!Consumer.Config.AutoAck)
@@ -120,15 +123,18 @@ namespace Pole.EventBus.RabbitMQ
         {
             if (ea.BasicProperties.Headers.TryGetValue(Consts.ConsumerRetryTimesStr, out object retryTimesObj))
             {
-                var retryTimes = Convert.ToInt32(retryTimesObj);
-                if (retryTimes <= Consumer.Config.MaxReenqueueTimes)
+                var retryTimesStr = Encoding.UTF8.GetString((byte[])retryTimesObj);
+                var retryTimes = Convert.ToInt32(retryTimesStr);
+                if (retryTimes < Consumer.Config.MaxReenqueueTimes)
                 {
                     retryTimes++;
-                    ea.BasicProperties.Headers[Consts.ConsumerRetryTimesStr] = retryTimes;
-                    ea.BasicProperties.Headers[Consts.ConsumerExceptionDetailsStr] = serializer.Serialize(exception, typeof(Exception));
+                    ea.BasicProperties.Headers[Consts.ConsumerRetryTimesStr] = retryTimes.ToString();
+                    ea.BasicProperties.Headers[Consts.ConsumerExceptionDetailsStr] = exception.InnerException?.Message + exception.StackTrace ?? exception.Message + exception.StackTrace;
                     await Task.Delay((int)Math.Pow(2, retryTimes) * 1000).ContinueWith((task) =>
                     {
-                        Model.Model.BasicReject(ea.DeliveryTag, true);
+                        using var channel = Client.PullChannel();
+                        channel.Publish(ea.Body, ea.BasicProperties.Headers, Queue.Queue, string.Empty, true);
+                        Model.Model.BasicAck(ea.DeliveryTag, false);
                     });
                 }
                 else
@@ -138,6 +144,8 @@ namespace Pole.EventBus.RabbitMQ
                     Model.Model.ExchangeDeclare(errorExchangeName, "direct", true);
                     Model.Model.QueueDeclare(errorQueueName, true, false, false, null);
                     Model.Model.QueueBind(errorQueueName, errorExchangeName, string.Empty);
+                    using var channel = Client.PullChannel();
+                    channel.Publish(ea.Body, ea.BasicProperties.Headers, errorExchangeName, string.Empty, true);
                     if (!Consumer.Config.AutoAck)
                     {
                         Model.Model.BasicAck(ea.DeliveryTag, false);

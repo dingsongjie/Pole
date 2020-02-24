@@ -20,14 +20,14 @@ namespace Backet.Api
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
                 .UseOrleans(siloBuilder =>
                 {
                     siloBuilder.UseLocalhostClustering();
                     siloBuilder.AddEfGrainStorageAsDefault<BacketDbContext>();
-                });
+                })
+                            .ConfigureWebHostDefaults(webBuilder =>
+                            {
+                                webBuilder.UseStartup<Startup>();
+                            });
     }
 }

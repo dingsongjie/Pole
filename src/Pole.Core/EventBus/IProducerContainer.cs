@@ -6,6 +6,6 @@ namespace Pole.Core.EventBus
     public interface IProducerContainer
     {
         ValueTask<IProducer> GetProducer<T>();
-        ValueTask<IProducer> GetProducer(Type type);
+        ValueTask<IProducer> GetProducer(string typeName);
     }
 }

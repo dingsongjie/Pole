@@ -1,4 +1,5 @@
 ﻿using Pole.Core.EventBus;
+using Pole.Core.EventBus.EventHandler;
 using Pole.Core.Exceptions;
 using Pole.Core.Utils;
 using System;
@@ -61,12 +62,13 @@ namespace Pole.EventBus.RabbitMQ
             var observerUnits = observerUnitContainer.GetUnits<PrimaryKey>(EventName);
             foreach (var observerUnit in observerUnits)
             {
+                string queueNameSuffix =  observerUnit.EventHandlerType.FullName;
                 var consumer = new RabbitConsumer(
                     observerUnit.GetEventHandler(),
                     observerUnit.GetBatchEventHandler())
                 {
                     EventBus = this,
-                    QueueInfo = new QueueInfo { RoutingKey = RoutePrefix, Queue = $"{RoutePrefix}_{observerUnit}" },
+                    QueueInfo = new QueueInfo { RoutingKey = RoutePrefix, Queue = $"{RoutePrefix}_{queueNameSuffix}" },
                     Config = ConsumerConfig
                 };
                 Consumers.Add(consumer);

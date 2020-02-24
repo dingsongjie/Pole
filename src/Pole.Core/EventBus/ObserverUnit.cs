@@ -53,7 +53,7 @@ namespace Pole.Core.EventBus
 
         public void Observer()
         {
-            if (!typeof(PoleEventHandlerBase).IsAssignableFrom(EventHandlerType))
+            if (!typeof(IPoleEventHandler).IsAssignableFrom(EventHandlerType))
                 throw new NotSupportedException($"{EventHandlerType.FullName} must inheritance from PoleEventHandler");
             eventHandler = EventHandler;
             batchEventHandler = BatchEventHandler;
@@ -90,8 +90,8 @@ namespace Pole.Core.EventBus
                 return GetObserver(EventHandlerType, transports.First().EventId).Invoke(transports);
             }
         }
-        static readonly ConcurrentDictionary<Type, Func<IClusterClient, string, string, PoleEventHandlerBase>> _observerGeneratorDict = new ConcurrentDictionary<Type, Func<IClusterClient, string, string, PoleEventHandlerBase>>();
-        private PoleEventHandlerBase GetObserver(Type ObserverType, string primaryKey)
+        static readonly ConcurrentDictionary<Type, Func<IClusterClient, string, string, IPoleEventHandler>> _observerGeneratorDict = new ConcurrentDictionary<Type, Func<IClusterClient, string, string, IPoleEventHandler>>();
+        private IPoleEventHandler GetObserver(Type ObserverType, string primaryKey)
         {
             var func = _observerGeneratorDict.GetOrAdd(ObserverType, key =>
             {
@@ -101,7 +101,7 @@ namespace Pole.Core.EventBus
                 var grainClassNamePrefixParams = Expression.Parameter(typeof(string), "grainClassNamePrefix");
                 var method = typeof(ClusterClientExtensions).GetMethod("GetGrain", new Type[] { clientType, typeof(string), typeof(string) });
                 var body = Expression.Call(method.MakeGenericMethod(ObserverType), clientParams, primaryKeyParams, grainClassNamePrefixParams);
-                return Expression.Lambda<Func<IClusterClient, string, string, PoleEventHandlerBase>>(body, clientParams, primaryKeyParams, grainClassNamePrefixParams).Compile();
+                return Expression.Lambda<Func<IClusterClient, string, string, IPoleEventHandler>>(body, clientParams, primaryKeyParams, grainClassNamePrefixParams).Compile();
             });
             return func(clusterClient, primaryKey, null);
         }

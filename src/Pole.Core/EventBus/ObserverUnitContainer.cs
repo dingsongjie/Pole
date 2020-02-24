@@ -19,15 +19,18 @@ namespace Pole.Core.EventBus
             var eventHandlerList = new List<(Type, EventHandlerAttribute)>();
             foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<ObserverUnitContainer>>()))
             {
-                foreach (var type in assembly.GetTypes())
+                foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract && !typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
                 {
-                    foreach (var attribute in type.GetCustomAttributes(false))
+                    var attribute = type.GetCustomAttributes(typeof(EventHandlerAttribute), false).FirstOrDefault();
+                    var eventHandlerInterface = type.GetInterfaces().FirstOrDefault(type => typeof(IPoleEventHandler).IsAssignableFrom(type) && !type.IsGenericType);
+
+                    if (attribute != null)
                     {
-                        if (attribute is EventHandlerAttribute eventHandlerAttribute)
-                        {
-                            eventHandlerList.Add((type, eventHandlerAttribute));
-                            break;
-                        }
+                        eventHandlerList.Add((eventHandlerInterface, (EventHandlerAttribute)attribute));
+                    }
+                    else
+                    {
+                        throw new PoleEventHandlerImplementException("Can not found EventHandlerAttribute in PoleEventHandler");
                     }
                 }
             }
@@ -42,14 +45,7 @@ namespace Pole.Core.EventBus
         public List<IObserverUnit<PrimaryKey>> GetUnits<PrimaryKey>(string observerName)
         {
             if (unitDict.TryGetValue(observerName, out var units))
-            {
-                if (units is List<IObserverUnit<PrimaryKey>> result)
-                {
-                    return result;
-                }
-                else
-                    throw new UnmatchObserverUnitException(observerName);
-            }
+                return units.Select(m => (IObserverUnit<PrimaryKey>)m).ToList();
             else
                 throw new UnfindObserverUnitException(observerName);
         }

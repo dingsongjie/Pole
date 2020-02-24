@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace Backet.Api.EventHandlers
 {
-    [EventHandler(EventName = "Backet.Api.Domain.Event.BacketCreatedEvent")]
     public class ToNoticeBacketCreatedEventHandler : PoleEventHandler<BacketCreatedEvent>, IToNoticeBacketCreatedEventHandler
     {
         public Task BulkEventsHandle(List<BacketCreatedEvent> @event)

@@ -69,6 +69,32 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
                               .CreateDefaultReadStateFunc(options);
                 }
             }
+            if (options.ReadStateNoTrackingAsync == null)
+            {
+                if (options.DbSetNoTrackingAccessor == null)
+                    options.DbSetNoTrackingAccessor = Convention?.CreateDefaultDbSetNoTrackingAccessorFunc()
+                                        ?? DefaultConvention.CreateDefaultDbSetNoTrackingAccessorFunc<TContext, TEntity>();
+
+                if (Convention != null)
+                    Convention.SetDefaultKeySelector(options);
+                else
+                    DefaultConvention.SetDefaultKeySelectors(options);
+
+                if (options.PreCompileReadQuery)
+                {
+                    options.ReadStateNoTrackingAsync
+                        = Convention?.CreatePreCompiledDefaultReadStateNoTrackingFunc(options)
+                          ?? DefaultConvention
+                              .CreatePreCompiledDefaultReadStateNoTrackingFunc(options);
+                }
+                else
+                {
+                    options.ReadStateNoTrackingAsync
+                        = Convention?.CreateDefaultReadStateFunc()
+                          ?? DefaultConvention
+                              .CreateDefaultReadStateFunc(options);
+                }
+            }
 
             if (options.SetEntity == null)
                 options.SetEntity =

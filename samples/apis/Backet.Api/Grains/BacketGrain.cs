@@ -1,5 +1,6 @@
 ﻿using Backet.Api.Domain.Event;
 using Backet.Api.Grains.Abstraction;
+using Orleans.Providers;
 using Pole.Core.Grains;
 using System;
 using System.Collections.Generic;
@@ -8,10 +9,12 @@ using System.Threading.Tasks;
 
 namespace Backet.Api.Grains
 {
+    [StorageProvider(ProviderName = "ef")]
     public class BacketGrain : PoleGrain<Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>, IBacketGrain
     {
         public async Task<bool> AddBacket(BacketDto backetDto)
         {
+            
             if (State != null) return false;
 
             Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet backet = new Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet
@@ -52,6 +55,7 @@ namespace Backet.Api.Grains
         {
             if (State == null) return false;
             State.UserId = userId;
+            State.TotalPrice++;
             State.ModifyItemProductId(userId);
             Update(State);
             await WriteStateAsync();

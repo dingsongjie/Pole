@@ -27,7 +27,8 @@ namespace Backet.Api
             services.AddDbContextPool<BacketDbContext>(options => options.UseNpgsql(Configuration["postgres:write"]));
             services.AddControllers();
 
-            services.AddPole(config => {
+            services.AddPole(config =>
+            {
                 config.AddRabbitMQ(option =>
                 {
                     option.Hosts = new string[1] { Configuration["RabbitmqConfig:HostAddress"] };
@@ -40,8 +41,9 @@ namespace Backet.Api
             services.ConfigureGrainStorageOptions<BacketDbContext, BacketGrain, Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>(
             options =>
             {
-                options.UseQuery(context => context.Backets.AsNoTracking()
-                        .Include(box => box.BacketItems));
+                options.UseQuery(context => context.Backets
+                        .Include(box => box.BacketItems), context => context.Backets.AsNoTracking()
+                         .Include(box => box.BacketItems));
                 options.IsRelatedData = true;
             });
         }

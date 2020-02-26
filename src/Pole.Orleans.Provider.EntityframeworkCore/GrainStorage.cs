@@ -52,7 +52,7 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
             using (IServiceScope scope = _scopeFactory.CreateScope())
             using (var context = scope.ServiceProvider.GetRequiredService<TContext>())
             {
-                TEntity entity = await _options.ReadStateAsync(context, grainReference)
+                TEntity entity = await _options.ReadStateNoTrackingAsync(context, grainReference)
                     .ConfigureAwait(false);
                 _options.SetEntity(grainState, entity);
 
@@ -97,7 +97,7 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
 
                 try
                 {
-                    if (entity.DomainEvents.Count != 0)
+                    if (entity.DomainEvents!=null&&entity.DomainEvents.Count != 0)
                     {
                         using (var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>())
                         {

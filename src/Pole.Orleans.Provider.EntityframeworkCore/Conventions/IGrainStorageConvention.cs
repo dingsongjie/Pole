@@ -24,6 +24,18 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
             where TContext : DbContext
             where TEntity : class;
 
+        /// <summary>
+        /// Creates a method that returns an IQueryable'<typeparam name="TEntity"></typeparam>
+        ///  against <typeparam name="TContext"></typeparam> type.
+        /// </summary>
+        /// <typeparam name="TContext"></typeparam>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <returns></returns>
+        Func<TContext, IQueryable<TEntity>>
+            CreateDefaultDbSetNoTrackingAccessorFunc<TContext, TEntity>()
+            where TContext : DbContext
+            where TEntity : class;
+
         Func<TContext, IAddressable, Task<TEntity>>
             CreateDefaultReadStateFunc<TContext, TGrain, TEntity>(
                 GrainStorageOptions<TContext, TGrain, TEntity> options)
@@ -31,10 +43,16 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
             where TEntity : class;
 
         Func<TContext, IAddressable, Task<TEntity>>
-            CreatePreCompiledDefaultReadStateFunc<TContext, TGrain, TEntity>(
+            CreatePreCompiledDefaultReadStateNoTrackingFunc<TContext, TGrain, TEntity>(
                 GrainStorageOptions<TContext, TGrain, TEntity> options)
             where TContext : DbContext
             where TEntity : class;
+
+        Func<TContext, IAddressable, Task<TEntity>>
+    CreatePreCompiledDefaultReadStateFunc<TContext, TGrain, TEntity>(
+        GrainStorageOptions<TContext, TGrain, TEntity> options)
+    where TContext : DbContext
+    where TEntity : class;
 
         void SetDefaultKeySelectors<TContext, TGrain, TEntity>(
             GrainStorageOptions<TContext, TGrain, TEntity> options)
@@ -102,6 +120,17 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
         Func<TContext, IQueryable<TEntity>>
             CreateDefaultDbSetAccessorFunc();
 
+
+        /// <summary>
+        /// Creates a method that returns an IQueryable'<typeparam name="TGrainState"></typeparam>
+        ///  against <typeparam name="TContext"></typeparam> type.
+        /// </summary>
+        /// <typeparam name="TContext"></typeparam>
+        /// <typeparam name="TGrainState"></typeparam>
+        /// <returns></returns>
+        Func<TContext, IQueryable<TEntity>>
+            CreateDefaultDbSetNoTrackingAccessorFunc();
+
         /// <summary>
         /// Creates a method that generates an expression to be used by entity framework to 
         /// fetch a single state.
@@ -115,6 +144,9 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
 
         Func<TContext, IAddressable, Task<TEntity>> CreatePreCompiledDefaultReadStateFunc(
              GrainStorageOptions<TContext, TGrain, TEntity> options);
+
+        Func<TContext, IAddressable, Task<TEntity>> CreatePreCompiledDefaultReadStateNoTrackingFunc(
+     GrainStorageOptions<TContext, TGrain, TEntity> options);
 
         void SetDefaultKeySelector(GrainStorageOptions<TContext, TGrain, TEntity> options);
 

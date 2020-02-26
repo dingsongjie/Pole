@@ -33,7 +33,7 @@ namespace Backet.Api.Domain.AggregatesModel.BacketAggregate
         }
         public string UserId { get; set; }
         public List<BacketItem> BacketItems { get; private set; } = new List<BacketItem>();
-        public long TotalPrice { get; private set; }
+        public long TotalPrice { get;  set; }
 
         internal void RemoveFirstItem()
         {

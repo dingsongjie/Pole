@@ -60,6 +60,33 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
                 null,
                 dbSetPropertyInfo.GetMethod);
 
+            // create final delegate which chains dbSet getter and no tracking delegates
+            return dbSetDelegate;
+        }
+
+
+
+        public Func<TContext, IQueryable<TEntity>> CreateDefaultDbSetNoTrackingAccessorFunc<TContext, TEntity>()
+            where TContext : DbContext
+            where TEntity : class
+        {
+            Type contextType = typeof(TContext);
+
+            // Find a dbSet<TEntity> as default
+            PropertyInfo dbSetPropertyInfo =
+                contextType
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .FirstOrDefault(pInfo => pInfo.PropertyType == typeof(DbSet<TEntity>));
+
+            if (dbSetPropertyInfo == null)
+                throw new GrainStorageConfigurationException($"Could not find A property of type \"{typeof(DbSet<TEntity>).FullName}\" " +
+                                    $"on context with type \"{typeof(TContext).FullName}\"");
+
+            var dbSetDelegate = (Func<TContext, IQueryable<TEntity>>)Delegate.CreateDelegate(
+                typeof(Func<TContext, IQueryable<TEntity>>),
+                null,
+                dbSetPropertyInfo.GetMethod);
+
             // set queries as no tracking
             MethodInfo noTrackingMethodInfo = (typeof(GrainStorageConvention).GetMethod(nameof(AsNoTracking))
                                         ?? throw new Exception("Impossible"))
@@ -171,6 +198,101 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
                     return options.DbSetAccessor(context)
                         .SingleOrDefaultAsync(state =>
                              options.KeyExtSelector(state) == keyExt);
+                };
+            }
+
+            throw new InvalidOperationException($"Unexpected grain type \"{typeof(TGrain).FullName}\"");
+        }
+        public Func<TContext, IAddressable, Task<TEntity>> CreatePreCompiledDefaultReadStateNoTrackingFunc<TContext, TGrain, TEntity>(GrainStorageOptions<TContext, TGrain, TEntity> options)
+    where TContext : DbContext
+    where TEntity : class
+        {
+            if (typeof(IGrainWithGuidKey).IsAssignableFrom(typeof(TGrain)))
+            {
+                if (options.GuidKeySelector == null)
+                    throw new GrainStorageConfigurationException($"GuidKeySelector is not defined for " +
+                                                                 $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+
+                Func<TContext, Guid, Task<TEntity>> compiledQuery
+                    = CreateCompiledQuery<TContext, TGrain, TEntity, Guid>(options);
+
+                return (TContext context, IAddressable grainRef) =>
+                {
+                    Guid key = grainRef.GetPrimaryKey();
+                    return compiledQuery(context, key);
+                };
+            }
+
+            if (typeof(IGrainWithGuidCompoundKey).IsAssignableFrom(typeof(TGrain)))
+            {
+                if (options.GuidKeySelector == null)
+                    throw new GrainStorageConfigurationException($"GuidKeySelector is not defined for " +
+                                                                 $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+                if (options.KeyExtSelector == null)
+                    throw new GrainStorageConfigurationException($"KeyExtSelector is not defined for " +
+                                                                 $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+
+                Func<TContext, Guid, string, Task<TEntity>> compiledQuery
+                    = CreateCompiledCompoundQuery<TContext, TGrain, TEntity, Guid>(options);
+
+                return (TContext context, IAddressable grainRef) =>
+                {
+                    Guid key = grainRef.GetPrimaryKey(out string keyExt);
+                    return compiledQuery(context, key, keyExt);
+                };
+            }
+
+            if (typeof(IGrainWithIntegerKey).IsAssignableFrom(typeof(TGrain)))
+            {
+                if (options.LongKeySelector == null)
+                    throw new GrainStorageConfigurationException($"LongKeySelector is not defined for " +
+                                                                 $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+
+                Func<TContext, long, Task<TEntity>> compiledQuery
+                    = CreateCompiledQuery<TContext, TGrain, TEntity, long>(options);
+
+                return (TContext context, IAddressable grainRef) =>
+                {
+                    long key = grainRef.GetPrimaryKeyLong();
+                    return compiledQuery(context, key);
+                };
+            }
+
+            if (typeof(IGrainWithIntegerCompoundKey).IsAssignableFrom(typeof(TGrain)))
+            {
+                if (options.LongKeySelector == null)
+                    throw new GrainStorageConfigurationException($"LongKeySelector is not defined for " +
+                                                                 $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+                if (options.KeyExtSelector == null)
+                    throw new GrainStorageConfigurationException($"KeyExtSelector is not defined for " +
+                                                                 $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+
+                Func<TContext, long, string, Task<TEntity>> compiledQuery
+                    = CreateCompiledCompoundQuery<TContext, TGrain, TEntity, long>(options);
+
+                return (TContext context, IAddressable grainRef) =>
+                {
+                    long key = grainRef.GetPrimaryKeyLong(out string keyExt);
+                    return compiledQuery(context, key, keyExt);
+                };
+            }
+
+            if (typeof(IGrainWithStringKey).IsAssignableFrom(typeof(TGrain)))
+            {
+                if (options.KeyExtSelector == null)
+                    throw new GrainStorageConfigurationException($"KeyExtSelector is not defined for " +
+                                                                 $"{typeof(GrainStorageOptions<TContext, TGrain, TEntity>).FullName}");
+                Func<TContext, string, Task<TEntity>> compiledQuery = null;
+
+                compiledQuery = CreateCompiledQuery<TContext, TGrain, TEntity, string>(options);
+
+
+
+
+                return (TContext context, IAddressable grainRef) =>
+                {
+                    string keyExt = grainRef.GetPrimaryKeyString();
+                    return compiledQuery(context, keyExt);
                 };
             }
 
@@ -480,7 +602,36 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
             return EF.CompileAsyncQuery(lambdaExpression);
         }
 
+        private static Func<TContext, TKey, string, Task<TEntity>> CreateCompiledCompoundNoTrackingQuery<TContext, TGrain, TEntity, TKey>(
+               GrainStorageOptions<TContext, TGrain, TEntity> options)
+           where TContext : DbContext
+           where TEntity : class
+        {
+            var contextParameter = Expression.Parameter(typeof(TContext), "context");
+            var keyParameter = Expression.Parameter(typeof(TKey), "grainKey");
+            var keyExtParameter = Expression.Parameter(typeof(string), "grainKeyExt");
+            var predicate = CreateCompoundKeyPredicate<TEntity, TKey>(
+                options,
+                keyParameter,
+                keyExtParameter);
 
+            var queryable = Expression.Call(
+                options.DbSetNoTrackingAccessor.Method,
+                Expression.Constant(options.DbSetNoTrackingAccessor),
+                contextParameter);
+
+            var compiledLambdaBody = Expression.Call(
+                typeof(Queryable).GetMethods().Single(mi =>
+                        mi.Name == nameof(Queryable.SingleOrDefault) && mi.GetParameters().Count() == 2)
+                    .MakeGenericMethod(typeof(TEntity)),
+                queryable,
+                Expression.Quote(predicate));
+
+            var lambdaExpression = Expression.Lambda<Func<TContext, TKey, string, TEntity>>(
+                compiledLambdaBody, contextParameter, keyParameter, keyExtParameter);
+
+            return EF.CompileAsyncQuery(lambdaExpression);
+        }
         private static Expression<Func<TEntity, bool>> CreateCompoundKeyPredicate<TEntity, TKey>(
             GrainStorageOptions options,
             ParameterExpression grainKeyParam,
@@ -707,6 +858,8 @@ namespace Pole.Orleans.Provider.EntityframeworkCore.Conventions
             }
             return new string(c);
         }
+
+
 
         #endregion
     }

@@ -13,11 +13,12 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
     {
         public static GrainStorageOptions<TContext, TGrain, TGrainState> UseQuery<TContext, TGrain, TGrainState>(
             this GrainStorageOptions<TContext, TGrain, TGrainState> options,
-            Func<TContext, IQueryable<TGrainState>>queryFunc)
+            Func<TContext, IQueryable<TGrainState>>queryFunc, Func<TContext, IQueryable<TGrainState>> noTrackingQueryFunc)
             where TContext : DbContext
             where TGrainState : class
         {
             options.DbSetAccessor = queryFunc;
+            options.DbSetNoTrackingAccessor = noTrackingQueryFunc;
             return options;
         }
 

@@ -51,24 +51,15 @@ namespace Backet.Api.Controllers
         {
             var newId = Guid.NewGuid().ToString("N").ToLower();
             backet.Id = newId;
-            //var entity = await backetDbContext.Backets.AsNoTracking().Include(box => box.BacketItems).SingleOrDefaultAsync(m => m.Id == "222");
-
-            ////using (NpgsqlConnection conn = new NpgsqlConnection("Server=192.168.0.248;Port=5432;Username=postgres;Password=comteck2020!@#;Database=Pole-Backet;Enlist=True;Timeout=0;Command Timeout=600"))
-            ////{
-            ////    await conn.OpenAsync();
-            ////    var teams = await conn.QueryAsync<Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>("SELECT * FROM   \"public\".\"Backet\" where  \"Id\" =@Id", new { Id = newId });
-            ////    //var teams = await conn.ExecuteAsync("SELECT 1");
-            ////}
-            var grain = clusterClient.GetGrain<IBacketGrain>(newId);
+            var grain = clusterClient.GetGrain<IAddBacketGrain>(newId);
             return grain.AddBacket(backet);
-            //return true;
         }
         [HttpPost("api/backet/UpdateBacket")]
         public Task<bool> UpdateBacket()
         {
-            var id = "da8a489fa7b4409294ee1b358fbbfba5";
+            var id = "67bbf594246441a18d7b6c74a277d06a";
             var grain = clusterClient.GetGrain<IBacketGrain>(id);
-            return grain.UpdateBacket("88");
+            return grain.UpdateBacket("99");
         }
         [HttpPost("api/backet/AddItem")]
         public Task<bool> AddItem()

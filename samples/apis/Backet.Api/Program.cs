@@ -25,7 +25,7 @@ namespace Backet.Api
                 .UseOrleans(siloBuilder =>
                 {
                     siloBuilder.UseLocalhostClustering();
-                    siloBuilder.AddEfGrainStorageAsDefault<BacketDbContext>();
+                    siloBuilder.AddEfGrainStorage<BacketDbContext>("ef");
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

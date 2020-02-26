@@ -40,6 +40,8 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
     {
         internal Func<TContext, IQueryable<TEntity>> DbSetAccessor { get; set; }
 
+        internal Func<TContext, IQueryable<TEntity>> DbSetNoTrackingAccessor { get; set; }
+
         internal Func<TEntity, bool> IsPersistedFunc { get; set; }
 
         internal Func<TEntity, string> GetETagFunc { get; set; }
@@ -53,6 +55,7 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
         public bool IsRelatedData { get; set; }
 
         internal Func<TContext, IAddressable, Task<TEntity>> ReadStateAsync { get; set; }
+        internal Func<TContext, IAddressable, Task<TEntity>> ReadStateNoTrackingAsync { get; set; }
 
         internal Action<IGrainState, TEntity> SetEntity { get; set; }
 

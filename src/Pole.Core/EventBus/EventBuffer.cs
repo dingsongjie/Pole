@@ -109,7 +109,7 @@ namespace Pole.Core.EventBus
         }
         private async Task ExecuteCore(List<EventEntity> eventEntities)
         {
-            logger.LogError($"Begin ExecuteCore Count:{eventEntities.Count} ");
+            logger.LogTrace($"Begin ExecuteCore Count:{eventEntities.Count} ");
             var events = eventEntities.Select(entity =>
             {
                 var eventContentBytes = Encoding.UTF8.GetBytes(entity.Content);
@@ -125,9 +125,9 @@ namespace Pole.Core.EventBus
                 entity.StatusName = nameof(EventStatus.Published);
                 entity.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);
             });
-            logger.LogError($"Begin BulkPublish {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")} ");
+            logger.LogTrace($"Begin BulkPublish {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")} ");
             await producer.BulkPublish(events);
-            logger.LogError($"Begin BulkPublish {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")} ");
+            logger.LogTrace($"Begin BulkPublish {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")} ");
             if (eventEntities.Count > 10)
             {
                 await eventStorage.BulkChangePublishStateAsync(eventEntities);
@@ -137,7 +137,7 @@ namespace Pole.Core.EventBus
                 await eventStorage.ChangePublishStateAsync(eventEntities);
             }
 
-            logger.LogError($"End ExecuteCore {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}  Count:{eventEntities.Count} ");
+            logger.LogTrace($"End ExecuteCore {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}  Count:{eventEntities.Count} ");
         }
     }
 }

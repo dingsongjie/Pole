@@ -26,6 +26,7 @@ namespace Pole.EventBus.RabbitMQ
                 if (channels.Count < Options.MasChannelsPerConnection)
                 {
                     var channel = new ModelWrapper(this, connection.CreateModel());
+                    channel.Model.ConfirmSelect();
                     channels.Add(channel);
                     return (true, channel);
                 }

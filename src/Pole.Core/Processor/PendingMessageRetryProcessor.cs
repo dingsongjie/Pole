@@ -16,12 +16,14 @@ namespace Pole.Core.Processor
     {
         private readonly IEventStorage eventStorage;
         private readonly PoleOptions options;
-        private readonly IProducerContainer producerContainer;
+        private readonly IProducerInfoContainer producerContainer;
         private readonly ISerializer serializer;
         private readonly ILogger<PendingMessageRetryProcessor> logger;
         private readonly ProducerOptions producerOptions;
+        private readonly IProducer producer;
+        private readonly IEventBuffer eventBuffer;
         public PendingMessageRetryProcessor(IEventStorage eventStorage, IOptions<PoleOptions> options, ILogger<PendingMessageRetryProcessor> logger,
-            IProducerContainer producerContainer, ISerializer serializer, IOptions<ProducerOptions> producerOptions)
+            IProducerInfoContainer producerContainer, ISerializer serializer, IOptions<ProducerOptions> producerOptions, IProducer producer, IEventBuffer eventBuffer)
         {
             this.eventStorage = eventStorage;
             this.options = options.Value ?? throw new Exception($"{nameof(PoleOptions)} Must be injected");
@@ -29,6 +31,8 @@ namespace Pole.Core.Processor
             this.producerContainer = producerContainer;
             this.serializer = serializer;
             this.producerOptions = producerOptions.Value ?? throw new Exception($"{nameof(ProducerOptions)} Must be injected");
+            this.producer = producer;
+            this.eventBuffer = eventBuffer;
         }
         public override string Name => nameof(PendingMessageRetryProcessor);
 
@@ -67,15 +71,20 @@ namespace Pole.Core.Processor
                     pendingMessage.ExpiresAt = DateTime.UtcNow;
                 }
                 pendingMessage.Retries++;
-                var producer = await producerContainer.GetProducer(pendingMessage.Name);
-                await producer.Publish(bytes);
-                pendingMessage.StatusName = nameof(EventStatus.Published);
-                pendingMessage.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);
+                var targetName = producerContainer.GetTargetName(pendingMessage.Name);
+                await producer.Publish(targetName, bytes);
             }
             if (pendingMessages.Count() > 0)
             {
-                await eventStorage.BulkChangePublishStateAsync(pendingMessages);
-            }         
+                if (pendingMessages.Count() > 10)
+                {
+                    await eventStorage.BulkChangePublishStateAsync(pendingMessages);
+                }
+                else
+                {
+                    await eventStorage.ChangePublishStateAsync(pendingMessages);
+                }
+            }
         }
     }
 }

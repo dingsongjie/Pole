@@ -1,5 +1,7 @@
 ﻿using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
+using Npgsql;
+using Pole.Core.EventBus.EventStorage;
 using Pole.Samples.Backet.Api.Benchmarks;
 using System;
 using System.Collections.Generic;
@@ -14,8 +16,15 @@ namespace Pole.Samples.Backet.Api
         {
             //GrainWithEntityframeworkCoreAndPgTest grainWithEntityframeworkCoreAndPgTest = new GrainWithEntityframeworkCoreAndPgTest();
             //await grainWithEntityframeworkCoreAndPgTest.SingleOrDefaultAsync();
-            Summary summary = BenchmarkRunner.Run<GrainWithEntityframeworkCoreAndPgTest>();
-            Console.ReadLine();
+            //Summary summary = BenchmarkRunner.Run<GrainWithEntityframeworkCoreAndPgTest>();
+            //Console.ReadLine();
+            using ( var connection = new NpgsqlConnection("Server=192.168.0.248;Port=5432;Username=postgres;Password=comteck2020!@#;Database=Pole-Backet;Enlist=True;Timeout=0;Command Timeout=600;MinPoolSize=20;MaxPoolSize=500;"))
+            {
+                var uploader = new Pole.EventStorage.PostgreSql.PoleNpgsqlBulkUploader(connection);
+                var events = new List<EventEntity>();
+                events.Add(new EventEntity { Id = "111", Retries = 20, ExpiresAt = DateTime.Now, StatusName = "333" });
+                await uploader.UpdateAsync("\"pole\".\"Events\"", events);
+            }
         }
     }
 }

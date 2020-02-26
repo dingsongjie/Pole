@@ -24,6 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure<PoleOptions>(option => { });
             }
             services.AddSingleton<IEventTypeFinder, EventTypeFinder>();
+            services.AddSingleton<IEventBuffer, EventBuffer>();
             services.AddTransient(typeof(IMpscChannel<>), typeof(MpscChannel<>));
             services.AddScoped<IBus, Bus>();
             services.AddScoped<IUnitOfWork, Pole.Core.UnitOfWork.UnitOfWork>();

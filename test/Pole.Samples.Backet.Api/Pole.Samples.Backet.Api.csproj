@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\samples\apis\Backet.Api\Backet.Api.csproj" />
+    <ProjectReference Include="..\..\src\Pole.EventStorage.PostgreSql\Pole.EventStorage.PostgreSql.csproj" />
   </ItemGroup>
 
 </Project>

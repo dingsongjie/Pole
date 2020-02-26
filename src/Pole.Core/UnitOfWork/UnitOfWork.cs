@@ -13,24 +13,24 @@ using Pole.Core.EventBus.Event;
 using Pole.Core.EventBus.EventStorage;
 using Microsoft.Extensions.Options;
 using Pole.Core.Utils.Abstraction;
+using Pole.Core.Exceptions;
 
 namespace Pole.Core.UnitOfWork
 {
     class UnitOfWork : IUnitOfWork
     {
-        private readonly IProducerContainer producerContainer;
+        private readonly IProducerInfoContainer producerContainer;
         private readonly IEventTypeFinder eventTypeFinder;
         private readonly ISerializer serializer;
-        private readonly IEventStorage eventStorage;
-        private readonly PoleOptions options;
         private IBus bus;
-        public UnitOfWork(IProducerContainer producerContainer, IEventTypeFinder eventTypeFinder, ISerializer serializer, IEventStorage eventStorage, IOptions<PoleOptions> options)
+        private IEventBuffer eventBuffer;
+        public UnitOfWork(IProducerInfoContainer producerContainer, IEventTypeFinder eventTypeFinder,
+            ISerializer serializer, IEventBuffer eventBuffer)
         {
             this.producerContainer = producerContainer;
             this.eventTypeFinder = eventTypeFinder;
             this.serializer = serializer;
-            this.eventStorage = eventStorage;
-            this.options = options.Value;
+            this.eventBuffer = eventBuffer;
         }
 
         public async Task CompeleteAsync(CancellationToken cancellationToken = default)
@@ -45,12 +45,12 @@ namespace Pole.Core.UnitOfWork
                 var eventContentBytes = Encoding.UTF8.GetBytes(@event.Content);
                 var bytesTransport = new EventBytesTransport(@event.Name, @event.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
-                var producer = await producerContainer.GetProducer(@event.Name);
-                await producer.Publish(bytes);
-                @event.StatusName = nameof(EventStatus.Published);
-                @event.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);
+                var result = await eventBuffer.AddAndRun(@event);
+                if (!result)
+                {
+                    throw new AddEventToEventBufferException();
+                }
             });
-            await eventStorage.BulkChangePublishStateAsync(bufferedEvents);
         }
 
         public void Dispose()

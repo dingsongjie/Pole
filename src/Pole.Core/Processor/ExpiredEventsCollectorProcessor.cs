@@ -37,17 +37,14 @@ namespace Pole.Core.Processor
         {
             try
             {
-                var tables = new[]
-{
-                initializer.GetTableName(),
-            };
+                var tables = new[] { initializer.GetTableName() };
 
                 foreach (var table in tables)
                 {
                     logger.LogDebug($"Collecting expired data from table: {table}");
 
                     int deletedCount;
-                    var time = DateTime.Now;
+                    var time = DateTime.UtcNow;
                     do
                     {
                         deletedCount = await eventstorage.DeleteExpiresAsync(table, time, ItemBatch, context.CancellationToken);
@@ -59,7 +56,7 @@ namespace Pole.Core.Processor
                     } while (deletedCount != 0);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, $"{nameof(ExpiredEventsCollectorProcessor)} Process Error");
             }

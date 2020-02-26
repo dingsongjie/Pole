@@ -41,7 +41,6 @@ namespace Pole.EventBus.RabbitMQ
             {
                 noPersistentProperties.Headers = headers;
             }
-            Model.ConfirmSelect();
             Model.BasicPublish(exchange, routingKey, persistent ? persistentProperties : noPersistentProperties, msg);
             if (!Model.WaitForConfirms(TimeSpan.FromSeconds(Connection.Options.ProducerConfirmWaitTimeoutSeconds), out bool isTimeout))
             {
@@ -56,22 +55,13 @@ namespace Pole.EventBus.RabbitMQ
             }
 
         }
+        public void WaitForConfirmsOrDie(TimeSpan timeSpan)
+        {
+            Model.WaitForConfirmsOrDie(timeSpan);
+        }
         public void Publish(byte[] msg, string exchange, string routingKey, bool persistent = true)
         {
-            Model.ConfirmSelect();
             Model.BasicPublish(exchange, routingKey, persistent ? persistentProperties : noPersistentProperties, msg);
-            if (!Model.WaitForConfirms(TimeSpan.FromSeconds(Connection.Options.ProducerConfirmWaitTimeoutSeconds), out bool isTimeout))
-            {
-                if (isTimeout)
-                {
-                    throw new ProducerConfirmTimeOutException(Connection.Options.ProducerConfirmWaitTimeoutSeconds);
-                }
-                else
-                {
-                    throw new ProducerReceivedNAckException();
-                }
-            }
-
         }
         public void Dispose()
         {

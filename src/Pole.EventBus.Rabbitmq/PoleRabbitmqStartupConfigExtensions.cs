@@ -22,7 +22,8 @@ namespace Microsoft.Extensions.DependencyInjection
             startupOption.Services.AddSingleton<IRabbitMQClient, RabbitMQClient>();
             //startupOption.Services.AddHostedService<ConsumerManager>();
             startupOption.Services.AddSingleton<IRabbitEventBusContainer, EventBusContainer>();
-            startupOption.Services.AddSingleton(serviceProvider => serviceProvider.GetService<IRabbitEventBusContainer>() as IProducerContainer);
+            startupOption.Services.AddSingleton<IProducer, RabbitProducer>();
+            startupOption.Services.AddSingleton(serviceProvider => serviceProvider.GetService<IRabbitEventBusContainer>() as IProducerInfoContainer);
             Startup.Register(async serviceProvider =>
             {
                 var container = serviceProvider.GetService<IRabbitEventBusContainer>();

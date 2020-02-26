@@ -54,7 +54,6 @@ namespace Pole.Orleans.Provider.EntityframeworkCore
             {
                 TEntity entity = await _options.ReadStateAsync(context, grainReference)
                     .ConfigureAwait(false);
-
                 _options.SetEntity(grainState, entity);
 
                 if (entity != null && _options.CheckForETag)

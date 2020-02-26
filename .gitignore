@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 
+/samples/apis/Backet.Api/Logger

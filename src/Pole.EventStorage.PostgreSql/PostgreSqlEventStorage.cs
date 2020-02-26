@@ -28,18 +28,28 @@ namespace Pole.EventStorage.PostgreSql
             tableName = eventStorageInitializer.GetTableName();
         }
 
-        public async Task BulkChangePublishStateAsync(IEnumerable<EventEntity> events)
+        public async Task ChangePublishStateAsync(IEnumerable<EventEntity> events)
         {
             var sql =
-$"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusName\"=@StatusName WHERE \"Id\" IN (@Ids)";
-            using var connection = new NpgsqlConnection(options.ConnectionString);
-            await connection.ExecuteAsync(sql, events.Select(@event=> new
+$"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusName\"=@StatusName WHERE \"Id\" = @Id";
+            using (var connection = new NpgsqlConnection(options.ConnectionString))
             {
-                Ids =string.Join(',',events.Select(@event=>@event.Id).ToArray()),
-                @event.Retries,
-                @event.ExpiresAt,
-                @event.StatusName
-            }).ToList());
+                var result = await connection.ExecuteAsync(sql, events.Select(@event => new
+                {
+                    Id = @event.Id,
+                    @event.Retries,
+                    @event.ExpiresAt,
+                    @event.StatusName
+                }).ToList());
+            }
+        }
+        public async Task BulkChangePublishStateAsync(IEnumerable<EventEntity> events)
+        {
+            using (var connection = new NpgsqlConnection(options.ConnectionString))
+            {
+                var uploader = new PoleNpgsqlBulkUploader(connection);
+                await uploader.UpdateAsync(tableName, events);
+            }
         }
 
         public async Task ChangePublishStateAsync(EventEntity message, EventStatus state)
@@ -79,8 +89,8 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
                 result.Add(new EventEntity
                 {
                     Id = reader.GetString(0),
-                    Name=reader.GetString(2),
-                    Content=reader.GetString(3),
+                    Name = reader.GetString(2),
+                    Content = reader.GetString(3),
                     Retries = reader.GetInt32(4),
                     Added = reader.GetDateTime(5)
                 });

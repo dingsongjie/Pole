@@ -9,7 +9,8 @@ namespace Pole.Core.EventBus.EventStorage
     public interface IEventStorage
     {
         Task ChangePublishStateAsync(EventEntity message, EventStatus state);
-        Task BulkChangePublishStateAsync(IEnumerable<EventEntity> messages);
+        Task ChangePublishStateAsync(IEnumerable<EventEntity> messages);
+        Task BulkChangePublishStateAsync(IEnumerable<EventEntity> events);
 
         Task<bool> StoreMessage(EventEntity eventEntity, object dbTransaction = null);
 

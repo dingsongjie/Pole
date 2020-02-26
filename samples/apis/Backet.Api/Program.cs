@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Orleans;
 using Orleans.Hosting;
 using Pole.Orleans.Provider.EntityframeworkCore;
+using Microsoft.Extensions.Logging;
+
 namespace Backet.Api
 {
     public class Program
@@ -28,6 +30,14 @@ namespace Backet.Api
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .ConfigureLogging((hostingContext, logging) =>
+            {
+            // The ILoggingBuilder minimum level determines the
+            // the lowest possible level for logging. The log4net
+            // level then sets the level that we actually log at.
+            logging.AddLog4Net();
+            logging.SetMinimumLevel(LogLevel.Warning);
+        });
     }
 }

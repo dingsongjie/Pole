@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace Pole.EventBus.RabbitMQ
 {
-    public class EventBusContainer : IRabbitEventBusContainer, IProducerContainer
+    public class EventBusContainer : IRabbitEventBusContainer, IProducerInfoContainer
     {
         private readonly ConcurrentDictionary<string, RabbitEventBus> eventBusDictionary = new ConcurrentDictionary<string, RabbitEventBus>();
         private readonly List<RabbitEventBus> eventBusList = new List<RabbitEventBus>();
@@ -79,24 +79,16 @@ namespace Pole.EventBus.RabbitMQ
 
         readonly ConcurrentDictionary<string, IProducer> producerDict = new ConcurrentDictionary<string, IProducer>();
 
-
-        public ValueTask<IProducer> GetProducer(string typeName)
+        public string GetTargetName(string typeName)
         {
             if (eventBusDictionary.TryGetValue(typeName, out var eventBus))
             {
-                return new ValueTask<IProducer>(producerDict.GetOrAdd(typeName, key =>
-                {
-                    return new RabbitProducer(rabbitMQClient, eventBus, rabbitOptions);
-                }));
+                return $"{rabbitOptions.Prefix}{eventBus.Exchange}";
             }
             else
             {
-                throw new NotImplementedException($"{nameof(IProducer)} of {typeName}");
+                throw new NotImplementedException($"{nameof(RabbitEventBus)} of {typeName}");
             }
-        }
-        public ValueTask<IProducer> GetProducer<T>()
-        {
-            return GetProducer(typeof(T).FullName);
         }
         public List<IConsumer> GetConsumers()
         {
@@ -160,6 +152,7 @@ namespace Pole.EventBus.RabbitMQ
 
             }
         }
+
         #endregion
     }
 }

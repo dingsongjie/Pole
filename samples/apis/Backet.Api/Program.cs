@@ -10,6 +10,7 @@ using Orleans;
 using Orleans.Hosting;
 using Pole.Orleans.Provider.EntityframeworkCore;
 using Microsoft.Extensions.Logging;
+using Orleans.Configuration;
 
 namespace Backet.Api
 {
@@ -26,18 +27,14 @@ namespace Backet.Api
                 {
                     siloBuilder.UseLocalhostClustering();
                     siloBuilder.AddEfGrainStorage<BacketDbContext>("ef");
+                    siloBuilder.Configure<GrainCollectionOptions>(options =>
+                    {
+                        options.CollectionAge = TimeSpan.FromMinutes(2);
+                    });
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-            .ConfigureLogging((hostingContext, logging) =>
-            {
-            // The ILoggingBuilder minimum level determines the
-            // the lowest possible level for logging. The log4net
-            // level then sets the level that we actually log at.
-            logging.AddLog4Net();
-            logging.SetMinimumLevel(LogLevel.Warning);
-        });
+                });
     }
 }

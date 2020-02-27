@@ -24,13 +24,15 @@ namespace Pole.Core.UnitOfWork
         private readonly ISerializer serializer;
         private IBus bus;
         private IEventBuffer eventBuffer;
+        public IServiceProvider ServiceProvider { get; }
         public UnitOfWork(IProducerInfoContainer producerContainer, IEventTypeFinder eventTypeFinder,
-            ISerializer serializer, IEventBuffer eventBuffer)
+            ISerializer serializer, IEventBuffer eventBuffer, IServiceProvider serviceProvider)
         {
             this.producerContainer = producerContainer;
             this.eventTypeFinder = eventTypeFinder;
             this.serializer = serializer;
             this.eventBuffer = eventBuffer;
+            this.ServiceProvider = serviceProvider;
         }
 
         public async Task CompeleteAsync(CancellationToken cancellationToken = default)

@@ -20,13 +20,11 @@ namespace Backet.Api.Grains
             using (var scope = ServiceProvider.CreateScope())
             {
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                var dbTransactionAdapter = scope.ServiceProvider.GetRequiredService<IDbTransactionAdapter>();
                 var dbContext = scope.ServiceProvider.GetRequiredService<BacketDbContext>();
                 var bus = scope.ServiceProvider.GetRequiredService<IBus>();
                 using (var transaction = await dbContext.Database.BeginTransactionAsync())
                 {
-                    dbTransactionAdapter.DbTransaction = transaction;
-                    unitOfWork.Enlist(dbTransactionAdapter, bus);
+                    unitOfWork.Enlist(transaction, bus);
                     Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet backet = new Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet
                     {
                         Id = backetDto.Id,
@@ -43,7 +41,6 @@ namespace Backet.Api.Grains
                 }
                 return true;
             }
-               
         }
     }
 }

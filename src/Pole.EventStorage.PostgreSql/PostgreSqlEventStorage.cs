@@ -92,7 +92,8 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
                     Name = reader.GetString(2),
                     Content = reader.GetString(3),
                     Retries = reader.GetInt32(4),
-                    Added = reader.GetDateTime(5)
+                    Added = reader.GetDateTime(5),
+                    StatusName = reader.GetString(7)
                 });
             }
 

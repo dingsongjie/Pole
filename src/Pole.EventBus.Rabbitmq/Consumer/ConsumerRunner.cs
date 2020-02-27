@@ -62,7 +62,6 @@ namespace Pole.EventBus.RabbitMQ
             BasicConsumer = new EventingBasicConsumer(Model.Model);
             BasicConsumer.Received += async (ch, ea) =>
             {
-
                 await mpscChannel.WriteAsync(ea);
             };
             BasicConsumer.ConsumerTag = Model.Model.BasicConsume(Queue.Queue, Consumer.Config.AutoAck, BasicConsumer);

@@ -19,6 +19,7 @@ namespace Pole.EventBus.RabbitMQ
         readonly IMpscChannel<BasicDeliverEventArgs> mpscChannel;
         readonly ISerializer serializer;
         readonly RabbitOptions rabbitOptions;
+        List<ulong> errorMessageDeliveryTags = new List<ulong>();
         public ConsumerRunner(
             IRabbitMQClient client,
             IServiceProvider provider,
@@ -93,7 +94,17 @@ namespace Pole.EventBus.RabbitMQ
                 }
                 if (!Consumer.Config.AutoAck)
                 {
-                    Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
+                    if (errorMessageDeliveryTags.Count == 0)
+                    {
+                        Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
+                    }
+                    else
+                    {
+                        list.ForEach(m =>
+                        {
+                            Model.Model.BasicAck(m.DeliveryTag, false);
+                        });
+                    }
                 }
             }
         }
@@ -121,8 +132,11 @@ namespace Pole.EventBus.RabbitMQ
         private async Task ProcessComsumerErrors(BasicDeliverEventArgs ea, Exception exception)
         {
             // todo 这里需要添加断路器 防止超量的 Task.Delay
+
             if (ea.BasicProperties.Headers.TryGetValue(Consts.ConsumerRetryTimesStr, out object retryTimesObj))
             {
+                errorMessageDeliveryTags.Add(ea.DeliveryTag);
+
                 var retryTimesStr = Encoding.UTF8.GetString((byte[])retryTimesObj);
                 var retryTimes = Convert.ToInt32(retryTimesStr);
                 if (retryTimes < Consumer.Config.MaxReenqueueTimes)
@@ -135,6 +149,8 @@ namespace Pole.EventBus.RabbitMQ
                         using var channel = Client.PullChannel();
                         channel.Publish(ea.Body, ea.BasicProperties.Headers, Queue.Queue, string.Empty, true);
                         Model.Model.BasicAck(ea.DeliveryTag, false);
+
+                        errorMessageDeliveryTags.Remove(ea.DeliveryTag);
                     });
                 }
                 else

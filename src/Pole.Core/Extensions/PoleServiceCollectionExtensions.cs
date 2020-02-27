@@ -4,6 +4,7 @@ using Pole.Core.Channels;
 using Pole.Core.EventBus;
 using Pole.Core.Processor;
 using Pole.Core.Processor.Server;
+using Pole.Core.Query;
 using Pole.Core.Serialization;
 using Pole.Core.UnitOfWork;
 using Pole.Core.Utils;
@@ -31,10 +32,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ISerializer, DefaultJsonSerializer>();
             services.AddSingleton<IGeneratorIdSolver, InstanceIPV4_16IdGeneratorIdSolver>();
             services.AddSingleton<IObserverUnitContainer, ObserverUnitContainer>();
+            services.AddSingleton<IQueryRegister, QueryRegister>();
             using (var serviceProvider = services.BuildServiceProvider())
             {
                 var generatorIdSolver = serviceProvider.GetService<IGeneratorIdSolver>();
                 services.AddSingleton(typeof(ISnowflakeIdGenerator), factory => new SnowflakeIdGenerator(new DateTime(2020, 1, 1), 16, generatorIdSolver.GetGeneratorId()));
+
+                var queryRegister = serviceProvider.GetService<IQueryRegister>();
+                queryRegister.Register(services, ServiceLifetime.Scoped);
             }
 
             services.AddSingleton<IProcessor, PendingMessageRetryProcessor>();

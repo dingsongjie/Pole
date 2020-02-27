@@ -25,12 +25,14 @@ namespace Backet.Api
             Host.CreateDefaultBuilder(args)
                 .UseOrleans(siloBuilder =>
                 {
+                    siloBuilder.ConfigureApplicationParts(parts => parts.AddFromApplicationBaseDirectory());
                     siloBuilder.UseLocalhostClustering();
                     siloBuilder.AddEfGrainStorage<BacketDbContext>("ef");
                     siloBuilder.Configure<GrainCollectionOptions>(options =>
                     {
                         options.CollectionAge = TimeSpan.FromMinutes(2);
                     });
+                    siloBuilder.UseDashboard(options => { });
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

@@ -47,9 +47,9 @@ namespace Backet.Api
             services.ConfigureGrainStorageOptions<BacketDbContext, BacketGrain, Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>(
             options =>
             {
-                options.UseQuery(context => context.Backets
-                        .Include(box => box.BacketItems), context => context.Backets.AsNoTracking()
-                         .Include(box => box.BacketItems));
+                options.UseQuery(context => context.Backets.Include(box => box.BacketItems),
+                    context => context.Backets.AsNoTracking().Include(box => box.BacketItems)
+                    );
                 options.IsRelatedData = true;
             });
         }

@@ -31,6 +31,7 @@ namespace Backet.Api
             services.AddGrpc();
             services.AddGrpcValidation();
             services.AddGrpcRequestValidator();
+            services.AddGrpcWeb(o => o.GrpcWebEnabled = true);
 
             services.AddPole(config =>
             {
@@ -63,6 +64,8 @@ namespace Backet.Api
 
             app.UsePole();
             app.UseRouting();
+
+            app.UseGrpcWeb();
 
             app.UseEndpoints(endpoints =>
             {

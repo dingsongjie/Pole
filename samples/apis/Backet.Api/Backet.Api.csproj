@@ -6,9 +6,13 @@
 
   <ItemGroup>
     <Compile Remove="Application\**" />
+    <Compile Remove="Logger\**" />
     <Content Remove="Application\**" />
+    <Content Remove="Logger\**" />
     <EmbeddedResource Remove="Application\**" />
+    <EmbeddedResource Remove="Logger\**" />
     <None Remove="Application\**" />
+    <None Remove="Logger\**" />
   </ItemGroup>
 
   <ItemGroup>

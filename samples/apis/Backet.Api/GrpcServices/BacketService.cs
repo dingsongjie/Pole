@@ -16,12 +16,13 @@ namespace Backet.Api.GrpcServices
         {
             this.clusterClient = clusterClient;
         }
-        public override Task<Pole.Grpc.ExtraType.CommonCommandResponse> AddBacket(AddBacketRequest backetDto, ServerCallContext context)
+        public override async Task<Pole.Grpc.ExtraType.CommonCommandResponse> AddBacket(AddBacketRequest backetDto, ServerCallContext context)
         {
             var newId = Guid.NewGuid().ToString("N").ToLower();
             backetDto.Id = newId;
             var grain = clusterClient.GetGrain<IAddBacketGrain>(newId);
-            return Task.FromResult(Pole.Grpc.ExtraType.CommonCommandResponse.SuccessResponse);
+            //await  grain.AddBacket(backetDto);
+            return Pole.Grpc.ExtraType.CommonCommandResponse.SuccessResponse;
         }
     }
 }

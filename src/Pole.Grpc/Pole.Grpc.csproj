@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="8.6.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.26.0" />
+    <PackageReference Include="Grpc.AspNetCore.Web" Version="2.27.0-pre1" />
   </ItemGroup>
 
   <ItemGroup>

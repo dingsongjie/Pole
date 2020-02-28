@@ -27,23 +27,13 @@ namespace Pole.Samples.Backet.Api
             //    await uploader.UpdateAsync("\"pole\".\"Events\"", events);
             //}
             // Queue the task.
-            for (var i = 0; i < 100; i++)
-            {
-                ThreadPool.QueueUserWorkItem(ThreadProc, i);
-            }
+            string s = "11111111111111111111";
+            var bytes= Encoding.ASCII.GetBytes(s);
 
             Console.WriteLine("Main thread does some work, then sleeps.");
             Thread.Sleep(1000);
 
             Console.WriteLine("Main thread exits.");
-        }
-
-        // This thread procedure performs the task.
-        static void ThreadProc(Object stateInfo)
-        {
-            var i = Convert.ToInt32(stateInfo);
-            // No state object was passed to QueueUserWorkItem, so stateInfo is null.
-            Console.WriteLine($"Hello from the thread pool.{i}");
         }
     }
 }

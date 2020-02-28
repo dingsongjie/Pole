@@ -12,8 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Protos\commonCommandResponse.proto" AdditionalImportDirs="Protos" GrpcServices="Server" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\*" GrpcServices="Server" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.30" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.26.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.27.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -38,6 +46,7 @@
     <ProjectReference Include="..\..\..\src\Pole.Core\Pole.Core.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.EventBus.Rabbitmq\Pole.EventBus.Rabbitmq.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.EventStorage.PostgreSql\Pole.EventStorage.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.Grpc\Pole.Grpc.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.Orleans.Provider.EntityframeworkCore\Pole.Orleans.Provider.EntityframeworkCore.csproj" />
   </ItemGroup>
   <ItemGroup>

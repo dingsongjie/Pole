@@ -1,4 +1,5 @@
 using Backet.Api.Grains;
+using Backet.Api.GrpcServices;
 using Backet.Api.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +27,10 @@ namespace Backet.Api
         {
             services.AddDbContextPool<BacketDbContext>(options => options.UseNpgsql(Configuration["postgres:write"]));
             services.AddControllers();
+
+            services.AddGrpc();
+            services.AddGrpcValidation();
+            services.AddGrpcRequestValidator();
 
             services.AddPole(config =>
             {
@@ -62,6 +67,7 @@ namespace Backet.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+                endpoints.MapGrpcService<BacketService>();
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Hello World!");

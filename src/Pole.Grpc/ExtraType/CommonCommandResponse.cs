@@ -1,7 +1,4 @@
-﻿using Pole.Application.Cqrs;
-using Pole.Domain;
-using Pole.Domain.UnitOfWork;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 

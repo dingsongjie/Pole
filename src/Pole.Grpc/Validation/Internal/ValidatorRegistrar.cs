@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Pole.Grpc.Validation.Internal
 {
-    class DefaultValidatorRegistrar : IValidatorRegistrar
+    class ValidatorRegistrar : IValidatorRegistrar
     {
         public Task Register(Type validatorType, IServiceCollection services, ServiceLifetime lifetime = ServiceLifetime.Singleton)
         {

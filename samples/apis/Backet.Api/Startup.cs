@@ -71,10 +71,6 @@ namespace Backet.Api
             {
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapGrpcService<BacketService>();
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
             });
         }
     }

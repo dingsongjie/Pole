@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "Backet.Grpc";
 
-import "Protos/Common/commonCommandResponse.proto";
+import "Common/commonCommandResponse.proto";
 package greet;
 
 // The greeting service definition.
@@ -14,13 +14,13 @@ service Backet {
 // The request message containing the user's name.
 message AddBacketRequest {
   string name = 1;
-  string id = 2;
-  string userId = 3;
-  repeated AddBacketItemRequest Items = 4;
-  message AddBacketItemRequest{
-    string productId = 1;
-    string productName = 2;
-    int64 price = 3;
-  }
+  //string id = 2;
+  //string userId = 3;
+  //repeated AddBacketItemRequest Items = 4;
+  //message AddBacketItemRequest{
+  //  string productId = 1;
+  //  string productName = 2;
+  //  int64 price = 3;
+  //}
 }
 

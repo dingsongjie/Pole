@@ -25,14 +25,14 @@ namespace Backet.Api
             Host.CreateDefaultBuilder(args)
                 .UseOrleans(siloBuilder =>
                 {
-                    siloBuilder.ConfigureApplicationParts(parts => parts.AddFromApplicationBaseDirectory());
-                    siloBuilder.UseLocalhostClustering();
-                    siloBuilder.AddEfGrainStorage<BacketDbContext>("ef");
-                    siloBuilder.Configure<GrainCollectionOptions>(options =>
-                    {
-                        options.CollectionAge = TimeSpan.FromMinutes(2);
-                    });
-                    siloBuilder.UseDashboard(options => { });
+                    siloBuilder.ConfigureApplicationParts(parts => parts.AddFromApplicationBaseDirectory())
+                               .UseLocalhostClustering()
+                               .AddEfGrainStorage<BacketDbContext>("ef")
+                               .Configure<GrainCollectionOptions>(options =>
+                                {
+                                    options.CollectionAge = TimeSpan.FromSeconds(65);
+                                })
+                               .UseDashboard(options => { });
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -46,6 +46,7 @@ namespace Backet.Api
                         option.ListenAnyIP(82, config =>
                         {
                             config.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+                            config.UseHttps();
                         });
                     });
                 });

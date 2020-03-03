@@ -11,7 +11,7 @@ namespace Backet.Api.EventHandlers
     public class ToNoticeBacketCreatedEventHandler : PoleEventHandler<BacketCreatedEvent>, IToNoticeBacketCreatedEventHandler
     {
         public async Task BulkEventsHandle(List<BacketCreatedEvent> @event)
-        {
+        {          
             await Task.Delay(1500);
         }
 

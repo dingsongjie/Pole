@@ -32,7 +32,13 @@ namespace Backet.Api
             services.AddGrpcValidation();
             services.AddGrpcRequestValidator();
             services.AddGrpcWeb(o => o.GrpcWebEnabled = true);
-
+            services.AddCors(o => o.AddPolicy("AllowAll", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .WithExposedHeaders("Grpc-Status", "Grpc-Message");
+            }));
             services.AddPole(config =>
             {
                 config.AddRabbitMQ(option =>
@@ -66,11 +72,12 @@ namespace Backet.Api
             app.UseRouting();
 
             app.UseGrpcWeb();
+            app.UseCors("AllowAll");
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
-                endpoints.MapGrpcService<BacketService>();
+                endpoints.MapGrpcService<BacketService>().EnableGrpcWeb();
             });
         }
     }

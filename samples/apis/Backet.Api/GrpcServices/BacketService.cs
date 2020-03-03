@@ -19,7 +19,7 @@ namespace Backet.Api.GrpcServices
         public override async Task<Pole.Grpc.ExtraType.CommonCommandResponse> AddBacket(AddBacketRequest backetDto, ServerCallContext context)
         {
             var newId = Guid.NewGuid().ToString("N").ToLower();
-            backetDto.Id = newId;
+            //backetDto.Id = newId;
             var grain = clusterClient.GetGrain<IAddBacketGrain>(newId);
             //await  grain.AddBacket(backetDto);
             return Pole.Grpc.ExtraType.CommonCommandResponse.SuccessResponse;

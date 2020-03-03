@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{655E719B-4
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Core", "src\Pole.Core\Pole.Core.csproj", "{CA80F6EF-95A0-4BB7-BA8B-02E167E82865}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Application", "src\Pole.Application\Pole.Application.csproj", "{C7825E5B-4FB0-4498-B8D1-E9EC0BC1AA5C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Grpc", "src\Pole.Grpc\Pole.Grpc.csproj", "{F40FE25F-6081-4B29-A7BD-CB5C24F6FDA8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{4A0FB696-EC29-4A5F-B40B-A6FC56001ADB}"
@@ -39,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.EventStorage.PostgreSq
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Orleans.Provider.EntityframeworkCore", "src\Pole.Orleans.Provider.EntityframeworkCore\Pole.Orleans.Provider.EntityframeworkCore.csproj", "{0DA75F4A-BF47-4B52-B932-48BB6A709934}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pole.Samples.Backet.Api", "test\Pole.Samples.Backet.Api\Pole.Samples.Backet.Api.csproj", "{FB3D2F52-123A-4606-B682-9159BD7913AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Samples.Backet.Api", "test\Pole.Samples.Backet.Api\Pole.Samples.Backet.Api.csproj", "{FB3D2F52-123A-4606-B682-9159BD7913AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,10 +49,6 @@ Global
 		{CA80F6EF-95A0-4BB7-BA8B-02E167E82865}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA80F6EF-95A0-4BB7-BA8B-02E167E82865}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA80F6EF-95A0-4BB7-BA8B-02E167E82865}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7825E5B-4FB0-4498-B8D1-E9EC0BC1AA5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7825E5B-4FB0-4498-B8D1-E9EC0BC1AA5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7825E5B-4FB0-4498-B8D1-E9EC0BC1AA5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7825E5B-4FB0-4498-B8D1-E9EC0BC1AA5C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F40FE25F-6081-4B29-A7BD-CB5C24F6FDA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F40FE25F-6081-4B29-A7BD-CB5C24F6FDA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F40FE25F-6081-4B29-A7BD-CB5C24F6FDA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -105,7 +99,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CA80F6EF-95A0-4BB7-BA8B-02E167E82865} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
-		{C7825E5B-4FB0-4498-B8D1-E9EC0BC1AA5C} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{F40FE25F-6081-4B29-A7BD-CB5C24F6FDA8} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{475116FC-DEEC-4255-94E4-AE7B8C85038D} = {4A0FB696-EC29-4A5F-B40B-A6FC56001ADB}
 		{452B9D9E-881E-4E0E-A90B-98F2253F20F1} = {4A0FB696-EC29-4A5F-B40B-A6FC56001ADB}

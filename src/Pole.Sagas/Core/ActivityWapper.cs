@@ -24,7 +24,7 @@ namespace Pole.Sagas.Core
             var dataObjParams = Expression.Parameter(typeof(object), "data");
             var dataParams = Expression.Convert(dataObjParams, ActivityDataType);
             var method = ActivityType.GetMethod("Execute", new Type[] { ActivityDataType });
-            var body = Expression.Call(activityObjParams, method, activityObjParams, dataParams);
+            var body = Expression.Call(activityParams, method, dataParams);
             var func = Expression.Lambda<Func<object, object, Task<ActivityExecuteResult>>>(body, activityObjParams, dataObjParams).Compile();
 
             using (var scope = ServiceProvider.CreateScope())
@@ -40,8 +40,9 @@ namespace Pole.Sagas.Core
             var dataObjParams = Expression.Parameter(typeof(object), "data");
             var dataParams = Expression.Convert(dataObjParams, ActivityDataType);
             var method = ActivityType.GetMethod("Compensate", new Type[] { ActivityDataType });
-            var body = Expression.Call(activityObjParams, method, activityObjParams, dataParams);
+            var body = Expression.Call(activityParams, method, dataParams);
             var func = Expression.Lambda<Func<object, object, Task>>(body, activityObjParams, dataObjParams).Compile();
+
             using (var scope = ServiceProvider.CreateScope())
             {
                 var activity = scope.ServiceProvider.GetRequiredService(ActivityType);

@@ -15,18 +15,20 @@ namespace Pole.Sagas.Core
         private readonly IEventSender  eventSender;
         private readonly PoleSagasOption poleSagasOption;
         private readonly ISerializer serializer;
-        public SagaFactory(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, IOptions<PoleSagasOption> poleSagasOption, ISerializer serializer)
+        private readonly IActivityFinder activityFinder;
+        public SagaFactory(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, IOptions<PoleSagasOption> poleSagasOption, ISerializer serializer, IActivityFinder activityFinder)
         {
             this.snowflakeIdGenerator = snowflakeIdGenerator;
             this.serviceProvider = serviceProvider;
             this.eventSender = eventSender;
             this.poleSagasOption = poleSagasOption.Value;
             this.serializer = serializer;
+            this.activityFinder = activityFinder;
         }
 
         public ISaga CreateSaga()
         {
-            return new Saga(snowflakeIdGenerator, serviceProvider, eventSender, poleSagasOption, serializer);
+            return new Saga(snowflakeIdGenerator, serviceProvider, eventSender, poleSagasOption, serializer, activityFinder);
         }
     }
 }

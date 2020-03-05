@@ -33,7 +33,7 @@ namespace Pole.Sagas.Core
             return Task.CompletedTask;
         }
 
-        public Task ActivityStarted(string activityId, string sagaId, DateTime activityTimeoutTime, string parameterContent)
+        public Task ActivityExecuteStarted(string activityId, string sagaId, DateTime activityTimeoutTime, string parameterContent, int order)
         {
             return Task.CompletedTask;
         }

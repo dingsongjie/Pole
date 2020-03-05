@@ -8,7 +8,7 @@ namespace Pole.Sagas.Core
     public interface ISaga
     {
         string Id { get; }
-        void AddActivity<TData>(string activityName, TData data);
+        void AddActivity(string activityName, object data);
         Task<SagaResult> GetResult();
     }
 }

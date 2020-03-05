@@ -1,8 +1,10 @@
 ﻿using Pole.Core.Serialization;
 using Pole.Core.Utils.Abstraction;
+using Pole.Sagas.Core.Abstraction;
 using Pole.Sagas.Core.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +16,7 @@ namespace Pole.Sagas.Core
         private IServiceProvider serviceProvider;
         private IEventSender eventSender;
         private ISnowflakeIdGenerator snowflakeIdGenerator;
+        private IActivityFinder activityFinder;
         private PoleSagasOption poleSagasOption;
         private int _currentMaxOrder = 0;
         private int _currentExecuteOrder = 0;
@@ -21,24 +24,33 @@ namespace Pole.Sagas.Core
         private ISerializer serializer;
         public string Id { get; }
 
-        public Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer)
+        public Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder)
         {
             this.snowflakeIdGenerator = snowflakeIdGenerator;
             this.serviceProvider = serviceProvider;
             this.eventSender = eventSender;
             this.poleSagasOption = poleSagasOption;
             this.serializer = serializer;
+            this.activityFinder = activityFinder;
             Id = snowflakeIdGenerator.NextId();
         }
 
-        public void AddActivity<TData>(string activityName, TData data)
+        public void AddActivity(string activityName, object data)
         {
+            var targetActivityType = activityFinder.FindType(activityName);
+
+            var activityInterface = targetActivityType.GetInterfaces().FirstOrDefault();
+            if (!activityInterface.IsGenericType)
+            {
+                throw new ActivityImplementIrregularException(activityName);
+            }
+            var dataType = activityInterface.GetGenericArguments()[0];
             _currentMaxOrder++;
             ActivityWapper activityWapper = new ActivityWapper
             {
-                ActivityDataType = typeof(TData),
+                ActivityDataType = dataType,
                 ActivityState = ActivityStatus.NotStarted,
-                ActivityType = data.GetType(),
+                ActivityType = targetActivityType,
                 DataObj = data,
                 Order = _currentMaxOrder,
                 ServiceProvider = serviceProvider
@@ -68,25 +80,23 @@ namespace Pole.Sagas.Core
                 return null;
             }
             _currentExecuteOrder++;
-            return activities[_currentExecuteOrder];
+            return activities[_currentExecuteOrder-1];
         }
         private ActivityWapper GetNextCompensateActivity()
         {
             _currentCompensateOrder--;
-            if (_currentExecuteOrder == 0)
+            if (_currentCompensateOrder == 0)
             {
                 return null;
             }
 
-            return activities[_currentCompensateOrder];
+            return activities[_currentCompensateOrder-1];
         }
         private async Task RecursiveCompensateActivity(ActivityWapper activityWapper)
         {
             var activityId = activityWapper.Id;
             try
             {
-                //var jsonContent = serializer.Serialize(activityWapper.DataObj, activityWapper.ActivityDataType);
-                //await eventSender.ActivityStarted(activityId, Id, activityWapper.TimeOut, jsonContent);
                 await activityWapper.InvokeCompensate();
                 await eventSender.ActivityCompensated(activityId);
                 var compensateActivity = GetNextCompensateActivity();
@@ -108,7 +118,7 @@ namespace Pole.Sagas.Core
             try
             {
                 var jsonContent = serializer.Serialize(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityStarted(activityId, Id, activityWapper.TimeOut, jsonContent);
+                await eventSender.ActivityExecuteStarted(activityId, Id, activityWapper.TimeOut, jsonContent, activityWapper.Order);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {

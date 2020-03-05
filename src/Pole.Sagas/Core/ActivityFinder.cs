@@ -21,7 +21,8 @@ namespace Pole.Sagas.Core
             var baseActivityType = typeof(IActivity<>);
             foreach (var assembly in AssemblyHelper.GetAssemblies(this.logger))
             {
-                foreach (var type in assembly.GetTypes().Where(m => m.IsGenericType && m.GetGenericTypeDefinition() == baseActivityType && !m.IsAbstract))
+                
+                foreach (var type in assembly.GetTypes().Where(m => m.GetInterfaces().Any(i=>i.IsGenericType&& i.GetGenericTypeDefinition() == baseActivityType)&&m.IsClass&&!m.IsAbstract))
                 {
                     if (!type.FullName.EndsWith("Activity"))
                     {

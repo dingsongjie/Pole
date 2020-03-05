@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Pole.Sagas.Core
 {
     public interface ISaga
     {
-        void AddActivity<TData>(IActivity<TData> activity);
+        string Id { get; }
+        void AddActivity<TData>(string activityName, TData data);
+        Task<SagaResult> GetResult();
     }
 }

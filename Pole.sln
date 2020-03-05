@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pole.Sagas", "src\Pole.Saga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pole.Sagas.Storage.PostgreSql", "src\Pole.Sagas.Storage.PostgreSql\Pole.Sagas.Storage.PostgreSql.csproj", "{9505BDFC-395B-4257-AEB3-2B44611147A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagasTest.Api", "samples\apis\SagasTest.Api\SagasTest.Api.csproj", "{6138197E-6202-4E1B-9458-3CBEE60A36F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,10 @@ Global
 		{9505BDFC-395B-4257-AEB3-2B44611147A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9505BDFC-395B-4257-AEB3-2B44611147A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9505BDFC-395B-4257-AEB3-2B44611147A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6138197E-6202-4E1B-9458-3CBEE60A36F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6138197E-6202-4E1B-9458-3CBEE60A36F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6138197E-6202-4E1B-9458-3CBEE60A36F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6138197E-6202-4E1B-9458-3CBEE60A36F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,6 +133,7 @@ Global
 		{FB3D2F52-123A-4606-B682-9159BD7913AE} = {655E719B-4A3E-467C-A541-E0770AB81DE1}
 		{1F06D877-E4EC-4908-9057-38EDCE5E54E6} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{9505BDFC-395B-4257-AEB3-2B44611147A4} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
+		{6138197E-6202-4E1B-9458-3CBEE60A36F9} = {475116FC-DEEC-4255-94E4-AE7B8C85038D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DB0775A3-F293-4043-ADB7-72BAC081E87E}

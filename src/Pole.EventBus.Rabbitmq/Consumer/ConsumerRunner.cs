@@ -143,7 +143,7 @@ namespace Pole.EventBus.RabbitMQ
                 {
                     retryTimes++;
                     ea.BasicProperties.Headers[Consts.ConsumerRetryTimesStr] = retryTimes.ToString();
-                    ea.BasicProperties.Headers[Consts.ConsumerExceptionDetailsStr] = exception.InnerException?.Message + exception.StackTrace ?? exception.Message + exception.StackTrace;
+                    ea.BasicProperties.Headers[Consts.ConsumerExceptionDetailsStr] = exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;
                     await Task.Delay((int)Math.Pow(2, retryTimes) * 1000).ContinueWith((task) =>
                     {
                         using var channel = Client.PullChannel();

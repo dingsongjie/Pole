@@ -68,7 +68,8 @@ namespace Pole.Core.Processor
                 var bytes = bytesTransport.GetBytes();
                 if (pendingMessage.Retries > producerOptions.MaxFailedRetryCount)
                 {
-                    pendingMessage.ExpiresAt = DateTime.UtcNow;
+                    pendingMessage.StatusName = nameof(EventStatus.Failed);
+                    continue;
                 }
                 pendingMessage.Retries++;
                 var targetName = producerContainer.GetTargetName(pendingMessage.Name);

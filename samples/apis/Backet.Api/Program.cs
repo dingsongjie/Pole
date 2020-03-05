@@ -39,10 +39,10 @@ namespace Backet.Api
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseKestrel(option =>
                     {
-                        option.ListenAnyIP(81, config =>
-                        {
-                            config.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
-                        });
+                        //option.ListenAnyIP(81, config =>
+                        //{
+                        //    config.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
+                        //});
                         option.ListenAnyIP(82, config =>
                         {
                             config.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;

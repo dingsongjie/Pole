@@ -79,7 +79,7 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
         {
             var fourMinAgo = DateTime.UtcNow.AddMinutes(-4).ToString("O");
             var sql =
-                $"SELECT * FROM {tableName} WHERE \"Retries\"<{producerOptions.MaxFailedRetryCount} AND \"Added\"<'{fourMinAgo}' AND (\"StatusName\"='{EventStatus.Failed}' OR \"StatusName\"='{EventStatus.Pending}') for update skip locked LIMIT 200;";
+                $"SELECT * FROM {tableName} WHERE \"Retries\"<{producerOptions.MaxFailedRetryCount} AND \"Added\"<'{fourMinAgo}' AND  \"StatusName\"='{EventStatus.Pending}' for update skip locked LIMIT 200;";
 
             var result = new List<EventEntity>();
             using var connection = new NpgsqlConnection(options.ConnectionString);

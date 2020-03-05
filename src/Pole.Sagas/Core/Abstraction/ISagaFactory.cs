@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Sagas.Core
+namespace Pole.Sagas.Core.Abstraction
 {
     public interface ISagaFactory
     {
-        TSaga CreateSaga<TSaga>(TimeSpan timeOut) where TSaga : ISaga;
+        ISaga CreateSaga();
     }
 }

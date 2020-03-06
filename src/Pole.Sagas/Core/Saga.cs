@@ -18,18 +18,18 @@ namespace Pole.Sagas.Core
         private ISnowflakeIdGenerator snowflakeIdGenerator;
         private IActivityFinder activityFinder;
         private PoleSagasOption poleSagasOption;
-        public int CurrentMaxOrder
+        private int CurrentMaxOrder
         {
             get { return activities.Count; }
         }
         /// <summary>
         /// 如果 等于 -1 说明已经在执行补偿操作,此时这个值已经没有意义
         /// </summary>
-        private int _currentExecuteOrder = 0;
+        private int currentExecuteOrder  = 0;
         /// <summary>
         /// 如果 等于 -1 说明已经还未执行补偿操作,此时这个值没有意义
         /// </summary>
-        private int _currentCompensateOrder = -1;
+        private int currentCompensateOrder = -1;
         private ISerializer serializer;
         public string Id { get; }
 
@@ -42,6 +42,18 @@ namespace Pole.Sagas.Core
             this.serializer = serializer;
             this.activityFinder = activityFinder;
             Id = snowflakeIdGenerator.NextId();
+        }
+        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder,int currentExecuteOrder,int currentCompensateOrder)
+        {
+            this.snowflakeIdGenerator = snowflakeIdGenerator;
+            this.serviceProvider = serviceProvider;
+            this.eventSender = eventSender;
+            this.poleSagasOption = poleSagasOption;
+            this.serializer = serializer;
+            this.activityFinder = activityFinder;
+            Id = snowflakeIdGenerator.NextId();
+            this.currentExecuteOrder = currentExecuteOrder;
+            this.currentCompensateOrder = currentCompensateOrder;
         }
 
         public void AddActivity(string activityName, object data, int timeOutSeconds = 2)
@@ -84,22 +96,22 @@ namespace Pole.Sagas.Core
 
         private ActivityWapper GetNextExecuteActivity()
         {
-            if (_currentExecuteOrder == CurrentMaxOrder)
+            if (currentExecuteOrder == CurrentMaxOrder)
             {
                 return null;
             }
-            _currentExecuteOrder++;
-            return activities[_currentExecuteOrder - 1];
+            currentExecuteOrder++;
+            return activities[currentExecuteOrder - 1];
         }
         private ActivityWapper GetNextCompensateActivity()
         {
-            _currentCompensateOrder--;
-            if (_currentCompensateOrder == 0)
+            currentCompensateOrder--;
+            if (currentCompensateOrder == 0)
             {
                 return null;
             }
 
-            return activities[_currentCompensateOrder - 1];
+            return activities[currentCompensateOrder - 1];
         }
         private async Task RecursiveCompensateActivity(ActivityWapper activityWapper)
         {
@@ -133,7 +145,7 @@ namespace Pole.Sagas.Core
                 if (!result.IsSuccess)
                 {
                     await eventSender.ActivityRevoked(activityId);
-                    await CompensateActivity(result,_currentExecuteOrder);
+                    await CompensateActivity(result,currentExecuteOrder);
                     return result;
                 }
                 await eventSender.ActivityEnded(activityId, string.Empty);
@@ -159,7 +171,7 @@ namespace Pole.Sagas.Core
                     };
                     await eventSender.ActivityExecuteOvertime(activityId, Id, errors);
                     // 超时的时候 需要首先补偿这个超时的操作
-                    return await CompensateActivity(result,_currentExecuteOrder+1);
+                    return await CompensateActivity(result,currentExecuteOrder+1);
                 }
                 else
                 {
@@ -171,15 +183,15 @@ namespace Pole.Sagas.Core
                     };
                     await eventSender.ActivityExecuteAborted(activityId, errors);
                     // 出错的时候 需要首先补偿这个出错的操作
-                    return await CompensateActivity(result, _currentExecuteOrder + 1);
+                    return await CompensateActivity(result, currentExecuteOrder + 1);
                 }
             }
         }
 
         private async Task<ActivityExecuteResult> CompensateActivity(ActivityExecuteResult result,int currentCompensateOrder)
         {
-            _currentCompensateOrder = currentCompensateOrder;
-            _currentExecuteOrder = -1;
+            this.currentCompensateOrder = currentCompensateOrder;
+            currentExecuteOrder = -1;
             var compensateActivity = GetNextCompensateActivity();
             if (compensateActivity == null)
             {

@@ -62,7 +62,61 @@ namespace SagasTest.Api.Controllers
 
             var result = await sagas.GetResult();
         }
+        [HttpGet("Transaction3Exception")]
+        public async Task Transaction3Exception()
+        {
+            var sagas = sagaFactory.CreateSaga();
 
+            sagas.AddActivity("Transaction1Ok", new Transaction1Dto { Id = 1, Name = "22" });
+            sagas.AddActivity("Transaction2Ok", new Transaction2Dto { Price = 1, Message = "我们" });
+            sagas.AddActivity("Transaction3Exception", new Transaction3Dto { Age = 1, Name = "333" });
+
+            var result = await sagas.GetResult();
+        }
+        [HttpGet("Transaction2Exception")]
+        public async Task Transaction2Exception()
+        {
+            var sagas = sagaFactory.CreateSaga();
+
+            sagas.AddActivity("Transaction1Ok", new Transaction1Dto { Id = 1, Name = "22" });
+            sagas.AddActivity("Transaction2Exception", new Transaction2Dto { Price = 1, Message = "我们" });
+            sagas.AddActivity("Transaction3HasResult", new Transaction3Dto { Age = 1, Name = "333" });
+
+            var result = await sagas.GetResult();
+        }
+        [HttpGet("Transaction1Exception")]
+        public async Task Transaction1Exception()
+        {
+            var sagas = sagaFactory.CreateSaga();
+
+            sagas.AddActivity("Transaction1Exception", new Transaction1Dto { Id = 1, Name = "22" });
+            sagas.AddActivity("Transaction2Ok", new Transaction2Dto { Price = 1, Message = "我们" });
+            sagas.AddActivity("Transaction3HasResult", new Transaction3Dto { Age = 1, Name = "333" });
+
+            var result = await sagas.GetResult();
+        }
+        [HttpGet("Transaction2CompensateError")]
+        public async Task Transaction2CompensateError()
+        {
+            var sagas = sagaFactory.CreateSaga();
+
+            sagas.AddActivity("Transaction1Ok", new Transaction1Dto { Id = 1, Name = "22" });
+            sagas.AddActivity("Transaction2CompensateError", new Transaction2Dto { Price = 1, Message = "我们" });
+            sagas.AddActivity("Transaction3Exception", new Transaction3Dto { Age = 1, Name = "333" });
+
+            var result = await sagas.GetResult();
+        }
+        [HttpGet("Transaction1CompensateError")]
+        public async Task Transaction1CompensateError()
+        {
+            var sagas = sagaFactory.CreateSaga();
+
+            sagas.AddActivity("Transaction1CompensateError", new Transaction1Dto { Id = 1, Name = "22" });
+            sagas.AddActivity("Transaction2Ok", new Transaction2Dto { Price = 1, Message = "我们" });
+            sagas.AddActivity("Transaction3Exception", new Transaction3Dto { Age = 1, Name = "333" });
+
+            var result = await sagas.GetResult();
+        }
         // GET api/values/5
         [HttpGet("{id}")]
         public ActionResult<string> Get(int id)

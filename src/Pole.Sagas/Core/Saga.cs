@@ -80,7 +80,7 @@ namespace Pole.Sagas.Core
                 return null;
             }
             _currentExecuteOrder++;
-            return activities[_currentExecuteOrder-1];
+            return activities[_currentExecuteOrder - 1];
         }
         private ActivityWapper GetNextCompensateActivity()
         {
@@ -90,7 +90,7 @@ namespace Pole.Sagas.Core
                 return null;
             }
 
-            return activities[_currentCompensateOrder-1];
+            return activities[_currentCompensateOrder - 1];
         }
         private async Task RecursiveCompensateActivity(ActivityWapper activityWapper)
         {
@@ -123,9 +123,7 @@ namespace Pole.Sagas.Core
                 if (!result.IsSuccess)
                 {
                     await eventSender.ActivityExecuteAborted(activityId, serializer.Serialize(result.Result), string.Empty);
-                    _currentCompensateOrder = _currentExecuteOrder;
-                    var compensateActivity = GetNextCompensateActivity();
-                    await RecursiveCompensateActivity(compensateActivity);
+                    await CompensateActivity(result);
                     return result;
                 }
                 await eventSender.ActivityEnded(activityId, string.Empty);
@@ -142,13 +140,26 @@ namespace Pole.Sagas.Core
             catch (Exception exception)
             {
                 var errors = exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;
-                await eventSender.ActivityExecuteAborted(activityId, string.Empty, errors);
-                return new ActivityExecuteResult
+                var result = new ActivityExecuteResult
                 {
                     IsSuccess = false,
                     Errors = errors
                 };
+                await eventSender.ActivityExecuteAborted(activityId, string.Empty, errors);
+                return await CompensateActivity(result);
             }
+        }
+
+        private async Task<ActivityExecuteResult> CompensateActivity(ActivityExecuteResult result)
+        {
+            _currentCompensateOrder = _currentExecuteOrder;
+            var compensateActivity = GetNextCompensateActivity();
+            if (compensateActivity == null)
+            {
+                return result;
+            }
+            await RecursiveCompensateActivity(compensateActivity);
+            return result;
         }
     }
 }

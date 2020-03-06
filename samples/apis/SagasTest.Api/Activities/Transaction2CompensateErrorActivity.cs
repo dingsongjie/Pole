@@ -8,18 +8,16 @@ using System.Threading.Tasks;
 
 namespace SagasTest.Api.Activities
 {
-    public class Transaction2OkActivity : IActivity<Transaction2Dto>
+    public class Transaction2CompensateErrorActivity : IActivity<Transaction2Dto>
     {
         private readonly IHttpClientFactory httpClientFactory;
-        public Transaction2OkActivity(IHttpClientFactory httpClientFactory)
+        public Transaction2CompensateErrorActivity(IHttpClientFactory httpClientFactory)
         {
             this.httpClientFactory = httpClientFactory;
         }
-        public async Task Compensate(Transaction2Dto data)
+        public Task Compensate(Transaction2Dto data)
         {
-            var httpclient = httpClientFactory.CreateClient();
-            httpclient.BaseAddress = new Uri("http://localhost:5000");
-            var result = await httpclient.GetAsync("api/OutGoingMock/Transaction2RollBack");
+            throw new NotImplementedException();
         }
 
         public async Task<ActivityExecuteResult> Execute(Transaction2Dto data)
@@ -29,10 +27,5 @@ namespace SagasTest.Api.Activities
             var result = await httpclient.GetAsync("api/OutGoingMock/Transaction2Ok");
             return ActivityExecuteResult.Success;
         }
-    }
-    public class Transaction2Dto
-    {
-        public long Price { get; set; }
-        public string Message { get; set; }
     }
 }

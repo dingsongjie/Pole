@@ -7,9 +7,13 @@ namespace Pole.Sagas.Core
     public enum ActivityStatus
     {
         NotStarted,
+        Executing,
         Executed,
+        Compensating,
         Compensated,
         ExecuteAborted,
+        Revoked,
         CompensateAborted,
+        Overtime
     }
 }

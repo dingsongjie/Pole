@@ -30,5 +30,9 @@ namespace Pole.Sagas.Core
         {
             return new Saga(snowflakeIdGenerator, serviceProvider, eventSender, poleSagasOption, serializer, activityFinder);
         }
+        internal ISaga CreateSaga(string id)
+        {
+            return new Saga(snowflakeIdGenerator, serviceProvider, eventSender, poleSagasOption, serializer, activityFinder);
+        }
     }
 }

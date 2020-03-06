@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SagasTest.Api.Activities
@@ -16,14 +17,14 @@ namespace SagasTest.Api.Activities
             this.httpClientFactory = httpClientFactory;
 
         }
-        public async Task Compensate(Transaction2Dto data)
+        public async Task Compensate(Transaction2Dto data, CancellationToken cancellationToken)
         {
             var httpclient = httpClientFactory.CreateClient();
             httpclient.BaseAddress = new Uri("http://localhost:5000");
             var result = await httpclient.GetAsync("api/OutGoingMock/Transaction2RollBack");
         }
 
-        public async Task<ActivityExecuteResult> Execute(Transaction2Dto data)
+        public async Task<ActivityExecuteResult> Execute(Transaction2Dto data, CancellationToken cancellationToken)
         {
             var httpclient = httpClientFactory.CreateClient();
             httpclient.BaseAddress = new Uri("http://localhost:5000");

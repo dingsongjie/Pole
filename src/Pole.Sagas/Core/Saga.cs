@@ -18,13 +18,22 @@ namespace Pole.Sagas.Core
         private ISnowflakeIdGenerator snowflakeIdGenerator;
         private IActivityFinder activityFinder;
         private PoleSagasOption poleSagasOption;
-        private int _currentMaxOrder = 0;
+        public int CurrentMaxOrder
+        {
+            get { return activities.Count; }
+        }
+        /// <summary>
+        /// 如果 等于 -1 说明已经在执行补偿操作,此时这个值已经没有意义
+        /// </summary>
         private int _currentExecuteOrder = 0;
-        private int _currentCompensateOrder = 0;
+        /// <summary>
+        /// 如果 等于 -1 说明已经还未执行补偿操作,此时这个值没有意义
+        /// </summary>
+        private int _currentCompensateOrder = -1;
         private ISerializer serializer;
         public string Id { get; }
 
-        public Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder)
+        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder)
         {
             this.snowflakeIdGenerator = snowflakeIdGenerator;
             this.serviceProvider = serviceProvider;
@@ -35,7 +44,7 @@ namespace Pole.Sagas.Core
             Id = snowflakeIdGenerator.NextId();
         }
 
-        public void AddActivity(string activityName, object data)
+        public void AddActivity(string activityName, object data, int timeOutSeconds = 2)
         {
             var targetActivityType = activityFinder.FindType(activityName);
 
@@ -45,15 +54,15 @@ namespace Pole.Sagas.Core
                 throw new ActivityImplementIrregularException(activityName);
             }
             var dataType = activityInterface.GetGenericArguments()[0];
-            _currentMaxOrder++;
             ActivityWapper activityWapper = new ActivityWapper
             {
                 ActivityDataType = dataType,
                 ActivityState = ActivityStatus.NotStarted,
                 ActivityType = targetActivityType,
                 DataObj = data,
-                Order = _currentMaxOrder,
-                ServiceProvider = serviceProvider
+                Order = CurrentMaxOrder,
+                ServiceProvider = serviceProvider,
+                TimeOutSeconds = 2,
             };
             activities.Add(activityWapper);
         }
@@ -75,7 +84,7 @@ namespace Pole.Sagas.Core
 
         private ActivityWapper GetNextExecuteActivity()
         {
-            if (_currentExecuteOrder == _currentMaxOrder)
+            if (_currentExecuteOrder == CurrentMaxOrder)
             {
                 return null;
             }
@@ -115,15 +124,16 @@ namespace Pole.Sagas.Core
         {
             var activityId = snowflakeIdGenerator.NextId();
             activityWapper.Id = activityId;
+            activityWapper.CancellationTokenSource = new System.Threading.CancellationTokenSource(2 * 1000);
             try
             {
                 var jsonContent = serializer.Serialize(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityExecuteStarted(activityId, Id, activityWapper.TimeOut, jsonContent, activityWapper.Order);
+                await eventSender.ActivityExecuteStarted(activityId, Id, activityWapper.TimeOutSeconds, jsonContent, activityWapper.Order);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {
-                    await eventSender.ActivityExecuteAborted(activityId, serializer.Serialize(result.Result), string.Empty);
-                    await CompensateActivity(result);
+                    await eventSender.ActivityRevoked(activityId);
+                    await CompensateActivity(result,_currentExecuteOrder);
                     return result;
                 }
                 await eventSender.ActivityEnded(activityId, string.Empty);
@@ -139,20 +149,37 @@ namespace Pole.Sagas.Core
             }
             catch (Exception exception)
             {
-                var errors = exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;
-                var result = new ActivityExecuteResult
+                if (activityWapper.CancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    IsSuccess = false,
-                    Errors = errors
-                };
-                await eventSender.ActivityExecuteAborted(activityId, string.Empty, errors);
-                return await CompensateActivity(result);
+                    var errors = exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;
+                    var result = new ActivityExecuteResult
+                    {
+                        IsSuccess = false,
+                        Errors = errors
+                    };
+                    await eventSender.ActivityExecuteOvertime(activityId, Id, errors);
+                    // 超时的时候 需要首先补偿这个超时的操作
+                    return await CompensateActivity(result,_currentExecuteOrder+1);
+                }
+                else
+                {
+                    var errors = exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;
+                    var result = new ActivityExecuteResult
+                    {
+                        IsSuccess = false,
+                        Errors = errors
+                    };
+                    await eventSender.ActivityExecuteAborted(activityId, errors);
+                    // 出错的时候 需要首先补偿这个出错的操作
+                    return await CompensateActivity(result, _currentExecuteOrder + 1);
+                }
             }
         }
 
-        private async Task<ActivityExecuteResult> CompensateActivity(ActivityExecuteResult result)
+        private async Task<ActivityExecuteResult> CompensateActivity(ActivityExecuteResult result,int currentCompensateOrder)
         {
-            _currentCompensateOrder = _currentExecuteOrder;
+            _currentCompensateOrder = currentCompensateOrder;
+            _currentExecuteOrder = -1;
             var compensateActivity = GetNextCompensateActivity();
             if (compensateActivity == null)
             {

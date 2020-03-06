@@ -23,7 +23,7 @@ namespace Pole.Sagas.Core
             return Task.CompletedTask;
         }
 
-        public Task ActivityExecuteAborted(string activityId, string resultContent, string errors)
+        public Task ActivityExecuteAborted(string activityId,  string errors)
         {
             return Task.CompletedTask;
         }
@@ -33,7 +33,7 @@ namespace Pole.Sagas.Core
             return Task.CompletedTask;
         }
 
-        public Task ActivityExecuteStarted(string activityId, string sagaId, DateTime activityTimeoutTime, string parameterContent, int order)
+        public Task ActivityExecuteStarted(string activityId, string sagaId, int timeoutSeconds, string parameterContent, int order)
         {
             return Task.CompletedTask;
         }
@@ -46,6 +46,16 @@ namespace Pole.Sagas.Core
         public Task SagaStarted(string sagaId, string serviceName)
         {
             return Task.CompletedTask;
+        }
+
+        public Task ActivityExecuteOvertime(string activityId, string sagaId, string errors)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task ActivityRevoked(string activityId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -24,8 +24,8 @@ namespace SagasTest.Api.Controllers
             var sagas = sagaFactory.CreateSaga();
 
             sagas.AddActivity("Transaction1Ok", new Transaction1Dto { Id = 1, Name = "22" });
-            sagas.AddActivity("Transaction2Ok", new Transaction2Dto {  Price = 1, Message = "我们" });
-            sagas.AddActivity("Transaction3HasResult", new Transaction3Dto {  Age = 1,  Name = "333" });
+            sagas.AddActivity("Transaction2Ok", new Transaction2Dto { Price = 1, Message = "我们" });
+            sagas.AddActivity("Transaction3HasResult", new Transaction3Dto { Age = 1, Name = "333" });
 
             var result = await sagas.GetResult();
         }
@@ -116,30 +116,6 @@ namespace SagasTest.Api.Controllers
             sagas.AddActivity("Transaction3Exception", new Transaction3Dto { Age = 1, Name = "333" });
 
             var result = await sagas.GetResult();
-        }
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

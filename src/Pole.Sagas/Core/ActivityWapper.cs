@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pole.Sagas.Core
@@ -16,21 +17,23 @@ namespace Pole.Sagas.Core
         public int Order { get; set; }
         public ActivityStatus ActivityState { get; set; }
         public IServiceProvider ServiceProvider { get; set; }
-        public DateTime TimeOut { get; set; }
+        public int TimeOutSeconds { get; set; }
+        public CancellationTokenSource CancellationTokenSource { get; set; }
         public Task<ActivityExecuteResult> InvokeExecute()
         {
             var activityObjParams = Expression.Parameter(typeof(object), "activity");
             var activityParams = Expression.Convert(activityObjParams, ActivityType);
             var dataObjParams = Expression.Parameter(typeof(object), "data");
             var dataParams = Expression.Convert(dataObjParams, ActivityDataType);
-            var method = ActivityType.GetMethod("Execute", new Type[] { ActivityDataType });
-            var body = Expression.Call(activityParams, method, dataParams);
-            var func = Expression.Lambda<Func<object, object, Task<ActivityExecuteResult>>>(body, activityObjParams, dataObjParams).Compile();
+            var cancellationTokenParams = Expression.Parameter(typeof(CancellationToken), "ct");
+            var method = ActivityType.GetMethod("Execute", new Type[] { ActivityDataType, typeof(CancellationToken) });
+            var body = Expression.Call(activityParams, method, dataParams, cancellationTokenParams);
+            var func = Expression.Lambda<Func<object, object, CancellationToken, Task<ActivityExecuteResult>>>(body, true, activityObjParams, dataObjParams, cancellationTokenParams).Compile();
 
             using (var scope = ServiceProvider.CreateScope())
             {
                 var activity = scope.ServiceProvider.GetRequiredService(ActivityType);
-                return func(activity, DataObj);
+                return func(activity, DataObj, CancellationTokenSource.Token);
             }
         }
         public Task InvokeCompensate()
@@ -39,14 +42,15 @@ namespace Pole.Sagas.Core
             var activityParams = Expression.Convert(activityObjParams, ActivityType);
             var dataObjParams = Expression.Parameter(typeof(object), "data");
             var dataParams = Expression.Convert(dataObjParams, ActivityDataType);
-            var method = ActivityType.GetMethod("Compensate", new Type[] { ActivityDataType });
-            var body = Expression.Call(activityParams, method, dataParams);
-            var func = Expression.Lambda<Func<object, object, Task>>(body, activityObjParams, dataObjParams).Compile();
+            var cancellationTokenParams = Expression.Parameter(typeof(CancellationToken), "ct");
+            var method = ActivityType.GetMethod("Compensate", new Type[] { ActivityDataType, typeof(CancellationToken) });
+            var body = Expression.Call(activityParams, method, dataParams, cancellationTokenParams);
+            var func = Expression.Lambda<Func<object, object, CancellationToken, Task>>(body, activityObjParams, dataObjParams, cancellationTokenParams).Compile();
 
             using (var scope = ServiceProvider.CreateScope())
             {
                 var activity = scope.ServiceProvider.GetRequiredService(ActivityType);
-                return func(activity, DataObj);
+                return func(activity, DataObj, CancellationTokenSource.Token);
             }
         }
     }

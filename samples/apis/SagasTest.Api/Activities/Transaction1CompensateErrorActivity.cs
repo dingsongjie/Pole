@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SagasTest.Api.Activities
@@ -15,12 +16,12 @@ namespace SagasTest.Api.Activities
         {
             this.httpClientFactory = httpClientFactory;
         }
-        public Task Compensate(Transaction1Dto data)
+        public Task Compensate(Transaction1Dto data,CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ActivityExecuteResult> Execute(Transaction1Dto data)
+        public async Task<ActivityExecuteResult> Execute(Transaction1Dto data, CancellationToken cancellationToken)
         {
             var httpclient = httpClientFactory.CreateClient();
             httpclient.BaseAddress = new Uri("http://localhost:5000");

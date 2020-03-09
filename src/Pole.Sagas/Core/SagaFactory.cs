@@ -8,11 +8,11 @@ using System.Text;
 
 namespace Pole.Sagas.Core
 {
-    class SagaFactory : ISagaFactory
+    public class SagaFactory : ISagaFactory
     {
         private readonly ISnowflakeIdGenerator snowflakeIdGenerator;
         private readonly IServiceProvider serviceProvider;
-        private readonly IEventSender  eventSender;
+        private readonly IEventSender eventSender;
         private readonly PoleSagasOption poleSagasOption;
         private readonly ISerializer serializer;
         private readonly IActivityFinder activityFinder;

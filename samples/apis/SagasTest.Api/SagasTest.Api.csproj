@@ -9,7 +9,7 @@
     <ProjectReference Include="..\..\..\src\Pole.Core\Pole.Core.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.EventBus.Rabbitmq\Pole.EventBus.Rabbitmq.csproj" />
     <ProjectReference Include="..\..\..\src\Pole.EventStorage.PostgreSql\Pole.EventStorage.PostgreSql.csproj" />
-    <ProjectReference Include="..\..\..\src\Pole.Sagas\Pole.Sagas.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.Sagas.Client\Pole.Sagas.Client.csproj" />
   </ItemGroup>
 
 </Project>

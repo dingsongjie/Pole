@@ -10,7 +10,7 @@ using static Pole.Sagas.Server.Grpc.Saga;
 
 namespace Pole.Sagas.Core
 {
-    class EventSender : IEventSender
+    public class EventSender : IEventSender
     {
         private readonly SagaClient sagaClient;
         public EventSender(SagaClient sagaClient)

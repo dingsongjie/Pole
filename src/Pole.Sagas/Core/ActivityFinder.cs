@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Pole.Sagas.Core
 {
-    class ActivityFinder : IActivityFinder
+    public class ActivityFinder : IActivityFinder
     {
         private readonly ConcurrentDictionary<string, Type> nameDict = new ConcurrentDictionary<string, Type>();
         private readonly ConcurrentDictionary<Type, string> typeDict = new ConcurrentDictionary<Type, string>();
@@ -21,8 +21,8 @@ namespace Pole.Sagas.Core
             var baseActivityType = typeof(IActivity<>);
             foreach (var assembly in AssemblyHelper.GetAssemblies(this.logger))
             {
-                
-                foreach (var type in assembly.GetTypes().Where(m => m.GetInterfaces().Any(i=>i.IsGenericType&& i.GetGenericTypeDefinition() == baseActivityType)&&m.IsClass&&!m.IsAbstract))
+
+                foreach (var type in assembly.GetTypes().Where(m => m.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == baseActivityType) && m.IsClass && !m.IsAbstract))
                 {
                     if (!type.FullName.EndsWith("Activity"))
                     {

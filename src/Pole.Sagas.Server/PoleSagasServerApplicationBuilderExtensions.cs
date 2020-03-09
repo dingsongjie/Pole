@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Pole.Sagas.Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,9 +14,9 @@ namespace Pole.Sagas.Server
 
             builder.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<BacketService>().EnableGrpcWeb();
+                endpoints.MapGrpcService<SagaService>();
             });
-
+            return builder;
         }
     }
 }

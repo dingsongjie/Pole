@@ -43,7 +43,7 @@ namespace Pole.Sagas.Core
             this.activityFinder = activityFinder;
             Id = snowflakeIdGenerator.NextId();
         }
-        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder,int currentExecuteOrder,int currentCompensateOrder)
+        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder,int currentExecuteOrder,int currentCompensateOrder, List<ActivityWapper> activities)
         {
             this.snowflakeIdGenerator = snowflakeIdGenerator;
             this.serviceProvider = serviceProvider;
@@ -54,6 +54,7 @@ namespace Pole.Sagas.Core
             Id = snowflakeIdGenerator.NextId();
             this.currentExecuteOrder = currentExecuteOrder;
             this.currentCompensateOrder = currentCompensateOrder;
+            this.activities = activities;
         }
 
         public void AddActivity(string activityName, object data, int timeOutSeconds = 2)
@@ -69,7 +70,7 @@ namespace Pole.Sagas.Core
             ActivityWapper activityWapper = new ActivityWapper
             {
                 ActivityDataType = dataType,
-                ActivityState = ActivityStatus.NotStarted,
+                ActivityStatus = ActivityStatus.NotStarted,
                 ActivityType = targetActivityType,
                 DataObj = data,
                 Order = CurrentMaxOrder,
@@ -81,7 +82,7 @@ namespace Pole.Sagas.Core
 
         public async Task<SagaResult> GetResult()
         {
-            await eventSender.SagaStarted(Id, poleSagasOption.ServiceName);
+            await eventSender.SagaStarted(Id, poleSagasOption.ServiceName,DateTime.UtcNow);
 
             var executeActivity = GetNextExecuteActivity();
             if (executeActivity == null)
@@ -139,8 +140,8 @@ namespace Pole.Sagas.Core
             activityWapper.CancellationTokenSource = new System.Threading.CancellationTokenSource(2 * 1000);
             try
             {
-                var jsonContent = serializer.Serialize(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityExecuteStarted(activityId, Id, activityWapper.TimeOutSeconds, jsonContent, activityWapper.Order);
+                var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
+                await eventSender.ActivityExecuteStarted(activityId, Id, activityWapper.TimeOutSeconds, bytesContent, activityWapper.Order,DateTime.UtcNow);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {
@@ -148,7 +149,7 @@ namespace Pole.Sagas.Core
                     await CompensateActivity(result,currentExecuteOrder);
                     return result;
                 }
-                await eventSender.ActivityEnded(activityId, string.Empty);
+                await eventSender.ActivityEnded(activityId, Encoding.UTF8.GetBytes(string.Empty));
                 var executeActivity = GetNextExecuteActivity();
                 if (executeActivity == null)
                 {

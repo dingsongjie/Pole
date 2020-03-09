@@ -15,7 +15,7 @@ namespace Pole.Sagas.Core
         public Type ActivityDataType { get; set; }
         public object DataObj { get; set; }
         public int Order { get; set; }
-        public ActivityStatus ActivityState { get; set; }
+        public ActivityStatus ActivityStatus { get; set; }
         public IServiceProvider ServiceProvider { get; set; }
         public int TimeOutSeconds { get; set; }
         public CancellationTokenSource CancellationTokenSource { get; set; }

@@ -5,11 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Server\Storage\" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.27.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Pole.Core\Pole.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Protos\saga.proto">
+      <GrpcServices>Server</GrpcServices>
+      <AdditionalImportDirs>Protos</AdditionalImportDirs>
+    </None>
   </ItemGroup>
 
 </Project>

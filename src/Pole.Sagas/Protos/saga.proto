@@ -6,7 +6,7 @@ package pole.Sagas.Server.Grpc;
 
 service Saga {
   rpc SagaStarted (SagaStartedRequest) returns (CommonResponse);
-  rpc SagaEnded (SagaStartedRequest) returns (CommonResponse);
+  rpc SagaEnded (SagaEndedRequest) returns (CommonResponse);
   rpc ActivityExecuteStarted (ActivityExecuteStartedRequest) returns (CommonResponse);
   rpc ActivityRetried (ActivityRetriedRequest) returns (CommonResponse);
   rpc ActivityExecuteAborted (ActivityExecuteAbortedRequest) returns (CommonResponse);
@@ -25,6 +25,7 @@ message CommonResponse{
 message SagaStartedRequest {
   string sagaId = 1;
   string serviceName = 2;
+  string addTime = 3;
 }
 message SagaEndedRequest {
   string sagaId = 1;
@@ -59,8 +60,7 @@ message ActivityCompensateAbortedRequest {
 }
 message ActivityEndedRequest {
   string activityId = 1;
-  string sagaId = 2;
-  bytes resultData = 3;
+  bytes resultData = 2;
 }
 message ActivityCompensatedRequest {
   string activityId = 1;

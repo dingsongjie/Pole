@@ -8,5 +8,6 @@ namespace Pole.Sagas.Core
     {
         public string ServiceName { get; set; }
         public int CompeletedSagaExpiredAfterSeconds { get; set; } = 60 * 10;
+        public string SagasServerHost { get; set; }
     }
 }

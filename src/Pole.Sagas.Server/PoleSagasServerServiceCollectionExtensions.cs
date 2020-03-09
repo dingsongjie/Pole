@@ -10,6 +10,7 @@ namespace Pole.Sagas.Server
         public static IServiceCollection AddPoleSagasServer(IServiceCollection services)
         {
             services.AddGrpc();
+
             return services;
         }
     }

@@ -119,6 +119,7 @@ namespace Pole.Sagas.Core
             var activityId = activityWapper.Id;
             try
             {
+                await eventSender.ActivityCompensating(activityId);
                 await activityWapper.InvokeCompensate();
                 await eventSender.ActivityCompensated(activityId);
                 var compensateActivity = GetNextCompensateActivity();
@@ -141,7 +142,7 @@ namespace Pole.Sagas.Core
             try
             {
                 var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityExecuteStarted(activityId, Id, activityWapper.TimeOutSeconds, bytesContent, activityWapper.Order,DateTime.UtcNow);
+                await eventSender.ActivityExecuting(activityId, Id, activityWapper.TimeOutSeconds, bytesContent, activityWapper.Order,DateTime.UtcNow);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {
@@ -149,7 +150,7 @@ namespace Pole.Sagas.Core
                     await CompensateActivity(result,currentExecuteOrder);
                     return result;
                 }
-                await eventSender.ActivityEnded(activityId, Encoding.UTF8.GetBytes(string.Empty));
+                await eventSender.ActivityExecuted(activityId, Encoding.UTF8.GetBytes(string.Empty));
                 var executeActivity = GetNextExecuteActivity();
                 if (executeActivity == null)
                 {

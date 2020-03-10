@@ -14,8 +14,8 @@ namespace Pole.Sagas.Storage.PostgreSql
     {
         private readonly string sagaTableName;
         private readonly string activityTableName;
-        private readonly PoleSagasStoragePostgreSqlOption  poleSagasStoragePostgreSqlOption;
-        private readonly ISagaStorageInitializer  sagaStorageInitializer;
+        private readonly PoleSagasStoragePostgreSqlOption poleSagasStoragePostgreSqlOption;
+        private readonly ISagaStorageInitializer sagaStorageInitializer;
         public PostgreSqlSagaStorage(IOptions<PoleSagasStoragePostgreSqlOption> poleSagasStoragePostgreSqlOption, ISagaStorageInitializer sagaStorageInitializer)
         {
             this.poleSagasStoragePostgreSqlOption = poleSagasStoragePostgreSqlOption.Value;
@@ -24,35 +24,47 @@ namespace Pole.Sagas.Storage.PostgreSql
             activityTableName = sagaStorageInitializer.GetActivityTableName();
         }
         public async Task ActivityCompensateAborted(string activityId, string sagaId, string errors)
-        {          
+        {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
-                using(var tansaction = await connection.BeginTransactionAsync())
+                using (var tansaction = await connection.BeginTransactionAsync())
                 {
                     var updateActivitySql =
 $"UPDATE {activityTableName} SET \"Status\"=@Status,\"Errors\"=@Errors WHERE \"Id\" = @Id";
-                    await connection.ExecuteAsync(updateActivitySql,  new
+                    await connection.ExecuteAsync(updateActivitySql, new
                     {
                         Id = activityId,
-                        Errors= errors,
-                        Status= nameof(ActivityStatus.CompensateAborted)
-                    }, tansaction);
-
-                    var updateSagaSql =
-$"UPDATE {sagaTableName} SET \"Status\"=@Status,\"Errors\"=@Errors WHERE \"Id\" = @Id";
-                    await connection.ExecuteAsync(updateSagaSql, new
-                    {
-                        Id = activityId,
+                        Errors = errors,
                         Status = nameof(ActivityStatus.CompensateAborted)
                     }, tansaction);
+                    if (!string.IsNullOrEmpty(sagaId))
+                    {
+                        var updateSagaSql =
+$"UPDATE {sagaTableName} SET \"Status\"=@Status,\"Errors\"=@Errors WHERE \"Id\" = @Id";
+                        await connection.ExecuteAsync(updateSagaSql, new
+                        {
+                            Id = sagaId,
+                            Status = nameof(SagaStatus.Error)
+                        }, tansaction);
+                    }
+                    await tansaction.CommitAsync();
                 }
 
             }
         }
 
-        public Task ActivityCompensated(string activityId)
+        public async Task ActivityCompensated(string activityId)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"UPDATE {activityTableName} SET \"Status\"=@Status WHERE \"Id\" = @Id";
+                await connection.ExecuteAsync(updateActivitySql, new
+                {
+                    Id = activityId,
+                    Status = nameof(ActivityStatus.Compensated)
+                });
+            }
         }
 
         public Task ActivityEnded(string activityId, byte[] resultData)

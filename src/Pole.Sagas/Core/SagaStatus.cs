@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Pole.Sagas.Core
 {
-    enum SagaStatus
+    public enum SagaStatus
     {
         Started,
         Ended,

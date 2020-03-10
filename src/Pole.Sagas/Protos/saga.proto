@@ -7,14 +7,15 @@ package pole.Sagas.Server.Grpc;
 service Saga {
   rpc SagaStarted (SagaStartedRequest) returns (CommonResponse);
   rpc SagaEnded (SagaEndedRequest) returns (CommonResponse);
-  rpc ActivityExecuteStarted (ActivityExecuteStartedRequest) returns (CommonResponse);
+  rpc ActivityExecuting (ActivityExecutingRequest) returns (CommonResponse);
   rpc ActivityRetried (ActivityRetriedRequest) returns (CommonResponse);
   rpc ActivityExecuteAborted (ActivityExecuteAbortedRequest) returns (CommonResponse);
   rpc ActivityCompensateAborted (ActivityCompensateAbortedRequest) returns (CommonResponse);
-  rpc ActivityEnded (ActivityEndedRequest) returns (CommonResponse);
+  rpc ActivityExecuted (ActivityExecutedRequest) returns (CommonResponse);
   rpc ActivityCompensated (ActivityCompensatedRequest) returns (CommonResponse);
   rpc ActivityExecuteOvertime (ActivityExecuteOvertimeRequest) returns (CommonResponse);
   rpc ActivityRevoked (ActivityRevokedRequest) returns (CommonResponse);
+  rpc ActivityCompensating (ActivityCompensatingRequest) returns (CommonResponse);
 }
 
 message CommonResponse{
@@ -31,7 +32,7 @@ message SagaEndedRequest {
   string sagaId = 1;
   string ExpiresAt = 2;
 }
-message ActivityExecuteStartedRequest {
+message ActivityExecutingRequest {
   string activityId = 1;
   string sagaId = 2;
   int32 timeOutSeconds = 3;
@@ -58,7 +59,7 @@ message ActivityCompensateAbortedRequest {
   string sagaId = 2;
   string errors = 3;
 }
-message ActivityEndedRequest {
+message ActivityExecutedRequest {
   string activityId = 1;
   bytes resultData = 2;
 }
@@ -71,6 +72,9 @@ message ActivityExecuteOvertimeRequest {
   string errors = 3;
 }
 message ActivityRevokedRequest {
+  string activityId = 1;
+}
+message ActivityCompensatingRequest {
   string activityId = 1;
 }
 

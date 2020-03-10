@@ -43,7 +43,7 @@ namespace Pole.Sagas.Server.Services
             }
             return commonResponse;
         }
-        public override async Task<CommonResponse> ActivityEnded(ActivityEndedRequest request, ServerCallContext context)
+        public override async Task<CommonResponse> ActivityExecuted(ActivityExecutedRequest request, ServerCallContext context)
         {
             CommonResponse commonResponse = new CommonResponse();
             try
@@ -85,7 +85,7 @@ namespace Pole.Sagas.Server.Services
             }
             return commonResponse;
         }
-        public override async Task<CommonResponse> ActivityExecuteStarted(ActivityExecuteStartedRequest request, ServerCallContext context)
+        public override async Task<CommonResponse> ActivityExecuting(ActivityExecutingRequest request, ServerCallContext context)
         {
             CommonResponse commonResponse = new CommonResponse();
             try

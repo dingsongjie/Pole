@@ -43,9 +43,9 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityEnded(string activityId, byte[] resultData)
+        public async Task ActivityExecuted(string activityId, byte[] resultData)
         {
-            var result = await sagaClient.ActivityEndedAsync(new Server.Grpc.ActivityEndedRequest
+            var result = await sagaClient.ActivityExecutedAsync(new Server.Grpc.ActivityExecutedRequest
             {
                 ActivityId = activityId,
                 ResultData = Google.Protobuf.ByteString.CopyFrom(resultData),
@@ -84,9 +84,9 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityExecuteStarted(string activityId, string sagaId, int timeoutSeconds, byte[] parameterData, int order, DateTime addTime)
+        public async Task ActivityExecuting(string activityId, string sagaId, int timeoutSeconds, byte[] parameterData, int order, DateTime addTime)
         {
-            var result = await sagaClient.ActivityExecuteStartedAsync(new Server.Grpc.ActivityExecuteStartedRequest
+            var result = await sagaClient.ActivityExecutingAsync(new Server.Grpc.ActivityExecutingRequest
             {
                 ActivityId = activityId,
                 AddTime = addTime.ToString("yyyy-MM-dd HH:mm:ss.fff"),
@@ -145,6 +145,18 @@ namespace Pole.Sagas.Core
         public async Task ActivityRevoked(string activityId)
         {
             var result = await sagaClient.ActivityRevokedAsync(new Server.Grpc.ActivityRevokedRequest
+            {
+                ActivityId = activityId,
+            });
+            if (!result.IsSuccess)
+            {
+                throw new SagasServerException(result.Errors);
+            }
+        }
+
+        public async Task ActivityCompensating(string activityId)
+        {
+            var result = await sagaClient.ActivityCompensatingAsync(new Server.Grpc.ActivityCompensatingRequest
             {
                 ActivityId = activityId,
             });

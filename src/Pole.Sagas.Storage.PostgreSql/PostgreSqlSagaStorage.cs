@@ -67,12 +67,12 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status WHERE \"Id\" = @Id";
             }
         }
 
-        public async Task ActivityExecuted(string activityId, byte[] resultData)
+        public async Task ActivityExecuted(string activityId)
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
                 var updateActivitySql =
-$"UPDATE {activityTableName} SET \"Status\"=@Status \"ResultData\"=@ResultData WHERE \"Id\" = @Id";
+$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
                 await connection.ExecuteAsync(updateActivitySql, new
                 {
                     Id = activityId,
@@ -141,7 +141,6 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
                         ExecuteTimes = executeTimes
                     });
                 }
-
             }
         }
 
@@ -191,16 +190,17 @@ $"INSERT INTO {sagaTableName} (\"Id\",\"ServiceName\",\"Status\",\"AddTime\")" +
             }
         }
 
-        public async Task ActivityCompensating(string activityId)
+        public async Task ActivityCompensating(string activityId, int compensateTimes)
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
                 var updateActivitySql =
-$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
+$"UPDATE {activityTableName} SET \"Status\"=@Status ,\"CompensateTimes\"=@CompensateTimes WHERE \"Id\" = @Id";
                 await connection.ExecuteAsync(updateActivitySql, new
                 {
                     Id = activityId,
-                    Status = nameof(ActivityStatus.Compensating)
+                    Status = nameof(ActivityStatus.Compensating),
+                    CompensateTimes= compensateTimes,
                 });
             }
         }

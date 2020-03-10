@@ -67,8 +67,7 @@ CREATE TABLE IF NOT EXISTS {GetActivityTableName()}(
   ""Status"" varchar(10) COLLATE ""pg_catalog"".""default"" NOT NULL,
   ""ExecuteTimes"" int4 NOT NULL,
   ""ParameterData"" bytea NOT NULL,
-  ""ResultData"" bytea,
-  ""Errors"" varchar(1024) COLLATE ""pg_catalog"".""default"",
+  ""CompensateErrors"" varchar(1024) COLLATE ""pg_catalog"".""default"",
   ""CompensateTimes"" int4 NOT NULL,
   ""AddTime"" timestamp NOT NULL
 )

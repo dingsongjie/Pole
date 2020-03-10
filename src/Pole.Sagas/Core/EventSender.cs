@@ -43,12 +43,11 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityExecuted(string activityId, byte[] resultData)
+        public async Task ActivityExecuted(string activityId)
         {
             var result = await sagaClient.ActivityExecutedAsync(new Server.Grpc.ActivityExecutedRequest
             {
                 ActivityId = activityId,
-                ResultData = Google.Protobuf.ByteString.CopyFrom(resultData),
             });
             if (!result.IsSuccess)
             {
@@ -136,7 +135,7 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityCompensating(string activityId)
+        public async Task ActivityCompensating(string activityId, int compensateTimes)
         {
             var result = await sagaClient.ActivityCompensatingAsync(new Server.Grpc.ActivityCompensatingRequest
             {

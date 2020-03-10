@@ -48,7 +48,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuted(request.ActivityId, request.ResultData.ToByteArray());
+                await sagaStorage.ActivityExecuted(request.ActivityId);
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -146,7 +146,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityCompensating(request.ActivityId);
+                await sagaStorage.ActivityCompensating(request.ActivityId, request.CompensateTimes);
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)

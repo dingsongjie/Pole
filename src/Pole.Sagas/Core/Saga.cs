@@ -120,7 +120,7 @@ namespace Pole.Sagas.Core
             var activityId = activityWapper.Id;
             try
             {
-                await eventSender.ActivityCompensating(activityId);
+                await eventSender.ActivityCompensating(activityId, activityWapper.CompensateTimes);
                 await activityWapper.InvokeCompensate();
                 await eventSender.ActivityCompensated(activityId);
                 var compensateActivity = GetNextCompensateActivity();
@@ -152,7 +152,7 @@ namespace Pole.Sagas.Core
                     await CompensateActivity(result, currentExecuteOrder);
                     return result;
                 }
-                await eventSender.ActivityExecuted(activityId, Encoding.UTF8.GetBytes(string.Empty));
+                await eventSender.ActivityExecuted(activityId);
                 var executeActivity = GetNextExecuteActivity();
                 if (executeActivity == null)
                 {

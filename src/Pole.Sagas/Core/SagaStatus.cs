@@ -8,7 +8,6 @@ namespace Pole.Sagas.Core
     {
         Started,
         Ended,
-        Error,
-        Overtime
+        Error
     }
 }

@@ -14,6 +14,6 @@ namespace Pole.Sagas.Core
         ExecuteAborted,
         Revoked,
         CompensateAborted,
-        Overtime
+        ExecutingOvertime
     }
 }

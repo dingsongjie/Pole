@@ -48,7 +48,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityEnded(request.ActivityId, request.ResultData.ToByteArray());
+                await sagaStorage.ActivityExecuted(request.ActivityId, request.ResultData.ToByteArray());
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuteAborted(request.ActivityId, request.Errors);
+                await sagaStorage.ActivityExecuteAborted(request.ActivityId);
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuteOvertime(request.ActivityId, request.SagaId, request.Errors);
+                await sagaStorage.ActivityExecuteOvertime(request.ActivityId);
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -90,7 +90,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuteStarted(request.ActivityId, request.SagaId, request.TimeOutSeconds, request.ParameterData.ToByteArray(), request.Order, Convert.ToDateTime(request.AddTime));
+                await sagaStorage.ActivityExecuting(request.ActivityId, request.SagaId, request.ParameterData.ToByteArray(), request.Order, Convert.ToDateTime(request.AddTime));
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -148,6 +148,20 @@ namespace Pole.Sagas.Server.Services
             try
             {
                 await sagaStorage.SagaStarted(request.SagaId,request.ServiceName,Convert.ToDateTime( request.AddTime));
+                commonResponse.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                commonResponse.Errors = CombineError(ex);
+            }
+            return commonResponse;
+        }
+        public override async Task<CommonResponse> ActivityCompensating(ActivityCompensatingRequest request, ServerCallContext context)
+        {
+            CommonResponse commonResponse = new CommonResponse();
+            try
+            {
+                await sagaStorage.ActivityCompensating(request.ActivityId);
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)

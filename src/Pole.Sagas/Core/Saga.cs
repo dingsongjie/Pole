@@ -142,7 +142,7 @@ namespace Pole.Sagas.Core
             try
             {
                 var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityExecuting(activityId, Id, activityWapper.TimeOutSeconds, bytesContent, activityWapper.Order,DateTime.UtcNow);
+                await eventSender.ActivityExecuting(activityId, Id, bytesContent, activityWapper.Order,DateTime.UtcNow);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {
@@ -171,7 +171,7 @@ namespace Pole.Sagas.Core
                         IsSuccess = false,
                         Errors = errors
                     };
-                    await eventSender.ActivityExecuteOvertime(activityId, Id, errors);
+                    await eventSender.ActivityExecuteOvertime(activityId);
                     // 超时的时候 需要首先补偿这个超时的操作
                     return await CompensateActivity(result,currentExecuteOrder+1);
                 }
@@ -183,7 +183,7 @@ namespace Pole.Sagas.Core
                         IsSuccess = false,
                         Errors = errors
                     };
-                    await eventSender.ActivityExecuteAborted(activityId, errors);
+                    await eventSender.ActivityExecuteAborted(activityId);
                     // 出错的时候 需要首先补偿这个出错的操作
                     return await CompensateActivity(result, currentExecuteOrder + 1);
                 }

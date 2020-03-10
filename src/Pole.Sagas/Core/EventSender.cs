@@ -56,12 +56,11 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityExecuteAborted(string activityId, string errors)
+        public async Task ActivityExecuteAborted(string activityId)
         {
             var result = await sagaClient.ActivityExecuteAbortedAsync(new Server.Grpc.ActivityExecuteAbortedRequest
             {
-                ActivityId = activityId,
-                Errors = errors
+                ActivityId = activityId
             });
             if (!result.IsSuccess)
             {
@@ -84,7 +83,7 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityExecuting(string activityId, string sagaId, int timeoutSeconds, byte[] parameterData, int order, DateTime addTime)
+        public async Task ActivityExecuting(string activityId, string sagaId, byte[] parameterData, int order, DateTime addTime)
         {
             var result = await sagaClient.ActivityExecutingAsync(new Server.Grpc.ActivityExecutingRequest
             {
@@ -93,7 +92,6 @@ namespace Pole.Sagas.Core
                 Order = order,
                 ParameterData = Google.Protobuf.ByteString.CopyFrom(parameterData),
                 SagaId = sagaId,
-                TimeOutSeconds = timeoutSeconds
             });
             if (!result.IsSuccess)
             {
@@ -128,13 +126,11 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityExecuteOvertime(string activityId, string sagaId, string errors)
+        public async Task ActivityExecuteOvertime(string activityId)
         {
             var result = await sagaClient.ActivityExecuteOvertimeAsync(new Server.Grpc.ActivityExecuteOvertimeRequest
             {
-                SagaId = sagaId,
                 ActivityId = activityId,
-                Errors = errors
             });
             if (!result.IsSuccess)
             {

@@ -67,22 +67,49 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status WHERE \"Id\" = @Id";
             }
         }
 
-        public Task ActivityEnded(string activityId, byte[] resultData)
+        public async Task ActivityExecuted(string activityId, byte[] resultData)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"UPDATE {activityTableName} SET \"Status\"=@Status \"ResultData\"=@ResultData WHERE \"Id\" = @Id";
+                await connection.ExecuteAsync(updateActivitySql, new
+                {
+                    Id = activityId,
+                    Status = nameof(ActivityStatus.Executed)
+                });
+            }
         }
 
-        public Task ActivityExecuteAborted(string activityId, string errors)
+        public async Task ActivityExecuteAborted(string activityId)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
+                await connection.ExecuteAsync(updateActivitySql, new
+                {
+                    Id = activityId,
+                    Status = nameof(ActivityStatus.ExecuteAborted)
+                });
+            }
         }
 
-        public Task ActivityExecuteOvertime(string activityId, string sagaId, string errors)
+        public async Task ActivityExecuteOvertime(string activityId)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
+                await connection.ExecuteAsync(updateActivitySql, new
+                {
+                    Id = activityId,
+                    Status = nameof(ActivityStatus.ExecutingOvertime)
+                });
+            }
         }
 
-        public Task ActivityExecuteStarted(string activityId, string sagaId, int timeOutSeconds, byte[] ParameterData, int order, DateTime addTime)
+        public Task ActivityExecuting(string activityId, string sagaId, byte[] ParameterData, int order, DateTime addTime)
         {
             throw new NotImplementedException();
         }
@@ -103,6 +130,11 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status WHERE \"Id\" = @Id";
         }
 
         public Task SagaStarted(string sagaId, string serviceName, DateTime addTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ActivityCompensating(string activityId)
         {
             throw new NotImplementedException();
         }

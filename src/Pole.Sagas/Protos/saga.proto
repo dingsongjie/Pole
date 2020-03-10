@@ -35,10 +35,9 @@ message SagaEndedRequest {
 message ActivityExecutingRequest {
   string activityId = 1;
   string sagaId = 2;
-  int32 timeOutSeconds = 3;
-  bytes parameterData = 4;
-  int32 order = 5;
-  string addTime = 6;
+  bytes parameterData = 3;
+  int32 order = 4;
+  string addTime = 5;
 }
 message ActivityRetriedRequest {
   string activityId = 1;
@@ -52,7 +51,6 @@ message ActivityRetriedRequest {
 }
 message ActivityExecuteAbortedRequest {
   string activityId = 1;
-  string errors = 2;
 }
 message ActivityCompensateAbortedRequest {
   string activityId = 1;
@@ -68,8 +66,6 @@ message ActivityCompensatedRequest {
 }
 message ActivityExecuteOvertimeRequest {
   string activityId = 1;
-  string sagaId = 2;
-  string errors = 3;
 }
 message ActivityRevokedRequest {
   string activityId = 1;

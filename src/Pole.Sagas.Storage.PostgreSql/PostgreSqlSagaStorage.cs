@@ -109,34 +109,100 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
             }
         }
 
-        public Task ActivityExecuting(string activityId, string sagaId, byte[] ParameterData, int order, DateTime addTime)
+        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, byte[] ParameterData, int order, DateTime addTime, int executeTimes)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                string sql = string.Empty;
+                if (executeTimes == 1)
+                {
+                    sql =
+               $"INSERT INTO {activityTableName} (\"Id\",\"Name\",\"SagaId\",\"Status\",\"ParameterData\",\"ExecuteTimes\",\"CompensateTimes\",\"AddTime\")" +
+               $"VALUES(@Id,@Name,@SagaId,@Status,@ParameterData,@ExecuteTimes,@CompensateTimes,@AddTime);";
+                    _ = await connection.ExecuteAsync(sql, new
+                    {
+                        Id = activityId,
+                        Name = activityName,
+                        SagaId = sagaId,
+                        Status = nameof(ActivityStatus.Executing),
+                        ExecutingOvertimeRetries = 0,
+                        ParameterData = ParameterData,
+                        ExecuteTimes = executeTimes,
+                        CompensateTimes = 0,
+                        AddTime = addTime
+                    });
+                }
+                else
+                {
+                    sql = $"UPDATE {activityTableName} SET \"ExecuteTimes\"=@ExecuteTimes  WHERE \"Id\" = @Id";
+                    await connection.ExecuteAsync(sql, new
+                    {
+                        Id = activityId,
+                        ExecuteTimes = executeTimes
+                    });
+                }
+
+            }
         }
 
-        public Task ActivityRetried(string activityId, string status, int retries, ActivityRetryType retryType)
+        public async Task ActivityRevoked(string activityId)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
+                await connection.ExecuteAsync(updateActivitySql, new
+                {
+                    Id = activityId,
+                    Status = nameof(ActivityStatus.Revoked)
+                });
+            }
         }
 
-        public Task ActivityRevoked(string activityId)
+        public async Task SagaEnded(string sagaId, DateTime ExpiresAt)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"UPDATE {sagaTableName} SET \"Status\"=@Status ,\"ExpiresAt\"=@ExpiresAt WHERE \"Id\" = @Id";
+                await connection.ExecuteAsync(updateActivitySql, new
+                {
+                    Id = sagaId,
+                    ExpiresAt= ExpiresAt,
+                    Status = nameof(ActivityStatus.Revoked)
+                });
+            }
         }
 
-        public Task SagaEnded(string sagaId, DateTime ExpiresAt)
+        public async Task SagaStarted(string sagaId, string serviceName, DateTime addTime)
         {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var sql =
+$"INSERT INTO {sagaTableName} (\"Id\",\"ServiceName\",\"Status\",\"AddTime\")" +
+               $"VALUES(@Id,@ServiceName,@Status,@AddTime);";
+                await connection.ExecuteAsync(sql, new
+                {
+                    Id = sagaId,
+                    AddTime = addTime,
+                    ServiceName=serviceName,
+                    Status = nameof(ActivityStatus.Revoked)
+                });
+            }
         }
 
-        public Task SagaStarted(string sagaId, string serviceName, DateTime addTime)
+        public async Task ActivityCompensating(string activityId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task ActivityCompensating(string activityId)
-        {
-            throw new NotImplementedException();
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
+                await connection.ExecuteAsync(updateActivitySql, new
+                {
+                    Id = activityId,
+                    Status = nameof(ActivityStatus.Compensating)
+                });
+            }
         }
     }
 }

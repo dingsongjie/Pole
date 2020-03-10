@@ -68,26 +68,12 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityRetried(string activityId, string status, int retries, ActivityRetryType retryType)
-        {
-            Pole.Sagas.Server.Grpc.ActivityRetriedRequest.Types.ActivityRetryType activityRetryType = retryType == ActivityRetryType.Compensate ? Pole.Sagas.Server.Grpc.ActivityRetriedRequest.Types.ActivityRetryType.Compensate : Pole.Sagas.Server.Grpc.ActivityRetriedRequest.Types.ActivityRetryType.Execute;
-
-            var result = await sagaClient.ActivityRetriedAsync(new Server.Grpc.ActivityRetriedRequest
-            {
-                ActivityId = activityId,
-                ActivityRetryType = activityRetryType
-            });
-            if (!result.IsSuccess)
-            {
-                throw new SagasServerException(result.Errors);
-            }
-        }
-
-        public async Task ActivityExecuting(string activityId, string sagaId, byte[] parameterData, int order, DateTime addTime)
+        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, byte[] parameterData, int order, DateTime addTime, int executeTimes)
         {
             var result = await sagaClient.ActivityExecutingAsync(new Server.Grpc.ActivityExecutingRequest
             {
                 ActivityId = activityId,
+                ActivityName = activityName,
                 AddTime = addTime.ToString("yyyy-MM-dd HH:mm:ss.fff"),
                 Order = order,
                 ParameterData = Google.Protobuf.ByteString.CopyFrom(parameterData),

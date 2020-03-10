@@ -90,22 +90,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuting(request.ActivityId, request.SagaId, request.ParameterData.ToByteArray(), request.Order, Convert.ToDateTime(request.AddTime));
-                commonResponse.IsSuccess = true;
-            }
-            catch (Exception ex)
-            {
-                commonResponse.Errors = CombineError(ex);
-            }
-            return commonResponse;
-        }
-        public override async Task<CommonResponse> ActivityRetried(ActivityRetriedRequest request, ServerCallContext context)
-        {
-            CommonResponse commonResponse = new CommonResponse();
-            try
-            {
-                var targetActivityRetryType = request.ActivityRetryType == Pole.Sagas.Server.Grpc.ActivityRetriedRequest.Types.ActivityRetryType.Compensate ? ActivityRetryType.Compensate : ActivityRetryType.Execute;
-                await sagaStorage.ActivityRetried(request.ActivityId, request.Status, request.Retries, targetActivityRetryType);
+                await sagaStorage.ActivityExecuting(request.ActivityId, request.ActivityName, request.SagaId, request.ParameterData.ToByteArray(), request.Order, Convert.ToDateTime(request.AddTime), request.ExecuteTimes);
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)

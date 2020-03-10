@@ -13,11 +13,11 @@ using System.Threading.Tasks;
 
 namespace Pole.Sagas.Storage.PostgreSql
 {
-    class PostgreSqlEventStorageInitializer : ISagaStorageInitializer
+    class PostgreSqlSagaStorageInitializer : ISagaStorageInitializer
     {
         private PoleSagasStoragePostgreSqlOption options;
         private readonly ILogger logger;
-        public PostgreSqlEventStorageInitializer(IOptions<PoleSagasStoragePostgreSqlOption> poleSagaServerOption, ILogger<PostgreSqlEventStorageInitializer> logger)
+        public PostgreSqlSagaStorageInitializer(IOptions<PoleSagasStoragePostgreSqlOption> poleSagaServerOption, ILogger<PostgreSqlSagaStorageInitializer> logger)
         {
             this.options = poleSagaServerOption.Value;
             this.logger = logger;
@@ -57,19 +57,19 @@ CREATE TABLE IF NOT EXISTS {GetSagaTableName()}(
   ""ExpiresAt"" timestamp,
   ""AddTime"" timestamp NOT NULL
 );
-ALTER TABLE ""{options.SchemaName}"" ADD CONSTRAINT ""Sagas_pkey"" PRIMARY KEY (""Id"");
+ALTER TABLE ""{GetSagaTableName()}"" ADD CONSTRAINT ""Sagas_pkey"" PRIMARY KEY (""Id"");
 
 CREATE TABLE IF NOT EXISTS {GetActivityTableName()}(
   ""Id"" varchar(20) COLLATE ""pg_catalog"".""default"" NOT NULL,
+  ""Name"" varchar(255) COLLATE ""pg_catalog"".""default"" NOT NULL,
   ""SagaId"" varchar(20) COLLATE ""pg_catalog"".""default"" NOT NULL,
   ""Order"" int4 NOT NULL,
   ""Status"" varchar(10) COLLATE ""pg_catalog"".""default"" NOT NULL,
-  ""TimeOutSeconds"" int4 NOT NULL,
+  ""ExecuteTimes"" int4 NOT NULL,
   ""ParameterData"" bytea NOT NULL,
   ""ResultData"" bytea,
   ""Errors"" varchar(1024) COLLATE ""pg_catalog"".""default"",
-  ""ExecuteRetries"" int4 NOT NULL,
-  ""CompensateRetries"" int4 NOT NULL,
+  ""CompensateTimes"" int4 NOT NULL,
   ""AddTime"" timestamp NOT NULL
 )
 ;

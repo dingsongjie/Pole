@@ -12,7 +12,7 @@ namespace Pole.Sagas.Storage.PostgreSql
         public static IServiceCollection AddPostgreSqlStorage(IServiceCollection services,Action<PoleSagasStoragePostgreSqlOption> config)
         {
             services.Configure(config);
-            services.AddSingleton<ISagaStorageInitializer, PostgreSqlEventStorageInitializer>();
+            services.AddSingleton<ISagaStorageInitializer, PostgreSqlSagaStorageInitializer>();
             services.AddSingleton<ISagaStorage, PostgreSqlSagaStorage>();
             return services;
         }

@@ -25,7 +25,7 @@ namespace Pole.Sagas.Core
         /// <summary>
         /// 如果 等于 -1 说明已经在执行补偿操作,此时这个值已经没有意义
         /// </summary>
-        private int currentExecuteOrder  = 0;
+        private int currentExecuteOrder = 0;
         /// <summary>
         /// 如果 等于 -1 说明已经还未执行补偿操作,此时这个值没有意义
         /// </summary>
@@ -43,7 +43,7 @@ namespace Pole.Sagas.Core
             this.activityFinder = activityFinder;
             Id = snowflakeIdGenerator.NextId();
         }
-        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder,int currentExecuteOrder,int currentCompensateOrder, List<ActivityWapper> activities)
+        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder, int currentExecuteOrder, int currentCompensateOrder, List<ActivityWapper> activities)
         {
             this.snowflakeIdGenerator = snowflakeIdGenerator;
             this.serviceProvider = serviceProvider;
@@ -69,6 +69,7 @@ namespace Pole.Sagas.Core
             var dataType = activityInterface.GetGenericArguments()[0];
             ActivityWapper activityWapper = new ActivityWapper
             {
+                Name = activityName,
                 ActivityDataType = dataType,
                 ActivityStatus = ActivityStatus.NotStarted,
                 ActivityType = targetActivityType,
@@ -82,7 +83,7 @@ namespace Pole.Sagas.Core
 
         public async Task<SagaResult> GetResult()
         {
-            await eventSender.SagaStarted(Id, poleSagasOption.ServiceName,DateTime.UtcNow);
+            await eventSender.SagaStarted(Id, poleSagasOption.ServiceName, DateTime.UtcNow);
 
             var executeActivity = GetNextExecuteActivity();
             if (executeActivity == null)
@@ -138,16 +139,17 @@ namespace Pole.Sagas.Core
         {
             var activityId = snowflakeIdGenerator.NextId();
             activityWapper.Id = activityId;
+            activityWapper.ExecuteTimes++;
             activityWapper.CancellationTokenSource = new System.Threading.CancellationTokenSource(2 * 1000);
             try
             {
                 var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityExecuting(activityId, Id, bytesContent, activityWapper.Order,DateTime.UtcNow);
+                await eventSender.ActivityExecuting(activityId, activityWapper.Name, Id, bytesContent, activityWapper.Order, DateTime.UtcNow, activityWapper.ExecuteTimes);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {
                     await eventSender.ActivityRevoked(activityId);
-                    await CompensateActivity(result,currentExecuteOrder);
+                    await CompensateActivity(result, currentExecuteOrder);
                     return result;
                 }
                 await eventSender.ActivityExecuted(activityId, Encoding.UTF8.GetBytes(string.Empty));
@@ -173,7 +175,7 @@ namespace Pole.Sagas.Core
                     };
                     await eventSender.ActivityExecuteOvertime(activityId);
                     // 超时的时候 需要首先补偿这个超时的操作
-                    return await CompensateActivity(result,currentExecuteOrder+1);
+                    return await CompensateActivity(result, currentExecuteOrder + 1);
                 }
                 else
                 {
@@ -190,7 +192,7 @@ namespace Pole.Sagas.Core
             }
         }
 
-        private async Task<ActivityExecuteResult> CompensateActivity(ActivityExecuteResult result,int currentCompensateOrder)
+        private async Task<ActivityExecuteResult> CompensateActivity(ActivityExecuteResult result, int currentCompensateOrder)
         {
             this.currentCompensateOrder = currentCompensateOrder;
             currentExecuteOrder = -1;

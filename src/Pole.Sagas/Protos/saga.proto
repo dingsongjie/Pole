@@ -8,7 +8,6 @@ service Saga {
   rpc SagaStarted (SagaStartedRequest) returns (CommonResponse);
   rpc SagaEnded (SagaEndedRequest) returns (CommonResponse);
   rpc ActivityExecuting (ActivityExecutingRequest) returns (CommonResponse);
-  rpc ActivityRetried (ActivityRetriedRequest) returns (CommonResponse);
   rpc ActivityExecuteAborted (ActivityExecuteAbortedRequest) returns (CommonResponse);
   rpc ActivityCompensateAborted (ActivityCompensateAbortedRequest) returns (CommonResponse);
   rpc ActivityExecuted (ActivityExecutedRequest) returns (CommonResponse);
@@ -38,16 +37,8 @@ message ActivityExecutingRequest {
   bytes parameterData = 3;
   int32 order = 4;
   string addTime = 5;
-}
-message ActivityRetriedRequest {
-  string activityId = 1;
-  string status = 2;
-  int32 retries = 3;
-  ActivityRetryType activityRetryType = 4;
-  enum  ActivityRetryType{
-    Execute = 0;
-    Compensate = 1;
-  }
+  string activityName = 6;
+  int32 executeTimes = 7;
 }
 message ActivityExecuteAbortedRequest {
   string activityId = 1;

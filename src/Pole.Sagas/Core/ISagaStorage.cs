@@ -10,8 +10,7 @@ namespace Pole.Sagas.Core
     {
         Task SagaStarted(string sagaId, string serviceName,DateTime addTime);
         Task SagaEnded(string sagaId, DateTime ExpiresAt);
-        Task ActivityExecuting(string activityId, string sagaId, byte[] ParameterData, int order,DateTime addTime);
-        Task ActivityRetried(string activityId, string status, int retries, ActivityRetryType retryType);
+        Task ActivityExecuting(string activityId, string activityName,string sagaId, byte[] ParameterData, int order,DateTime addTime,int executeTimes);
         Task ActivityExecuteAborted(string activityId);
         Task ActivityCompensateAborted(string activityId, string sagaId, string errors);
         Task ActivityExecuted(string activityId, byte[] resultData);

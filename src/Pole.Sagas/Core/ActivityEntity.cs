@@ -7,6 +7,7 @@ namespace Pole.Sagas.Core
     public class ActivityEntity
     {
         public string Id { get; set; }
+        public string Name { get; set; }
         public string SagaId { get; set; }
         public int Order { get; set; }
         public string Status { get; set; }

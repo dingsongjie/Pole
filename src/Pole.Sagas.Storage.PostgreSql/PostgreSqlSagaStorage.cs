@@ -34,7 +34,7 @@ namespace Pole.Sagas.Storage.PostgreSql
                 using (var tansaction = await connection.BeginTransactionAsync())
                 {
                     var updateActivitySql =
-$"UPDATE {activityTableName} SET \"Status\"=@Status,\"Errors\"=@Errors WHERE \"Id\" = @Id";
+$"UPDATE {activityTableName} SET \"Status\"=@Status,\"Errors\"=@Errors, \"CompensateTimes\"=\"CompensateTimes\"+1 WHERE \"Id\" = @Id";
                     await connection.ExecuteAsync(updateActivitySql, new
                     {
                         Id = activityId,
@@ -230,11 +230,12 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status ,\"CompensateTimes\"=@Compen
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
                 var updateActivitySql =
-$"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"Id\" as ActivityId,activities.\"Order\",activities.\"Status\",activities.\"ParameterData\",activities.\"ExecuteTimes\",activities.\"CompensateTimes\",activities.\"Name\" from \"Activities\" as activities  inner join(select \"Id\",\"ServiceName\" from \"Sagas\" where \"AddTime\" <= @AddTime and \"Status\" = '{nameof(SagaStatus.Started)}' limit @Limit ) as limit_sagas on activities.\"SagaId\" = limit_sagas.\"Id\"";
+$"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"Id\" as ActivityId,activities.\"Order\",activities.\"Status\",activities.\"ParameterData\",activities.\"ExecuteTimes\",activities.\"CompensateTimes\",activities.\"Name\" from \"Activities\" as activities  inner join(select \"Id\",\"ServiceName\" from \"Sagas\" where \"AddTime\" <= @AddTime and \"Status\" = '{nameof(SagaStatus.Started)}' limit @Limit ) as limit_sagas on activities.\"SagaId\" = limit_sagas.\"Id\" and activities.\"Status\" != @Status ";
                 var activities = await connection.QueryAsync<ActivityAndSagaEntity>(updateActivitySql, new
                 {
                     AddTime = dateTime,
                     Limit = limit,
+                    Status = nameof(ActivityStatus.Compensated)
                 });
                 var groupedByServiceNameActivities = activities.GroupBy(m => m.ServiceName);
                 foreach (var groupedByServiceName in groupedByServiceNameActivities)
@@ -271,7 +272,7 @@ $"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"I
             }
         }
 
-        public  Task<int> DeleteExpiredData(string tableName, DateTime ExpiredAt, int batchCount)
+        public Task<int> DeleteExpiredData(string tableName, DateTime ExpiredAt, int batchCount)
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {

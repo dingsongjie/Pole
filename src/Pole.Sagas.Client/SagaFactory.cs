@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Options;
 using Pole.Core.Serialization;
 using Pole.Core.Utils.Abstraction;
+using Pole.Sagas.Client.Abstraction;
+using Pole.Sagas.Core;
 using Pole.Sagas.Core.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Sagas.Core
+namespace Pole.Sagas.Client
 {
     public class SagaFactory : ISagaFactory
     {
@@ -27,10 +29,6 @@ namespace Pole.Sagas.Core
         }
 
         public ISaga CreateSaga()
-        {
-            return new Saga(snowflakeIdGenerator, serviceProvider, eventSender, poleSagasOption, serializer, activityFinder);
-        }
-        internal ISaga CreateSaga(string id)
         {
             return new Saga(snowflakeIdGenerator, serviceProvider, eventSender, poleSagasOption, serializer, activityFinder);
         }

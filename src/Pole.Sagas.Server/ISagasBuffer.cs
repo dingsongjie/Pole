@@ -9,7 +9,7 @@ namespace Pole.Sagas.Server
 {
     public interface ISagasBuffer
     {
-        Task<IEnumerable<SagaEntity>> GetSagas(string serviceName, DateTime dateTime, int limit);
+        Task<IEnumerable<SagaEntity>> GetSagas(string serviceName, int limit);
         Task<bool> AddSagas(IAsyncEnumerable<SagasGroupEntity> sagasGroupEntities);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pole.Core.Utils;
+using Pole.Sagas.Client.Abstraction;
 using Pole.Sagas.Core.Abstraction;
 using Pole.Sagas.Core.Exceptions;
 using System;
@@ -8,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Pole.Sagas.Core
+namespace Pole.Sagas.Client
 {
     public class ActivityFinder : IActivityFinder
     {

@@ -1,4 +1,5 @@
-﻿using Pole.Sagas.Core;
+﻿using Pole.Sagas.Client.Abstraction;
+using Pole.Sagas.Core;
 using Pole.Sagas.Core.Abstraction;
 using System;
 using System.Collections.Generic;

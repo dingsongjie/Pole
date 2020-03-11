@@ -49,7 +49,7 @@ namespace Pole.Sagas.Server
             }
         }
 
-        public async Task<IEnumerable<SagaEntity>> GetSagas(string serviceName, DateTime dateTime, int limit)
+        public async Task<IEnumerable<SagaEntity>> GetSagas(string serviceName, int limit)
         {
             try
             {

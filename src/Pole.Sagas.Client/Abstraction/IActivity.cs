@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Pole.Sagas.Core;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pole.Sagas.Core.Abstraction
+namespace Pole.Sagas.Client.Abstraction
 {
     public interface IActivity<TData>
     {

@@ -15,7 +15,7 @@ service Saga {
   rpc ActivityExecuteOvertime (ActivityExecuteOvertimeRequest) returns (CommonResponse);
   rpc ActivityRevoked (ActivityRevokedRequest) returns (CommonResponse);
   rpc ActivityCompensating (ActivityCompensatingRequest) returns (CommonResponse);
-  rpc GetSagas (GetSagasRequest) returns (GetSagasResponse);
+  rpc GetSagas (GetSagasRequest) returns (stream GetSagasResponse);
 }
 
 message CommonResponse{
@@ -70,8 +70,7 @@ message ActivityCompensatingRequest {
 }
 message GetSagasRequest{
   string serviceName = 1;
-  string addTime = 2;
-  int32 limit = 3;
+  int32 limit = 2;
 }
 message GetSagasResponse{
   bool isSuccess = 1;

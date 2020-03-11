@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pole.Sagas.Core.Abstraction
+namespace Pole.Sagas.Client.Abstraction
 {
     public interface IEventSender
     {

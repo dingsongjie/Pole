@@ -1,6 +1,8 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
+using Microsoft.Extensions.Options;
 using Pole.Sagas.Core;
+using Pole.Sagas.Core.Abstraction;
 using Pole.Sagas.Server.Grpc;
 using System;
 using System.Collections.Generic;
@@ -14,10 +16,12 @@ namespace Pole.Sagas.Server.Services
     {
         private readonly ISagaStorage sagaStorage;
         private readonly ISagasBuffer sagasBuffer;
-        public SagaService(ISagaStorage sagaStorage, ISagasBuffer sagasBuffer)
+        private readonly PoleSagasServerOption poleSagasServerOption;
+        public SagaService(ISagaStorage sagaStorage, ISagasBuffer sagasBuffer, IOptions<PoleSagasServerOption> poleSagasServerOption)
         {
             this.sagaStorage = sagaStorage;
             this.sagasBuffer = sagasBuffer;
+            this.poleSagasServerOption = poleSagasServerOption.Value;
         }
         public override async Task<CommonResponse> ActivityCompensateAborted(ActivityCompensateAbortedRequest request, ServerCallContext context)
         {
@@ -159,40 +163,46 @@ namespace Pole.Sagas.Server.Services
             }
             return commonResponse;
         }
-        public override async Task<GetSagasResponse> GetSagas(GetSagasRequest request, ServerCallContext context)
+        public override async Task GetSagas(GetSagasRequest request, IServerStreamWriter<GetSagasResponse> responseStream, ServerCallContext context)
         {
-            GetSagasResponse getSagasResponse = new GetSagasResponse();
-            try
+            while (!context.CancellationToken.IsCancellationRequested)
             {
-                var sagaEntities = await sagasBuffer.GetSagas(request.ServiceName, Convert.ToDateTime(request.AddTime), request.Limit);
-                var sagaDtoes = sagaEntities.Select(m =>
+                await Task.Delay(poleSagasServerOption.GetSagasGrpcStreamingResponseDelaySeconds*1000);
+
+                GetSagasResponse getSagasResponse = new GetSagasResponse();
+                try
                 {
-                    var result = new GetSagasResponse.Types.Saga
+                    var sagaEntities = await sagasBuffer.GetSagas(request.ServiceName, request.Limit);
+                    var sagaDtoes = sagaEntities.Select(m =>
                     {
-                        Id = m.Id,
-                    };
-                    result.Activities.Add(m.ActivityEntities.Select(n => new GetSagasResponse.Types.Saga.Types.Activity
-                    {
-                        CompensateTimes = n.CompensateTimes,
-                        ExecuteTimes = n.ExecuteTimes,
-                        Id = n.Id,
-                        Name = n.Id,
-                        Order = n.Order,
-                        ParameterData = ByteString.CopyFrom(n.ParameterData),
-                        SagaId = n.SagaId,
-                        Status = n.Status
-                    }));
-                    return result;
-                });
-                getSagasResponse.Sagas.Add(sagaDtoes);
-                getSagasResponse.IsSuccess = true;
+                        var result = new GetSagasResponse.Types.Saga
+                        {
+                            Id = m.Id,
+                        };
+                        result.Activities.Add(m.ActivityEntities.Select(n => new GetSagasResponse.Types.Saga.Types.Activity
+                        {
+                            CompensateTimes = n.CompensateTimes,
+                            ExecuteTimes = n.ExecuteTimes,
+                            Id = n.Id,
+                            Name = n.Id,
+                            Order = n.Order,
+                            ParameterData = ByteString.CopyFrom(n.ParameterData),
+                            SagaId = n.SagaId,
+                            Status = n.Status
+                        }));
+                        return result;
+                    });
+                    getSagasResponse.Sagas.Add(sagaDtoes);
+                    getSagasResponse.IsSuccess = true;
+                }
+                catch (Exception ex)
+                {
+                    getSagasResponse.Errors = CombineError(ex);
+                }
+                await responseStream.WriteAsync(getSagasResponse);
             }
-            catch (Exception ex)
-            {
-                getSagasResponse.Errors = CombineError(ex);
-            }
-            return getSagasResponse;
         }
+       
         private string CombineError(Exception exception)
         {
             return exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;

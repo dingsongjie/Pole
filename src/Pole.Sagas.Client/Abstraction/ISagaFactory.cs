@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Sagas.Core.Abstraction
+namespace Pole.Sagas.Client.Abstraction
 {
     public interface ISagaFactory
     {

@@ -1,5 +1,7 @@
 ﻿using Pole.Core.Serialization;
 using Pole.Core.Utils.Abstraction;
+using Pole.Sagas.Client.Abstraction;
+using Pole.Sagas.Core;
 using Pole.Sagas.Core.Abstraction;
 using Pole.Sagas.Core.Exceptions;
 using System;
@@ -9,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pole.Sagas.Core
+namespace Pole.Sagas.Client
 {
     public class Saga : ISaga
     {
@@ -44,7 +46,7 @@ namespace Pole.Sagas.Core
             this.activityFinder = activityFinder;
             Id = snowflakeIdGenerator.NextId();
         }
-        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder, int currentExecuteOrder, int currentCompensateOrder, List<ActivityWapper> activities)
+        internal Saga(ISnowflakeIdGenerator snowflakeIdGenerator, IServiceProvider serviceProvider, IEventSender eventSender, PoleSagasOption poleSagasOption, ISerializer serializer, IActivityFinder activityFinder, string id)
         {
             this.snowflakeIdGenerator = snowflakeIdGenerator;
             this.serviceProvider = serviceProvider;
@@ -52,10 +54,8 @@ namespace Pole.Sagas.Core
             this.poleSagasOption = poleSagasOption;
             this.serializer = serializer;
             this.activityFinder = activityFinder;
-            Id = snowflakeIdGenerator.NextId();
-            this.currentExecuteOrder = currentExecuteOrder;
-            this.currentCompensateOrder = currentCompensateOrder;
-            this.activities = activities;
+            Id = id;
+            this.currentExecuteOrder = -1;
         }
 
         public void AddActivity(string activityName, object data, int timeOutSeconds = 2)
@@ -81,6 +81,29 @@ namespace Pole.Sagas.Core
             };
             activities.Add(activityWapper);
         }
+        internal void AddActivity(string activityName, string activityStatus, object data, int order, int timeOutSeconds = 2)
+        {
+            var targetActivityType = activityFinder.FindType(activityName);
+
+            var activityInterface = targetActivityType.GetInterfaces().FirstOrDefault();
+            if (!activityInterface.IsGenericType)
+            {
+                throw new ActivityNotFoundWhenCompensateRetryException(activityName);
+            }
+            var dataType = activityInterface.GetGenericArguments()[0];
+            ActivityWapper activityWapper = new ActivityWapper
+            {
+                Name = activityName,
+                ActivityDataType = dataType,
+                ActivityStatus = (ActivityStatus)Enum.Parse(typeof(ActivityStatus), activityStatus),
+                ActivityType = targetActivityType,
+                DataObj = data,
+                Order = order,
+                ServiceProvider = serviceProvider,
+                TimeOutSeconds = 2,
+            };
+            activities.Add(activityWapper);
+        }
 
         public async Task<SagaResult> GetResult()
         {
@@ -94,6 +117,16 @@ namespace Pole.Sagas.Core
             }
             var result = await RecursiveExecuteActivity(executeActivity);
             return result;
+        }
+        internal async Task Compensate()
+        {
+            this.currentCompensateOrder = CurrentMaxOrder+1;
+            var compensateActivity = GetNextCompensateActivity();
+            if (compensateActivity == null)
+            {
+                return ;
+            }
+            await RecursiveCompensateActivity(compensateActivity);
         }
 
         private ActivityWapper GetNextExecuteActivity()
@@ -174,7 +207,7 @@ namespace Pole.Sagas.Core
                         Errors = errors
                     };
                     var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
-                    await eventSender.ActivityExecuteOvertime(activityId, activityWapper.Name, bytesContent,DateTime.UtcNow);
+                    await eventSender.ActivityExecuteOvertime(activityId, activityWapper.Name, bytesContent, DateTime.UtcNow);
                     // 超时的时候 需要首先补偿这个超时的操作
                     return await CompensateActivity(result, currentExecuteOrder + 1);
                 }

@@ -1,5 +1,6 @@
 ﻿using Grpc.Net.Client;
 using Microsoft.Extensions.Options;
+using Pole.Sagas.Client.Abstraction;
 using Pole.Sagas.Core.Abstraction;
 using Pole.Sagas.Core.Exceptions;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Pole.Sagas.Server.Grpc.Saga;
 
-namespace Pole.Sagas.Core
+namespace Pole.Sagas.Client
 {
     public class EventSender : IEventSender
     {

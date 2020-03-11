@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Pole.Core.Processor;
 using Pole.Sagas.Core;
+using Pole.Sagas.Core.Abstraction;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -45,7 +46,7 @@ namespace Pole.Sagas.Server.Processor
         private async Task ProcessInternal()
         {
             var addTimeFilter = DateTime.UtcNow.AddMinutes(-4);
-            var sagas =  sagaStorage.GetSagas(addTimeFilter, 500);
+            var sagas =  sagaStorage.GetSagas(addTimeFilter, 2000);
             await sagasBuffer.AddSagas(sagas);
         }
     }

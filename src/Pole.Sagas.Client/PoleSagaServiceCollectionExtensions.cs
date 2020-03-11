@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Pole.Core;
 using Pole.Core.Utils;
+using Pole.Sagas.Client;
+using Pole.Sagas.Client.Abstraction;
 using Pole.Sagas.Core;
 using Pole.Sagas.Core.Abstraction;
 using Pole.Sagas.Core.Exceptions;
@@ -21,14 +24,20 @@ namespace Microsoft.Extensions.DependencyInjection
             startupOption.Services.AddSingleton<IActivityFinder, ActivityFinder>();
             startupOption.Services.AddSingleton<IEventSender, EventSender>();
             startupOption.Services.AddSingleton<ISagaFactory, SagaFactory>();
-            using(var provider = startupOption.Services.BuildServiceProvider())
+            PoleSagasOption sagasOption = null;
+            using (var provider = startupOption.Services.BuildServiceProvider())
             {
-                var sagasOption = provider.GetRequiredService<IOptions<PoleSagasOption>>().Value;
+                sagasOption = provider.GetRequiredService<IOptions<PoleSagasOption>>().Value;
                 startupOption.Services.AddGrpcClient<SagaClient>(o =>
                 {
                     o.Address = new Uri(sagasOption.SagasServerHost);
                 });
             }
+            RegisterActivities(startupOption);
+        }
+
+        private static void RegisterActivities(StartupConfig startupOption)
+        {
             var baseActivityType = typeof(IActivity<>);
             foreach (var assembly in AssemblyHelper.GetAssemblies())
             {

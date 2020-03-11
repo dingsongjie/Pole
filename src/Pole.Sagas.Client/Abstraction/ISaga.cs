@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Pole.Sagas.Core;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pole.Sagas.Core
+namespace Pole.Sagas.Client.Abstraction
 {
     public interface ISaga
     {

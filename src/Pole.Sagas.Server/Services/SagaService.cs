@@ -1,8 +1,10 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf;
+using Grpc.Core;
 using Pole.Sagas.Core;
 using Pole.Sagas.Server.Grpc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,9 +13,11 @@ namespace Pole.Sagas.Server.Services
     public class SagaService : Pole.Sagas.Server.Grpc.Saga.SagaBase
     {
         private readonly ISagaStorage sagaStorage;
-        public SagaService(ISagaStorage sagaStorage)
+        private readonly ISagasBuffer sagasBuffer;
+        public SagaService(ISagaStorage sagaStorage, ISagasBuffer sagasBuffer)
         {
             this.sagaStorage = sagaStorage;
+            this.sagasBuffer = sagasBuffer;
         }
         public override async Task<CommonResponse> ActivityCompensateAborted(ActivityCompensateAbortedRequest request, ServerCallContext context)
         {
@@ -76,7 +80,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuteOvertime(request.ActivityId);
+                await sagaStorage.ActivityExecuteOvertime(request.ActivityId, request.Name, request.ParameterData.ToByteArray(), Convert.ToDateTime(request.AddTime));
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -118,7 +122,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.SagaEnded(request.SagaId,Convert.ToDateTime(request.ExpiresAt));
+                await sagaStorage.SagaEnded(request.SagaId, Convert.ToDateTime(request.ExpiresAt));
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -132,7 +136,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.SagaStarted(request.SagaId,request.ServiceName,Convert.ToDateTime( request.AddTime));
+                await sagaStorage.SagaStarted(request.SagaId, request.ServiceName, Convert.ToDateTime(request.AddTime));
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -154,6 +158,40 @@ namespace Pole.Sagas.Server.Services
                 commonResponse.Errors = CombineError(ex);
             }
             return commonResponse;
+        }
+        public override async Task<GetSagasResponse> GetSagas(GetSagasRequest request, ServerCallContext context)
+        {
+            GetSagasResponse getSagasResponse = new GetSagasResponse();
+            try
+            {
+                var sagaEntities = await sagasBuffer.GetSagas(request.ServiceName, Convert.ToDateTime(request.AddTime), request.Limit);
+                var sagaDtoes = sagaEntities.Select(m =>
+                {
+                    var result = new GetSagasResponse.Types.Saga
+                    {
+                        Id = m.Id,
+                    };
+                    result.Activities.Add(m.ActivityEntities.Select(n => new GetSagasResponse.Types.Saga.Types.Activity
+                    {
+                        CompensateTimes = n.CompensateTimes,
+                        ExecuteTimes = n.ExecuteTimes,
+                        Id = n.Id,
+                        Name = n.Id,
+                        Order = n.Order,
+                        ParameterData = ByteString.CopyFrom(n.ParameterData),
+                        SagaId = n.SagaId,
+                        Status = n.Status
+                    }));
+                    return result;
+                });
+                getSagasResponse.Sagas.Add(sagaDtoes);
+                getSagasResponse.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                getSagasResponse.Errors = CombineError(ex);
+            }
+            return getSagasResponse;
         }
         private string CombineError(Exception exception)
         {

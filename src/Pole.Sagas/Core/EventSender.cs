@@ -111,7 +111,7 @@ namespace Pole.Sagas.Core
             }
         }
 
-        public async Task ActivityExecuteOvertime(string activityId)
+        public async Task ActivityExecuteOvertime(string activityId, string name, byte[] parameterData, DateTime addTime)
         {
             var result = await sagaClient.ActivityExecuteOvertimeAsync(new Server.Grpc.ActivityExecuteOvertimeRequest
             {

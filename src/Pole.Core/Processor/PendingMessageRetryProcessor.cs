@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Pole.Core.Processor
 {
-    public class PendingMessageRetryProcessor : ProcessorBase
+    class PendingMessageRetryProcessor : ProcessorBase
     {
         private readonly IEventStorage eventStorage;
         private readonly PoleOptions options;

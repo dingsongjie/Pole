@@ -14,8 +14,8 @@ namespace Pole.Sagas.Core
         public Byte[] ParameterData { get; set; }
         public Byte[] ResultData { get; set; }
         public string Errors { get; set; }
-        public int ExecuteRetries { get; set; }
-        public int CompensateRetries { get; set; }
+        public int ExecuteTimes { get; set; }
+        public int CompensateTimes  { get; set; }
         public DateTime AddTime { get; set; }
     }
 }

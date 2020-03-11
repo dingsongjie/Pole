@@ -6,7 +6,7 @@ namespace Pole.Sagas.Core
 {
     public class SagaEntity
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string ServiceName { get; set; }
         public List<ActivityEntity> ActivityEntities { get; set; }
         public string Status { get; set; }

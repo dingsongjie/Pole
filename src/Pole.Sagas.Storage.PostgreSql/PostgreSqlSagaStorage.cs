@@ -3,8 +3,10 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using Pole.Sagas.Core;
 using Pole.Sagas.Core.Abstraction;
+using Pole.Sagas.Server.Grpc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +16,7 @@ namespace Pole.Sagas.Storage.PostgreSql
     {
         private readonly string sagaTableName;
         private readonly string activityTableName;
+        private readonly string overtimeCompensationGuaranteeTableName;
         private readonly PoleSagasStoragePostgreSqlOption poleSagasStoragePostgreSqlOption;
         private readonly ISagaStorageInitializer sagaStorageInitializer;
         public PostgreSqlSagaStorage(IOptions<PoleSagasStoragePostgreSqlOption> poleSagasStoragePostgreSqlOption, ISagaStorageInitializer sagaStorageInitializer)
@@ -22,6 +25,7 @@ namespace Pole.Sagas.Storage.PostgreSql
             this.sagaStorageInitializer = sagaStorageInitializer;
             sagaTableName = sagaStorageInitializer.GetSagaTableName();
             activityTableName = sagaStorageInitializer.GetActivityTableName();
+            overtimeCompensationGuaranteeTableName = sagaStorageInitializer.GetOvertimeCompensationGuaranteeTableName();
         }
         public async Task ActivityCompensateAborted(string activityId, string sagaId, string errors)
         {
@@ -95,17 +99,33 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
             }
         }
 
-        public async Task ActivityExecuteOvertime(string activityId)
+        public async Task ActivityExecuteOvertime(string activityId, string name, byte[] parameterData, DateTime addTime)
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
-                var updateActivitySql =
-$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
-                await connection.ExecuteAsync(updateActivitySql, new
+                using (var tansaction = await connection.BeginTransactionAsync())
                 {
-                    Id = activityId,
-                    Status = nameof(ActivityStatus.ExecutingOvertime)
-                });
+                    var updateActivitySql =
+$"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
+                    await connection.ExecuteAsync(updateActivitySql, new
+                    {
+                        Id = activityId,
+                        Status = nameof(ActivityStatus.ExecuteAborted)
+                    }, tansaction);
+
+                    var addOCGActivity =
+$"INSERT INTO {overtimeCompensationGuaranteeTableName} (\"Id\",\"Name\",\"Status\",\"ParameterData\",\"CompensateTimes\",\"AddTime\")" +
+               $"VALUES(@Id,@Name,@SagaId,@Status,@ParameterData,,@CompensateTimes,@AddTime);";
+                    await connection.ExecuteAsync(updateActivitySql, new
+                    {
+                        Id = activityId,
+                        Name = name,
+                        ParameterData = parameterData,
+                        CompensateTimes = 0,
+                        AddTime = addTime,
+                        Status = nameof(OvertimeCompensationGuaranteeActivityStatus.Executing)
+                    }, tansaction);
+                }
             }
         }
 
@@ -167,7 +187,7 @@ $"UPDATE {sagaTableName} SET \"Status\"=@Status ,\"ExpiresAt\"=@ExpiresAt WHERE 
                 await connection.ExecuteAsync(updateActivitySql, new
                 {
                     Id = sagaId,
-                    ExpiresAt= ExpiresAt,
+                    ExpiresAt = ExpiresAt,
                     Status = nameof(ActivityStatus.Revoked)
                 });
             }
@@ -184,7 +204,7 @@ $"INSERT INTO {sagaTableName} (\"Id\",\"ServiceName\",\"Status\",\"AddTime\")" +
                 {
                     Id = sagaId,
                     AddTime = addTime,
-                    ServiceName=serviceName,
+                    ServiceName = serviceName,
                     Status = nameof(ActivityStatus.Revoked)
                 });
             }
@@ -200,7 +220,67 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status ,\"CompensateTimes\"=@Compen
                 {
                     Id = activityId,
                     Status = nameof(ActivityStatus.Compensating),
-                    CompensateTimes= compensateTimes,
+                    CompensateTimes = compensateTimes,
+                });
+            }
+        }
+
+        public async IAsyncEnumerable<SagasGroupEntity> GetSagas(DateTime dateTime, int limit)
+        {
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var updateActivitySql =
+$"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"Id\" as ActivityId,activities.\"Order\",activities.\"Status\",activities.\"ParameterData\",activities.\"ExecuteTimes\",activities.\"CompensateTimes\",activities.\"Name\" from \"Activities\" as activities  inner join(select \"Id\",\"ServiceName\" from \"Sagas\" where \"AddTime\" <= @AddTime and \"Status\" = '{nameof(SagaStatus.Started)}' limit @Limit ) as limit_sagas on activities.\"SagaId\" = limit_sagas.\"Id\"";
+                var activities = await connection.QueryAsync<ActivityAndSagaEntity>(updateActivitySql, new
+                {
+                    AddTime = dateTime,
+                    Limit = limit,
+                });
+                var groupedByServiceNameActivities = activities.GroupBy(m => m.ServiceName);
+                foreach (var groupedByServiceName in groupedByServiceNameActivities)
+                {
+                    SagasGroupEntity sagasGroupEntity = new SagasGroupEntity
+                    {
+                        ServiceName = groupedByServiceName.Key,
+                    };
+                    var groupedBySagaIds = groupedByServiceName.GroupBy(m => m.SagaId);
+                    foreach (var groupedBySagaId in groupedBySagaIds)
+                    {
+                        SagaEntity sagaEntity = new SagaEntity
+                        {
+                            Id = groupedBySagaId.Key
+                        };
+                        foreach (var activity in groupedBySagaId)
+                        {
+                            ActivityEntity activityEntity = new ActivityEntity
+                            {
+                                CompensateTimes = activity.CompensateTimes,
+                                ExecuteTimes = activity.ExecuteTimes,
+                                Id = activity.Id,
+                                Order = activity.Order,
+                                ParameterData = activity.ParameterData,
+                                SagaId = activity.SagaId,
+                                Status = activity.Status,
+                            };
+                            sagaEntity.ActivityEntities.Add(activityEntity);
+                        }
+                        sagasGroupEntity.SagaEntities.Add(sagaEntity);
+                    }
+                    yield return sagasGroupEntity;
+                }
+            }
+        }
+
+        public  Task<int> DeleteExpiredData(string tableName, DateTime ExpiredAt, int batchCount)
+        {
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var sql =
+$"delete {tableName}   WHERE \"ExpiresAt\" < @ExpiredAt AND \"Id\" IN (SELECT \"Id\" FROM {tableName} LIMIT @BatchCount);";
+                return connection.ExecuteAsync(sql, new
+                {
+                    ExpiredAt = ExpiredAt,
+                    BatchCount = batchCount,
                 });
             }
         }

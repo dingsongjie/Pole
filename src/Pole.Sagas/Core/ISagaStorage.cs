@@ -1,4 +1,6 @@
-﻿using Pole.Sagas.Core;
+﻿using Google.Protobuf.Collections;
+using Pole.Sagas.Core;
+using Pole.Sagas.Server.Grpc;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,8 +17,10 @@ namespace Pole.Sagas.Core
         Task ActivityCompensateAborted(string activityId, string sagaId, string errors);
         Task ActivityExecuted(string activityId);
         Task ActivityCompensated(string activityId);
-        Task ActivityExecuteOvertime(string activityId);
+        Task ActivityExecuteOvertime(string activityId, string name, byte[] parameterData, DateTime addTime);
         Task ActivityRevoked(string activityId);
         Task ActivityCompensating(string activityId, int compensateTimes);
+        IAsyncEnumerable<SagasGroupEntity> GetSagas(DateTime dateTime, int limit);
+        Task<int> DeleteExpiredData(string tableName,DateTime ExpiredAt, int batchCount);
     }
 }

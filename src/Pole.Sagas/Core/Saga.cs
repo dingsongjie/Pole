@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pole.Sagas.Core
@@ -84,7 +85,6 @@ namespace Pole.Sagas.Core
         public async Task<SagaResult> GetResult()
         {
             await eventSender.SagaStarted(Id, poleSagasOption.ServiceName, DateTime.UtcNow);
-
             var executeActivity = GetNextExecuteActivity();
             if (executeActivity == null)
             {
@@ -173,7 +173,8 @@ namespace Pole.Sagas.Core
                         IsSuccess = false,
                         Errors = errors
                     };
-                    await eventSender.ActivityExecuteOvertime(activityId);
+                    var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
+                    await eventSender.ActivityExecuteOvertime(activityId, activityWapper.Name, bytesContent,DateTime.UtcNow);
                     // 超时的时候 需要首先补偿这个超时的操作
                     return await CompensateActivity(result, currentExecuteOrder + 1);
                 }

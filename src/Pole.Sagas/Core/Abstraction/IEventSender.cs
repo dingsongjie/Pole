@@ -12,7 +12,7 @@ namespace Pole.Sagas.Core.Abstraction
         Task ActivityCompensateAborted(string activityId, string sagaId, string errors);
         Task ActivityExecuted(string activityId);
         Task ActivityCompensated(string activityId);
-        Task ActivityExecuteOvertime(string activityId);
+        Task ActivityExecuteOvertime(string activityId,string name,byte [] parameterData,DateTime addTime);
         Task ActivityRevoked(string activityId);
         Task ActivityCompensating(string activityId,int compensateTimes);
     }

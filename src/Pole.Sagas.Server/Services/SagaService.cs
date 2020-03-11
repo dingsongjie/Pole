@@ -51,20 +51,6 @@ namespace Pole.Sagas.Server.Services
             }
             return commonResponse;
         }
-        public override async Task<CommonResponse> ActivityExecuted(ActivityExecutedRequest request, ServerCallContext context)
-        {
-            CommonResponse commonResponse = new CommonResponse();
-            try
-            {
-                await sagaStorage.ActivityExecuted(request.ActivityId);
-                commonResponse.IsSuccess = true;
-            }
-            catch (Exception ex)
-            {
-                commonResponse.Errors = CombineError(ex);
-            }
-            return commonResponse;
-        }
         public override async Task<CommonResponse> ActivityExecuteAborted(ActivityExecuteAbortedRequest request, ServerCallContext context)
         {
             CommonResponse commonResponse = new CommonResponse();
@@ -98,7 +84,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuting(request.ActivityId, request.ActivityName, request.SagaId, request.ParameterData.ToByteArray(), request.Order, Convert.ToDateTime(request.AddTime), request.ExecuteTimes);
+                await sagaStorage.ActivityExecuting(request.ActivityId, request.ActivityName, request.SagaId, request.ParameterData.ToByteArray(), request.Order, Convert.ToDateTime(request.AddTime));
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -149,20 +135,6 @@ namespace Pole.Sagas.Server.Services
             }
             return commonResponse;
         }
-        public override async Task<CommonResponse> ActivityCompensating(ActivityCompensatingRequest request, ServerCallContext context)
-        {
-            CommonResponse commonResponse = new CommonResponse();
-            try
-            {
-                await sagaStorage.ActivityCompensating(request.ActivityId, request.CompensateTimes);
-                commonResponse.IsSuccess = true;
-            }
-            catch (Exception ex)
-            {
-                commonResponse.Errors = CombineError(ex);
-            }
-            return commonResponse;
-        }
         public override async Task GetSagas(GetSagasRequest request, IServerStreamWriter<GetSagasResponse> responseStream, ServerCallContext context)
         {
             while (!context.CancellationToken.IsCancellationRequested)
@@ -202,7 +174,22 @@ namespace Pole.Sagas.Server.Services
                 await responseStream.WriteAsync(getSagasResponse);
             }
         }
-       
+
+        public override async Task<CommonResponse> ActivityOvertimeCompensated(ActivityOvertimeCompensatedRequest request, ServerCallContext context)
+        {
+            CommonResponse commonResponse = new CommonResponse();
+            try
+            {
+                await sagaStorage.ActivityOvertimeCompensated(request.ActivityId, request.Compensated);
+                commonResponse.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                commonResponse.Errors = CombineError(ex);
+            }
+            return commonResponse;
+        }
+
         private string CombineError(Exception exception)
         {
             return exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;

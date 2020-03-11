@@ -11,6 +11,5 @@ namespace Pole.Sagas.Core.Abstraction
         Task InitializeAsync(CancellationToken cancellationToken);
         string GetSagaTableName();
         string GetActivityTableName();
-        string GetOvertimeCompensationGuaranteeTableName();
     }
 }

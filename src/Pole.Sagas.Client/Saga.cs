@@ -118,15 +118,20 @@ namespace Pole.Sagas.Client
             var result = await RecursiveExecuteActivity(executeActivity);
             return result;
         }
-        internal async Task Compensate()
+        /// <summary>
+        /// if true should ended this sagas ,if false do nothing continue retry
+        /// </summary>
+        /// <returns></returns>
+        internal async Task<bool> CompensateWhenRetry()
         {
-            this.currentCompensateOrder = CurrentMaxOrder+1;
+            this.currentCompensateOrder = CurrentMaxOrder + 1;
             var compensateActivity = GetNextCompensateActivity();
             if (compensateActivity == null)
             {
-                return ;
+                return true;
             }
             await RecursiveCompensateActivity(compensateActivity);
+            return true;
         }
 
         private ActivityWapper GetNextExecuteActivity()
@@ -151,11 +156,27 @@ namespace Pole.Sagas.Client
         private async Task RecursiveCompensateActivity(ActivityWapper activityWapper)
         {
             var activityId = activityWapper.Id;
+            if (activityWapper.ActivityStatus == ActivityStatus.ExecutingOvertime)
+            {
+                activityWapper.OvertimeCompensateTimes++;
+            }
+            else
+            {
+                activityWapper.CompensateTimes++;
+            }
             try
             {
-                await eventSender.ActivityCompensating(activityId, activityWapper.CompensateTimes);
                 await activityWapper.InvokeCompensate();
-                await eventSender.ActivityCompensated(activityId);
+                if (activityWapper.ActivityStatus == ActivityStatus.ExecutingOvertime)
+                {
+                    // 超时 补偿次数已到
+                    var isCompensated = activityWapper.CompensateTimes == poleSagasOption.MaxOvertimeCompensateTimes;
+                    await eventSender.ActivityOvertimeCompensated(activityId, isCompensated);
+                }
+                else
+                {
+                    await eventSender.ActivityCompensated(activityId);
+                }
                 var compensateActivity = GetNextCompensateActivity();
                 if (compensateActivity == null)
                 {
@@ -165,19 +186,27 @@ namespace Pole.Sagas.Client
             }
             catch (Exception exception)
             {
-                await eventSender.ActivityCompensateAborted(activityId, Id, exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace);
+                // todo: 超时操作 如果出错可能 减少 补偿次数 这里 先不做处理
+                if (activityWapper.CompensateTimes == poleSagasOption.MaxCompensateTimes)
+                {
+                    // 此时 结束 saga 并且设置状态 为 Error
+                    await eventSender.ActivityCompensateAborted(activityId, Id, exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace);
+                }
+                else
+                {
+                    await eventSender.ActivityCompensateAborted(activityId, string.Empty, exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace);
+                }
             }
         }
         private async Task<ActivityExecuteResult> RecursiveExecuteActivity(ActivityWapper activityWapper)
         {
             var activityId = snowflakeIdGenerator.NextId();
             activityWapper.Id = activityId;
-            activityWapper.ExecuteTimes++;
             activityWapper.CancellationTokenSource = new System.Threading.CancellationTokenSource(2 * 1000);
             try
             {
                 var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityExecuting(activityId, activityWapper.Name, Id, bytesContent, activityWapper.Order, DateTime.UtcNow, activityWapper.ExecuteTimes);
+                await eventSender.ActivityExecuting(activityId, activityWapper.Name, Id, bytesContent, activityWapper.Order, DateTime.UtcNow);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {
@@ -185,7 +214,6 @@ namespace Pole.Sagas.Client
                     await CompensateActivity(result, currentExecuteOrder);
                     return result;
                 }
-                await eventSender.ActivityExecuted(activityId);
                 var executeActivity = GetNextExecuteActivity();
                 if (executeActivity == null)
                 {

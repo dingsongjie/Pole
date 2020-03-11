@@ -44,18 +44,6 @@ namespace Pole.Sagas.Client
             }
         }
 
-        public async Task ActivityExecuted(string activityId)
-        {
-            var result = await sagaClient.ActivityExecutedAsync(new Server.Grpc.ActivityExecutedRequest
-            {
-                ActivityId = activityId,
-            });
-            if (!result.IsSuccess)
-            {
-                throw new SagasServerException(result.Errors);
-            }
-        }
-
         public async Task ActivityExecuteAborted(string activityId)
         {
             var result = await sagaClient.ActivityExecuteAbortedAsync(new Server.Grpc.ActivityExecuteAbortedRequest
@@ -68,7 +56,7 @@ namespace Pole.Sagas.Client
             }
         }
 
-        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, byte[] parameterData, int order, DateTime addTime, int executeTimes)
+        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, byte[] parameterData, int order, DateTime addTime)
         {
             var result = await sagaClient.ActivityExecutingAsync(new Server.Grpc.ActivityExecutingRequest
             {
@@ -136,11 +124,12 @@ namespace Pole.Sagas.Client
             }
         }
 
-        public async Task ActivityCompensating(string activityId, int compensateTimes)
+        public async Task ActivityOvertimeCompensated(string activityId, bool compensated)
         {
-            var result = await sagaClient.ActivityCompensatingAsync(new Server.Grpc.ActivityCompensatingRequest
+            var result = await sagaClient.ActivityOvertimeCompensatedAsync(new Server.Grpc.ActivityOvertimeCompensatedRequest
             {
                 ActivityId = activityId,
+                Compensated= compensated
             });
             if (!result.IsSuccess)
             {

@@ -8,6 +8,8 @@ namespace Pole.Sagas.Client
     {
         public string ServiceName { get; set; }
         public int PreSagasGrpcStreamingResponseLimitCount { get; set; } = 20;
+        public int MaxCompensateTimes { get; set; } = 10;
+        public int MaxOvertimeCompensateTimes { get; set; } = 10;
         public int CompeletedSagaExpiredAfterSeconds { get; set; } = 60 * 10;
         public int SagasTimeOutSeconds { get; set; } = 60;
         public string SagasServerHost { get; set; }

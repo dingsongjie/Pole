@@ -10,12 +10,11 @@ service Saga {
   rpc ActivityExecuting (ActivityExecutingRequest) returns (CommonResponse);
   rpc ActivityExecuteAborted (ActivityExecuteAbortedRequest) returns (CommonResponse);
   rpc ActivityCompensateAborted (ActivityCompensateAbortedRequest) returns (CommonResponse);
-  rpc ActivityExecuted (ActivityExecutedRequest) returns (CommonResponse);
   rpc ActivityCompensated (ActivityCompensatedRequest) returns (CommonResponse);
   rpc ActivityExecuteOvertime (ActivityExecuteOvertimeRequest) returns (CommonResponse);
   rpc ActivityRevoked (ActivityRevokedRequest) returns (CommonResponse);
-  rpc ActivityCompensating (ActivityCompensatingRequest) returns (CommonResponse);
   rpc GetSagas (GetSagasRequest) returns (stream GetSagasResponse);
+  rpc ActivityOvertimeCompensated (ActivityOvertimeCompensatedRequest) returns (CommonResponse);
 }
 
 message CommonResponse{
@@ -39,7 +38,6 @@ message ActivityExecutingRequest {
   int32 order = 4;
   string addTime = 5;
   string activityName = 6;
-  int32 executeTimes = 7;
 }
 message ActivityExecuteAbortedRequest {
   string activityId = 1;
@@ -90,5 +88,9 @@ message GetSagasResponse{
       string name = 8;
 	}
   }
+}
+message ActivityOvertimeCompensatedRequest {
+  string activityId = 1;
+  bool compensated = 2;
 }
 

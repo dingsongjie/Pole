@@ -17,7 +17,7 @@ namespace Pole.Sagas.Client
         public Type ActivityDataType { get; set; }
         public object DataObj { get; set; }
         public int Order { get; set; }
-        public int ExecuteTimes { get; set; }
+        public int OvertimeCompensateTimes { get; set; }
         public int CompensateTimes { get; set; }
         public ActivityStatus ActivityStatus { get; set; }
         public IServiceProvider ServiceProvider { get; set; }

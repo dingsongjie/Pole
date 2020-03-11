@@ -31,10 +31,6 @@ namespace Pole.Sagas.Storage.PostgreSql
         {
             return $"\"{options.SchemaName}\".\"{options.SagaTableName}\"";
         }
-        public string GetOvertimeCompensationGuaranteeTableName()
-        {
-            return $"\"{options.SchemaName}\".\"{options.OvertimeCompensationGuaranteeTableName}\"";
-        }
 
         public async Task InitializeAsync(CancellationToken cancellationToken)
         {
@@ -69,7 +65,7 @@ CREATE TABLE IF NOT EXISTS {GetActivityTableName()}(
   ""SagaId"" varchar(20) COLLATE ""pg_catalog"".""default"" NOT NULL,
   ""Order"" int4 NOT NULL,
   ""Status"" varchar(10) COLLATE ""pg_catalog"".""default"" NOT NULL,
-  ""ExecuteTimes"" int4 NOT NULL,
+  ""OvertimeCompensateTimes"" int4 NOT NULL,
   ""ParameterData"" bytea NOT NULL,
   ""CompensateErrors"" varchar(1024) COLLATE ""pg_catalog"".""default"",
   ""CompensateTimes"" int4 NOT NULL,
@@ -84,19 +80,6 @@ ALTER TABLE ""{GetActivityTableName()}"" ADD CONSTRAINT ""Activities_pkey"" PRIM
 
 
 ALTER TABLE ""{GetActivityTableName()}"" ADD CONSTRAINT ""Activities_SagaId_fkey"" FOREIGN KEY (""SagaId"") REFERENCES {GetSagaTableName()} (""Id"") ON DELETE CASCADE ON UPDATE NO ACTION;
-
-CREATE TABLE IF NOT EXISTS {GetOvertimeCompensationGuaranteeTableName()}(
-  ""Id"" varchar(20) COLLATE ""pg_catalog"".""default"" NOT NULL,
-  ""Name"" varchar(255) COLLATE ""pg_catalog"".""default"" NOT NULL,
-  ""Status"" varchar(10) COLLATE ""pg_catalog"".""default"" NOT NULL,
-  ""CompensateTimes"" int4 NOT NULL,
-  ""ParameterData"" bytea NOT NULL,
-  ""CompensateErrors"" varchar(1024) COLLATE ""pg_catalog"".""default"",
-  ""AddTime"" timestamp NOT NULL,
-  ""ExpiresAt"" timestamp,
-);
-
-ALTER TABLE ""{GetActivityTableName()}"" ADD CONSTRAINT ""OCG - Activities_pkey"" PRIMARY KEY (""Id"");
             ";
             return batchSql;
         }

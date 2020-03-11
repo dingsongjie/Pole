@@ -44,7 +44,7 @@ namespace Pole.Sagas.Server.Processor
 
         private async Task ProcessInternal()
         {
-            var tables = new[] { sagaStorageInitializer.GetSagaTableName(), sagaStorageInitializer.GetOvertimeCompensationGuaranteeTableName() };
+            var tables = new[] { sagaStorageInitializer.GetSagaTableName() };
 
             foreach (var table in tables)
             {

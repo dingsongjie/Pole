@@ -58,7 +58,7 @@ namespace Pole.Sagas.Client
                         sagas.ForEach(async sagaEntity =>
                        {
                            var saga = sagaRestorer.CreateSaga(sagaEntity);
-                           await saga.Compensate();
+                           await saga.CompensateWhenRetry();
                        });
                     }
                 }

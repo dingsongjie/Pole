@@ -62,7 +62,6 @@ namespace Pole.EventBus.RabbitMQ
             {
                 string queueNameSuffix =  observerUnit.EventHandlerType.FullName;
                 var consumer = new RabbitConsumer(
-                    observerUnit.GetEventHandler(),
                     observerUnit.GetBatchEventHandler())
                 {
                     EventBus = this,

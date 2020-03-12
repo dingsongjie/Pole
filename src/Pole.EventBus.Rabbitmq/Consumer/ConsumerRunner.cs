@@ -70,62 +70,35 @@ namespace Pole.EventBus.RabbitMQ
         }
         private async Task BatchExecuter(List<BasicDeliverEventArgs> list)
         {
-            if (list.Count == 1)
-            {
-                await Process(list.First());
-            }
-            else
-            {
-                try
-                {
-                    await Consumer.Notice(list.Select(o => o.Body).ToList());
-                }
-                catch (Exception exception)
-                {
-                    Logger.LogError(exception, $"An error occurred in batch consume {Queue.Queue} queue, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
-                    if (Consumer.Config.Reenqueue)
-                    {
-                        foreach (var item in list)
-                        {
-                            await ProcessComsumerErrors(item, exception);
-                        }
-                        return;
-                    }
-                }
-                if (!Consumer.Config.AutoAck)
-                {
-                    if (errorMessageDeliveryTags.Count == 0)
-                    {
-                        Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
-                    }
-                    else
-                    {
-                        list.ForEach(m =>
-                        {
-                            Model.Model.BasicAck(m.DeliveryTag, false);
-                        });
-                    }
-                }
-            }
-        }
-        private async Task Process(BasicDeliverEventArgs ea)
-        {
             try
             {
-                await Consumer.Notice(ea.Body);
+                await Consumer.Notice(list.Select(o => o.Body).ToList());
             }
             catch (Exception exception)
             {
-                Logger.LogError(exception, $"An error occurred in consume {Queue.Queue} queue, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
+                Logger.LogError(exception, $"An error occurred in batch consume {Queue.Queue} queue, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
                 if (Consumer.Config.Reenqueue)
                 {
-                    await ProcessComsumerErrors(ea, exception);
+                    foreach (var item in list)
+                    {
+                        await ProcessComsumerErrors(item, exception);
+                    }
                     return;
                 }
             }
             if (!Consumer.Config.AutoAck)
             {
-                Model.Model.BasicAck(ea.DeliveryTag, false);
+                if (errorMessageDeliveryTags.Count == 0)
+                {
+                    Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
+                }
+                else
+                {
+                    list.ForEach(m =>
+                    {
+                        Model.Model.BasicAck(m.DeliveryTag, false);
+                    });
+                }
             }
         }
 

@@ -21,8 +21,6 @@ namespace Pole.EventBus
         readonly IServiceProvider serviceProvider;
         readonly ISerializer serializer;
         readonly IEventTypeFinder typeFinder;
-        readonly IClusterClient clusterClient;
-        Func<byte[], Task> eventHandler;
         Func<List<byte[]>, Task> batchEventHandler;
         protected ILogger Logger { get; private set; }
         public Type EventHandlerType { get; }
@@ -30,7 +28,6 @@ namespace Pole.EventBus
         public ObserverUnit(IServiceProvider serviceProvider, Type eventHandlerType)
         {
             this.serviceProvider = serviceProvider;
-            clusterClient = serviceProvider.GetService<IClusterClient>();
             serializer = serviceProvider.GetService<ISerializer>();
             typeFinder = serviceProvider.GetService<IEventTypeFinder>();
             Logger = serviceProvider.GetService<ILogger<ObserverUnit<PrimaryKey>>>();
@@ -39,11 +36,6 @@ namespace Pole.EventBus
         public static ObserverUnit<PrimaryKey> From<Grain>(IServiceProvider serviceProvider) where Grain : Orleans.Grain
         {
             return new ObserverUnit<PrimaryKey>(serviceProvider, typeof(Grain));
-        }
-
-        public Func<byte[], Task> GetEventHandler()
-        {
-            return eventHandler;
         }
 
         public Func<List<byte[]>, Task> GetBatchEventHandler()
@@ -55,23 +47,8 @@ namespace Pole.EventBus
         {
             if (!typeof(IPoleEventHandler).IsAssignableFrom(EventHandlerType))
                 throw new NotSupportedException($"{EventHandlerType.FullName} must inheritance from PoleEventHandler");
-            eventHandler = EventHandler;
             batchEventHandler = BatchEventHandler;
             //内部函数
-            Task EventHandler(byte[] bytes)
-            {
-                var (success, transport) = EventBytesTransport.FromBytes(bytes);
-                if (success)
-                {
-                    return GetObserver(EventHandlerType, transport.EventId).Invoke(transport);
-                }
-                else
-                {
-                    if (Logger.IsEnabled(LogLevel.Error))
-                        Logger.LogError($" EventId:{nameof(EventBytesTransport.EventId)} is not a event");
-                }
-                return Task.CompletedTask;
-            }
             Task BatchEventHandler(List<byte[]> list)
             {
                 var transports = list.Select(bytes =>
@@ -87,23 +64,35 @@ namespace Pole.EventBus
                   .Select(o => (o.transport))
                   .ToList();
                 // 批量处理的时候 grain Id 取第一个 event的id
-                return GetObserver(EventHandlerType, transports.First().EventId).Invoke(transports);
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var eventHandlerInstance = scope.ServiceProvider.GetRequiredService(EventHandlerType);
+                    var serializer = scope.ServiceProvider.GetRequiredService<ISerializer>() as ISerializer;
+                    var eventTypeFinder = scope.ServiceProvider.GetRequiredService<IEventTypeFinder>() as IEventTypeFinder;
+                    var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>() as ILoggerFactory;
+                    var logger = loggerFactory.CreateLogger(EventHandlerType);
+                    return GetObserver(EventHandlerType)(eventHandlerInstance, transports, serializer, eventTypeFinder, logger, EventHandlerType);
+                }
             }
         }
-        static readonly ConcurrentDictionary<Type, Func<IClusterClient, string, string, IPoleEventHandler>> _observerGeneratorDict = new ConcurrentDictionary<Type, Func<IClusterClient, string, string, IPoleEventHandler>>();
-        private IPoleEventHandler GetObserver(Type ObserverType, string primaryKey)
+        static readonly ConcurrentDictionary<Type, Func<object, List<EventBytesTransport>, ISerializer, IEventTypeFinder, ILogger, Type, Task>> _observerGeneratorDict = new ConcurrentDictionary<Type, Func<object, List<EventBytesTransport>, ISerializer, IEventTypeFinder, ILogger, Type, Task>>();
+        private Func<object, List<EventBytesTransport>, ISerializer, IEventTypeFinder, ILogger, Type, Task> GetObserver(Type ObserverType)
         {
             var func = _observerGeneratorDict.GetOrAdd(ObserverType, key =>
             {
-                var clientType = typeof(IClusterClient);
-                var clientParams = Expression.Parameter(clientType, "client");
-                var primaryKeyParams = Expression.Parameter(typeof(string), "primaryKey");
-                var grainClassNamePrefixParams = Expression.Parameter(typeof(string), "grainClassNamePrefix");
-                var method = typeof(ClusterClientExtensions).GetMethod("GetGrain", new Type[] { clientType, typeof(string), typeof(string) });
-                var body = Expression.Call(method.MakeGenericMethod(ObserverType), clientParams, primaryKeyParams, grainClassNamePrefixParams);
-                return Expression.Lambda<Func<IClusterClient, string, string, IPoleEventHandler>>(body, clientParams, primaryKeyParams, grainClassNamePrefixParams).Compile();
+                var eventHandlerObjParams = Expression.Parameter(typeof(object), "observerType");
+
+                var eventHandlerParams = Expression.Convert(eventHandlerObjParams, ObserverType);
+                var eventBytesTransportParams = Expression.Parameter(typeof(List<EventBytesTransport>), "observerType");
+                var serializerParams = Expression.Parameter(typeof(ISerializer), "serializer");
+                var eventTypeFinderParams = Expression.Parameter(typeof(IEventTypeFinder), "eventTypeFinder");
+                var loggerParams = Expression.Parameter(typeof(ILogger), "logger");
+                var eventHandlerTypeParams = Expression.Parameter(typeof(Type), "eventHandlerType");
+                var method = typeof(IPoleEventHandler).GetMethod("Invoke");
+                var body = Expression.Call(eventHandlerParams, method, eventBytesTransportParams, serializerParams, serializerParams, eventTypeFinderParams, loggerParams, eventHandlerTypeParams);
+                return Expression.Lambda<Func<object, List<EventBytesTransport>, ISerializer, IEventTypeFinder, ILogger, Type, Task>>(body, eventHandlerObjParams, eventBytesTransportParams, serializerParams, eventTypeFinderParams, loggerParams, eventHandlerTypeParams).Compile();
             });
-            return func(clusterClient, primaryKey, null);
+            return func;
         }
     }
     public static class ClusterClientExtensions

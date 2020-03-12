@@ -1,4 +1,6 @@
-﻿using Orleans;
+﻿using Microsoft.Extensions.Logging;
+using Orleans;
+using Pole.Core.Serialization;
 using Pole.EventBus.Event;
 using System;
 using System.Collections.Generic;
@@ -15,9 +17,8 @@ namespace Pole.EventBus.EventHandler
     {
         Task BulkEventsHandle(List<TEvent> events);
     }
-    public interface IPoleEventHandler : IGrainWithStringKey
+    public interface IPoleEventHandler 
     {
-        public Task Invoke(EventBytesTransport transport);
-        public Task Invoke(List<EventBytesTransport> transports);
+        public Task Invoke(List<EventBytesTransport> transports, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger, Type eventHandlerType);
     }
 }

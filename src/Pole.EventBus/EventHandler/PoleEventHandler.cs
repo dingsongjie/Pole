@@ -19,49 +19,11 @@ namespace Pole.EventBus.EventHandler
     /// <summary>
     /// 
     /// </summary>
-    public abstract class PoleEventHandler<TEvent> : Grain
+    public abstract class PoleEventHandler<TEvent>:IPoleEventHandler,IPoleEventHandler<TEvent>
     {
-        private IEventTypeFinder eventTypeFinder;
-        private ISerializer serializer;
-        private ILogger logger;
-        private Type grainType;
+        public abstract Task EventHandle(TEvent @event);
 
-        public PoleEventHandler()
-        {
-            grainType = GetType();
-        }
-        public override async Task OnActivateAsync()
-        {
-            await base.OnActivateAsync();
-            await DependencyInjection();
-        }
-        protected virtual Task DependencyInjection()
-        {
-            //ConfigOptions = ServiceProvider.GetOptionsByName<CoreOptions>(typeof(MainGrain).FullName);
-            serializer = ServiceProvider.GetService<ISerializer>();
-            eventTypeFinder = ServiceProvider.GetService<IEventTypeFinder>();
-            logger = (ILogger)ServiceProvider.GetService(typeof(ILogger<>).MakeGenericType(grainType));
-            return Task.CompletedTask;
-        }
-
-        public Task Invoke(EventBytesTransport transport)
-        {
-            var eventType = eventTypeFinder.FindType(transport.EventTypeCode);
-
-            var eventObj = serializer.Deserialize(transport.EventBytes, eventType);
-            if (this is IPoleEventHandler<TEvent> handler)
-            {
-                var result = handler.EventHandle((TEvent)eventObj);
-                logger.LogTrace($"{nameof(PoleEventHandler<TEvent>)} Invoke completed: {0}->{1}->{2}", grainType.FullName, nameof(handler.EventHandle), serializer.Serialize(eventObj));
-                return result;
-            }
-            else
-            {
-                throw new EventHandlerImplementedNotRightException(nameof(handler.EventHandle), eventType.Name, this.GetType().FullName);
-            }
-        }
-
-        public async Task Invoke(List<EventBytesTransport> transports)
+        public async Task Invoke(List<EventBytesTransport> transports, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger,Type eventHandlerType)
         {
             if (transports.Count() != 0)
             {
@@ -71,14 +33,14 @@ namespace Pole.EventBus.EventHandler
                 if (this is IPoleBulkEventsHandler<TEvent> batchHandler)
                 {
                     await batchHandler.BulkEventsHandle(eventObjs);
-                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", grainType.FullName, nameof(batchHandler.BulkEventsHandle), serializer.Serialize(eventObjs));
+                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", eventHandlerType.FullName, nameof(batchHandler.BulkEventsHandle), serializer.Serialize(eventObjs));
                     return;
                 }
                 else if (this is IPoleEventHandler<TEvent> handler)
                 {
                     var handleTasks = eventObjs.Select(m => handler.EventHandle(m));
                     await Task.WhenAll(handleTasks);
-                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", grainType.FullName, nameof(handler.EventHandle), serializer.Serialize(eventObjs));
+                    logger.LogTrace("Invoke completed: {0}->{1}->{2}", eventHandlerType.FullName, nameof(handler.EventHandle), serializer.Serialize(eventObjs));
                     return;
                 }
                 else

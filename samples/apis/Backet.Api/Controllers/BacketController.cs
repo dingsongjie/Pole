@@ -6,7 +6,6 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using Backet.Api.Domain.Event;
-using Backet.Api.EventHandlers.Abstraction;
 using Backet.Api.Grains.Abstraction;
 using Backet.Api.Infrastructure;
 using Dapper;

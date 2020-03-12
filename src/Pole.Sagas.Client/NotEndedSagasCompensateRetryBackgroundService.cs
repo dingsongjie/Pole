@@ -35,8 +35,28 @@ namespace Pole.Sagas.Client
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            while (true)
+            {
+                try
+                {
+                    await GrpcGetSagasCore(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Errors in GRPC");
+                }
+                finally
+                {
+                    await Task.Delay(options.GrpcConnectFailRetryIntervalSeconds * 1000);
+                }
+            }
+        }
+
+        private async Task GrpcGetSagasCore(CancellationToken cancellationToken)
+        {
             using (var stream = sagaClient.GetSagas(new Pole.Sagas.Server.Grpc.GetSagasRequest { Limit = options.PreSagasGrpcStreamingResponseLimitCount, ServiceName = options.ServiceName }))
             {
+
                 while (await stream.ResponseStream.MoveNext(cancellationToken))
                 {
                     if (stream.ResponseStream.Current.IsSuccess)
@@ -73,39 +93,12 @@ namespace Pole.Sagas.Client
                                 }
                             });
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             logger.LogError(ex, "Errors in NotEndedSagasCompensateRetryBackgroundService CompensateRetry");
                         }
-                       
                     }
                 }
-                //await foreach (var getSagasResponse in stream.ResponseStream.ReadAllAsync(cancellationToken))
-                //{
-                //    if (getSagasResponse.IsSuccess)
-                //    {
-                //        var sagas = getSagasResponse.Sagas.Select(m =>
-                //        {
-                //            var result = new SagaEntity
-                //            {
-                //                Id = m.Id,
-                //            };
-                //            result.ActivityEntities = m.Activities.Select(n => new ActivityEntity
-                //            {
-                //                CompensateTimes = n.CompensateTimes,
-                //                ExecuteTimes = n.ExecuteTimes,
-                //                Id = n.Id,
-                //                Name = n.Id,
-                //                Order = n.Order,
-                //                ParameterData = n.ParameterData.ToByteArray(),
-                //                SagaId = n.SagaId,
-                //                Status = n.Status
-                //            }).ToList();
-                //            return result;
-                //        });
-
-                //    }
-                //}
             }
         }
 

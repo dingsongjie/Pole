@@ -13,5 +13,6 @@ namespace Pole.Sagas.Client
         public int CompeletedSagaExpiredAfterSeconds { get; set; } = 60 * 10;
         public int SagasTimeOutSeconds { get; set; } = 60;
         public string SagasServerHost { get; set; }
+        public int GrpcConnectFailRetryIntervalSeconds { get; set; } = 10;
     }
 }

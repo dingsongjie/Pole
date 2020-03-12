@@ -15,7 +15,7 @@ namespace Pole.Sagas.Server
         private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         private readonly Dictionary<string, List<SagaEntity>> Sagas = new Dictionary<string, List<SagaEntity>>();
         private readonly ILogger logger;
-        public SagasBuffer(ILogger logger)
+        public SagasBuffer(ILogger<SagasBuffer> logger)
         {
             this.logger = logger;
         }

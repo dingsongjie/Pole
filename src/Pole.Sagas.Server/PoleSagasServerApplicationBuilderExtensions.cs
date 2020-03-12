@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Sagas.Server
+namespace Microsoft.Extensions.Hosting
 {
     public static class PoleSagasServerApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UserPoleSagasServer(IApplicationBuilder builder)
+        public static IApplicationBuilder UserPoleSagasServer(this IApplicationBuilder builder)
         {
             builder.UseRouting();
 

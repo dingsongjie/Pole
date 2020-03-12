@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Pole.Sagas.Server.Processor
 {
-    public class BackgroundServiceBasedProcessorServer : BackgroundService, IProcessorServer
+    public class BackgroundServiceBasedProcessorServer : IHostedService
     {
         private readonly IServiceProvider _serviceProvider;
         private Task _compositeTask;
@@ -21,12 +21,13 @@ namespace Pole.Sagas.Server.Processor
         {
             _serviceProvider = serviceProvider;
         }
-        public async Task Start(CancellationToken stoppingToken)
+
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             var eventStorageInitializer = _serviceProvider.GetService<ISagaStorageInitializer>();
-            await eventStorageInitializer.InitializeAsync(stoppingToken);
+            await eventStorageInitializer.InitializeAsync(cancellationToken);
 
-            ProcessingContext processingContext = new ProcessingContext(stoppingToken);
+            ProcessingContext processingContext = new ProcessingContext(cancellationToken);
             List<LoopProcessor> loopProcessors = new List<LoopProcessor>();
             var innerProcessors = _serviceProvider.GetServices<IProcessor>();
             var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
@@ -40,9 +41,10 @@ namespace Pole.Sagas.Server.Processor
             _compositeTask = Task.WhenAll(tasks);
             await _compositeTask;
         }
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+
+        public Task StopAsync(CancellationToken cancellationToken)
         {
-            return Start(stoppingToken);
+            return Task.CompletedTask;
         }
     }
 }

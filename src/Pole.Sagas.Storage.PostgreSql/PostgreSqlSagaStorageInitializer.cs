@@ -36,17 +36,18 @@ namespace Pole.Sagas.Storage.PostgreSql
             if (cancellationToken.IsCancellationRequested) return;
 
             var sql = CreateDbTablesScript(options.SchemaName);
+
             using (var connection = new NpgsqlConnection(options.ConnectionString))
             {
                 await connection.ExecuteAsync(sql);
             }
-
             logger.LogDebug("Ensuring all create database tables script are applied.");
         }
 
         private string CreateDbTablesScript(string schemaName)
         {
             var batchSql = $@"
+111
 CREATE SCHEMA IF NOT EXISTS ""{options.SchemaName}"";
 
 CREATE TABLE IF NOT EXISTS {GetSagaTableName()}(
@@ -54,9 +55,9 @@ CREATE TABLE IF NOT EXISTS {GetSagaTableName()}(
   ""ServiceName"" varchar(64) COLLATE ""pg_catalog"".""default"" NOT NULL,
   ""Status"" varchar(10) COLLATE ""pg_catalog"".""default"" NOT NULL,
   ""ExpiresAt"" timestamp,
-  ""AddTime"" timestamp NOT NULL
+  ""AddTime"" timestamp NOT NULL,
+  CONSTRAINT ""Sagas_pkey"" PRIMARY KEY (""Id"")
 );
-ALTER TABLE {GetSagaTableName()} ADD CONSTRAINT ""Sagas_pkey"" PRIMARY KEY (""Id"");
 
 CREATE TABLE IF NOT EXISTS {GetActivityTableName()}(
   ""Id"" varchar(20) COLLATE ""pg_catalog"".""default"" NOT NULL,
@@ -68,17 +69,14 @@ CREATE TABLE IF NOT EXISTS {GetActivityTableName()}(
   ""ParameterData"" bytea NOT NULL,
   ""CompensateErrors"" varchar(1024) COLLATE ""pg_catalog"".""default"",
   ""CompensateTimes"" int4 NOT NULL,
-  ""AddTime"" timestamp NOT NULL
+  ""AddTime"" timestamp NOT NULL,
+  CONSTRAINT ""Activities_pkey"" PRIMARY KEY (""Id""),
+  CONSTRAINT ""Activities_SagaId_fkey"" FOREIGN KEY (""SagaId"") REFERENCES {GetSagaTableName()} (""Id"") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-CREATE INDEX ""Activities_SagaId"" ON {GetActivityTableName()} USING btree (
+CREATE INDEX IF NOT EXISTS ""Activities_SagaId"" ON {GetActivityTableName()} USING btree (
   ""SagaId"" COLLATE ""pg_catalog"".""default"" ""pg_catalog"".""text_ops"" ASC NULLS LAST
 );
-
-ALTER TABLE {GetActivityTableName()} ADD CONSTRAINT ""Activities_pkey"" PRIMARY KEY (""Id"");
-
-
-ALTER TABLE {GetActivityTableName()} ADD CONSTRAINT ""Activities_SagaId_fkey"" FOREIGN KEY (""SagaId"") REFERENCES {GetSagaTableName()} (""Id"") ON DELETE CASCADE ON UPDATE NO ACTION;
             ";
             return batchSql;
         }

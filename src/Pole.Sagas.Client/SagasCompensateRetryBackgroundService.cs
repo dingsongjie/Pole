@@ -17,14 +17,14 @@ using static Pole.Sagas.Server.Grpc.Saga;
 
 namespace Pole.Sagas.Client
 {
-    public class NotEndedSagasCompensateRetryBackgroundService : IHostedService
+    public class SagasCompensateRetryBackgroundService : IHostedService
     {
         private readonly PoleSagasOption options;
         private readonly SagaClient sagaClient;
         private readonly SagaRestorer sagaRestorer;
         private readonly IEventSender eventSender;
         private readonly ILogger logger;
-        public NotEndedSagasCompensateRetryBackgroundService(IOptions<PoleSagasOption> options, SagaClient sagaClient, IServiceProvider serviceProvider, IEventSender eventSender, ILogger<NotEndedSagasCompensateRetryBackgroundService> logger)
+        public SagasCompensateRetryBackgroundService(IOptions<PoleSagasOption> options, SagaClient sagaClient, IServiceProvider serviceProvider, IEventSender eventSender, ILogger<SagasCompensateRetryBackgroundService> logger)
         {
             this.options = options.Value;
             this.sagaClient = sagaClient;
@@ -43,7 +43,7 @@ namespace Pole.Sagas.Client
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Errors in GRPC GetSagas");
+                    logger.LogError(ex, "Errors in grpc get sagas");
                 }
                 finally
                 {

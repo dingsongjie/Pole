@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class PoleSagaServiceCollectionExtensions
     {
-        public static void AddSagas(this StartupConfig startupOption, Action<PoleSagasOption> configAction)
+        public static void AddSagasClient(this StartupConfig startupOption, Action<PoleSagasOption> configAction)
         {
             // 让客户端支持 没有TLS 的 grpc call
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
             startupOption.Services.AddSingleton<IActivityFinder, ActivityFinder>();
             startupOption.Services.AddSingleton<IEventSender, EventSender>();
             startupOption.Services.AddSingleton<ISagaFactory, SagaFactory>();
-            startupOption.Services.AddHostedService<NotEndedSagasCompensateRetryBackgroundService>();
+            startupOption.Services.AddHostedService<SagasCompensateRetryBackgroundService>();
             PoleSagasOption sagasOption = null;
             using (var provider = startupOption.Services.BuildServiceProvider())
             {

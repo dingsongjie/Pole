@@ -30,7 +30,7 @@ namespace SagasTest.Api
             services.AddControllers();
             services.AddPole(config =>
             {
-                config.AddSagas(option=> {
+                config.AddSagasClient(option=> {
                     option.ServiceName = "SagasTest";
                     option.SagasServerHost = "http://localhost:80";
                 });

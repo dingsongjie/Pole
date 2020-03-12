@@ -6,10 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\Pole.Sagas.Server\Pole.Sagas.Server.csproj" />
+    <ProjectReference Include="..\..\..\src\Pole.Sagas.Storage.PostgreSql\Pole.Sagas.Storage.PostgreSql.csproj" />
   </ItemGroup>
 
 </Project>

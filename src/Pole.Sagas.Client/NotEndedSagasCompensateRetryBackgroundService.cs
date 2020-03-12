@@ -24,7 +24,7 @@ namespace Pole.Sagas.Client
         private readonly SagaRestorer sagaRestorer;
         private readonly IEventSender eventSender;
         private readonly ILogger logger;
-        public NotEndedSagasCompensateRetryBackgroundService(IOptions<PoleSagasOption> options, SagaClient sagaClient, IServiceProvider serviceProvider, IEventSender eventSender, ILogger logger)
+        public NotEndedSagasCompensateRetryBackgroundService(IOptions<PoleSagasOption> options, SagaClient sagaClient, IServiceProvider serviceProvider, IEventSender eventSender, ILogger<NotEndedSagasCompensateRetryBackgroundService> logger)
         {
             this.options = options.Value;
             this.sagaClient = sagaClient;
@@ -111,7 +111,7 @@ namespace Pole.Sagas.Client
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

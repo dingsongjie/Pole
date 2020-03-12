@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS {GetSagaTableName()}(
   ""ExpiresAt"" timestamp,
   ""AddTime"" timestamp NOT NULL
 );
-ALTER TABLE ""{GetSagaTableName()}"" ADD CONSTRAINT ""Sagas_pkey"" PRIMARY KEY (""Id"");
+ALTER TABLE {GetSagaTableName()} ADD CONSTRAINT ""Sagas_pkey"" PRIMARY KEY (""Id"");
 
 CREATE TABLE IF NOT EXISTS {GetActivityTableName()}(
   ""Id"" varchar(20) COLLATE ""pg_catalog"".""default"" NOT NULL,
@@ -71,14 +71,14 @@ CREATE TABLE IF NOT EXISTS {GetActivityTableName()}(
   ""AddTime"" timestamp NOT NULL
 );
 
-CREATE INDEX ""Activities_SagaId"" ON ""{GetActivityTableName()}"" USING btree (
+CREATE INDEX ""Activities_SagaId"" ON {GetActivityTableName()} USING btree (
   ""SagaId"" COLLATE ""pg_catalog"".""default"" ""pg_catalog"".""text_ops"" ASC NULLS LAST
 );
 
-ALTER TABLE ""{GetActivityTableName()}"" ADD CONSTRAINT ""Activities_pkey"" PRIMARY KEY (""Id"");
+ALTER TABLE {GetActivityTableName()} ADD CONSTRAINT ""Activities_pkey"" PRIMARY KEY (""Id"");
 
 
-ALTER TABLE ""{GetActivityTableName()}"" ADD CONSTRAINT ""Activities_SagaId_fkey"" FOREIGN KEY (""SagaId"") REFERENCES {GetSagaTableName()} (""Id"") ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE {GetActivityTableName()} ADD CONSTRAINT ""Activities_SagaId_fkey"" FOREIGN KEY (""SagaId"") REFERENCES {GetSagaTableName()} (""Id"") ON DELETE CASCADE ON UPDATE NO ACTION;
             ";
             return batchSql;
         }

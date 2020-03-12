@@ -19,6 +19,13 @@ namespace SagasServer
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseKestrel(option =>
+                {
+                    option.ListenAnyIP(80, config =>
+                    {
+                        config.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+                    });
+                });
     }
 }

@@ -1,20 +1,22 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Pole.Core;
 using Pole.Sagas.Core;
 using Pole.Sagas.Core.Abstraction;
+using Pole.Sagas.Storage.PostgreSql;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Sagas.Storage.PostgreSql
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class PoleSagasPostgreSqlExtensions
     {
-        public static IServiceCollection AddPostgreSqlStorage(IServiceCollection services,Action<PoleSagasStoragePostgreSqlOption> config)
+        public static StartupConfig AddSagasServerPGStorage(this StartupConfig startupConfig, Action<PoleSagasStoragePostgreSqlOption> config)
         {
-            services.Configure(config);
-            services.AddSingleton<ISagaStorageInitializer, PostgreSqlSagaStorageInitializer>();
-            services.AddSingleton<ISagaStorage, PostgreSqlSagaStorage>();
-            return services;
+            startupConfig.Services.Configure(config);
+            startupConfig.Services.AddSingleton<ISagaStorageInitializer, PostgreSqlSagaStorageInitializer>();
+            startupConfig.Services.AddSingleton<ISagaStorage, PostgreSqlSagaStorage>();
+            return startupConfig;
         }
     }
 }

@@ -20,10 +20,13 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static void AddSagas(this StartupConfig startupOption, Action<PoleSagasOption> configAction)
         {
+            // 让客户端支持 没有TLS 的 grpc call
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             startupOption.Services.Configure(configAction);
             startupOption.Services.AddSingleton<IActivityFinder, ActivityFinder>();
             startupOption.Services.AddSingleton<IEventSender, EventSender>();
             startupOption.Services.AddSingleton<ISagaFactory, SagaFactory>();
+            startupOption.Services.AddHostedService<NotEndedSagasCompensateRetryBackgroundService>();
             PoleSagasOption sagasOption = null;
             using (var provider = startupOption.Services.BuildServiceProvider())
             {

@@ -65,7 +65,7 @@ namespace Pole.EventBus.RabbitMQ
             {
                 await mpscChannel.WriteAsync(ea);
             };
-            BasicConsumer.ConsumerTag = Model.Model.BasicConsume(Queue.Queue, Consumer.Config.AutoAck, BasicConsumer);
+            BasicConsumer.ConsumerTag = Model.Model.BasicConsume(Queue.Queue, false, BasicConsumer);
             return Task.CompletedTask;
         }
         private async Task BatchExecuter(List<BasicDeliverEventArgs> list)
@@ -81,31 +81,27 @@ namespace Pole.EventBus.RabbitMQ
                 {
                     foreach (var item in list)
                     {
-                        await ProcessComsumerErrors(item, exception);
+                        ProcessComsumerErrors(item, exception);
                     }
                     return;
                 }
             }
-            if (!Consumer.Config.AutoAck)
+
+            if (errorMessageDeliveryTags.Count == 0)
             {
-                if (errorMessageDeliveryTags.Count == 0)
+                Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
+            }
+            else
+            {
+                list.ForEach(m =>
                 {
-                    Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
-                }
-                else
-                {
-                    list.ForEach(m =>
-                    {
-                        Model.Model.BasicAck(m.DeliveryTag, false);
-                    });
-                }
+                    Model.Model.BasicAck(m.DeliveryTag, false);
+                });
             }
         }
 
-        private async Task ProcessComsumerErrors(BasicDeliverEventArgs ea, Exception exception)
+        private void ProcessComsumerErrors(BasicDeliverEventArgs ea, Exception exception)
         {
-            // todo 这里需要添加断路器 防止超量的 Task.Delay
-
             if (ea.BasicProperties.Headers.TryGetValue(Consts.ConsumerRetryTimesStr, out object retryTimesObj))
             {
                 errorMessageDeliveryTags.Add(ea.DeliveryTag);
@@ -117,7 +113,8 @@ namespace Pole.EventBus.RabbitMQ
                     retryTimes++;
                     ea.BasicProperties.Headers[Consts.ConsumerRetryTimesStr] = retryTimes.ToString();
                     ea.BasicProperties.Headers[Consts.ConsumerExceptionDetailsStr] = exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace;
-                    await Task.Delay((int)Math.Pow(2, retryTimes) * 1000).ContinueWith((task) =>
+                    // 默认预取数为 300 所以每个消费者 理论上最多有 300个延时任务
+                    Task.Delay((int)Math.Pow(2, retryTimes) * 1000).ContinueWith((task) =>
                     {
                         using var channel = Client.PullChannel();
                         channel.Publish(ea.Body, ea.BasicProperties.Headers, Queue.Queue, string.Empty, true);
@@ -135,10 +132,7 @@ namespace Pole.EventBus.RabbitMQ
                     Model.Model.QueueBind(errorQueueName, errorExchangeName, string.Empty);
                     using var channel = Client.PullChannel();
                     channel.Publish(ea.Body, ea.BasicProperties.Headers, errorExchangeName, string.Empty, true);
-                    if (!Consumer.Config.AutoAck)
-                    {
-                        Model.Model.BasicAck(ea.DeliveryTag, false);
-                    }
+                    Model.Model.BasicAck(ea.DeliveryTag, false);
                 }
             }
         }

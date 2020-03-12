@@ -1,12 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pole.Core;
 using Pole.Core.Processor;
+using Pole.Core.Utils;
 using Pole.EventBus;
+using Pole.EventBus.EventHandler;
 using Pole.EventBus.Processor;
 using Pole.EventBus.Processor.Server;
 using Pole.EventBus.UnitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -27,7 +30,20 @@ namespace Microsoft.Extensions.DependencyInjection
             startupOption.Services.AddHostedService<BackgroundServiceBasedProcessorServer>();
             startupOption.Services.AddScoped<IUnitOfWork, Pole.EventBus.UnitOfWork.UnitOfWork>();
             startupOption.Services.AddSingleton<IEventTypeFinder, EventTypeFinder>();
+
+            RegisterEventHandler(startupOption);
             return startupOption;
+        }
+
+        private static void RegisterEventHandler(StartupConfig startupOption)
+        {
+            foreach (var assembly in AssemblyHelper.GetAssemblies())
+            {
+                foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract && !typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
+                {
+                    startupOption.Services.AddScoped(type);
+                }
+            }
         }
     }
 }

@@ -33,10 +33,6 @@ namespace Pole.EventBus
             Logger = serviceProvider.GetService<ILogger<ObserverUnit<PrimaryKey>>>();
             EventHandlerType = eventHandlerType;
         }
-        public static ObserverUnit<PrimaryKey> From<Grain>(IServiceProvider serviceProvider) where Grain : Orleans.Grain
-        {
-            return new ObserverUnit<PrimaryKey>(serviceProvider, typeof(Grain));
-        }
 
         public Func<List<byte[]>, Task> GetBatchEventHandler()
         {
@@ -89,7 +85,7 @@ namespace Pole.EventBus
                 var loggerParams = Expression.Parameter(typeof(ILogger), "logger");
                 var eventHandlerTypeParams = Expression.Parameter(typeof(Type), "eventHandlerType");
                 var method = typeof(IPoleEventHandler).GetMethod("Invoke");
-                var body = Expression.Call(eventHandlerParams, method, eventBytesTransportParams, serializerParams, serializerParams, eventTypeFinderParams, loggerParams, eventHandlerTypeParams);
+                var body = Expression.Call(eventHandlerParams, method, eventBytesTransportParams, serializerParams, eventTypeFinderParams, loggerParams, eventHandlerTypeParams);
                 return Expression.Lambda<Func<object, List<EventBytesTransport>, ISerializer, IEventTypeFinder, ILogger, Type, Task>>(body, eventHandlerObjParams, eventBytesTransportParams, serializerParams, eventTypeFinderParams, loggerParams, eventHandlerTypeParams).Compile();
             });
             return func;

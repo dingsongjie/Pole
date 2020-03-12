@@ -13,7 +13,7 @@ namespace Pole.EventBus.RabbitMQ
         public RabbitEventBus(
             IObserverUnitContainer observerUnitContainer,
             IRabbitEventBusContainer eventBusContainer,
-            string exchange, string routePrefix, int lBCount = 1, bool autoAck = false, bool reenqueue = true, bool persistent = false)
+            string exchange, string routePrefix, int lBCount = 1, bool reenqueue = true, bool persistent = false)
         {
             if (string.IsNullOrEmpty(exchange))
                 throw new ArgumentNullException(nameof(exchange));
@@ -29,7 +29,6 @@ namespace Pole.EventBus.RabbitMQ
             Persistent = persistent;
             ConsumerConfig = new ConsumerOptions
             {
-                AutoAck = autoAck,
                 Reenqueue = reenqueue,
                 ErrorQueueSuffix = "_error",
                 MaxReenqueueTimes = 10

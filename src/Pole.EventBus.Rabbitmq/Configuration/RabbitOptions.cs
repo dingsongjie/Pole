@@ -29,7 +29,7 @@ namespace Pole.EventBus.RabbitMQ
         /// <summary>
         /// exchange 和 queue 名称的前缀
         /// </summary>
-        public string Prefix = "Pole_";
+        public string Prefix = "Pole";
         public string[] Hosts
         {
             get; set;

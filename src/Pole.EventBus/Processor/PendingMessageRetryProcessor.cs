@@ -55,6 +55,7 @@ namespace Pole.EventBus.Processor
         public async Task ProcessInternal()
         {
             var now = DateTime.UtcNow;
+            
             var pendingMessages = await eventStorage.GetMessagesOfNeedRetry();
 
             if (logger.IsEnabled(LogLevel.Debug))
@@ -74,6 +75,7 @@ namespace Pole.EventBus.Processor
                 pendingMessage.Retries++;
                 var targetName = producerContainer.GetTargetName(pendingMessage.Name);
                 await producer.Publish(targetName, bytes);
+                pendingMessage.StatusName = nameof(EventStatus.Published);
             }
             if (pendingMessages.Count() > 0)
             {

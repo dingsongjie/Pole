@@ -35,7 +35,7 @@ namespace Pole.EventBus.RabbitMQ
             this.observerUnitContainer = observerUnitContainer;
             this.rabbitOptions = rabbitOptions.Value;
         }
-        public async Task AutoRegister(IServiceCollection services)
+        public async Task AutoRegister()
         {
             var eventList = new List<(Type type, EventInfoAttribute config)>();
             var evenHandlertList = new List<(Type type, EventInfoAttribute config)>();
@@ -43,7 +43,7 @@ namespace Pole.EventBus.RabbitMQ
             foreach (var (type, config) in eventList)
             {
                 var eventName = config.EventName;
-                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, false, true, true).BindEvent(type, eventName);
+                var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, true, true).BindEvent(type, eventName);
                 await eventBus.AddGrainConsumer<string>();
             }
             foreach (var (type, config) in evenHandlertList)
@@ -52,24 +52,15 @@ namespace Pole.EventBus.RabbitMQ
 
                 if (!eventBusDictionary.TryGetValue(eventName, out RabbitEventBus rabbitEventBus))
                 {
-                    var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, false, true, true).BindEvent(type, eventName);
+                    var eventBus = CreateEventBus(eventName, rabbitOptions.Prefix, 1, true, true).BindEvent(type, eventName);
                     await eventBus.AddGrainConsumer<string>();
                 }
             }
-            RegisterEventHandlers(services, evenHandlertList);
         }
 
-        private void RegisterEventHandlers(IServiceCollection services, List<(Type type, EventInfoAttribute config)> evenHandlertList)
+        public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool reenqueue = true, bool persistent = true)
         {
-            foreach(var eventHandler in evenHandlertList)
-            {
-                services.AddScoped(eventHandler.type);
-            }
-        }
-
-        public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool autoAck = false, bool reenqueue = true, bool persistent = true)
-        {
-            return new RabbitEventBus(observerUnitContainer, this, exchange, routePrefix, lBCount, autoAck, reenqueue, persistent);
+            return new RabbitEventBus(observerUnitContainer, this, exchange, routePrefix, lBCount, reenqueue, persistent);
         }
         public Task Work(RabbitEventBus bus)
         {

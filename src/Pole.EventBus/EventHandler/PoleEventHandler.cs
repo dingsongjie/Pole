@@ -19,11 +19,19 @@ namespace Pole.EventBus.EventHandler
     /// <summary>
     /// 
     /// </summary>
-    public abstract class PoleEventHandler<TEvent>:IPoleEventHandler,IPoleEventHandler<TEvent>
+    public abstract class PoleEventHandler<TEvent> : PoleEventHandlerBase<TEvent>, IPoleEventHandler<TEvent>
     {
         public abstract Task EventHandle(TEvent @event);
 
-        public async Task Invoke(List<EventBytesTransport> transports, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger,Type eventHandlerType)
+    }
+    public abstract class PoleBulkEventsHandler<TEvent> : PoleEventHandlerBase<TEvent>, IPoleBulkEventsHandler<TEvent>
+    {
+        public abstract Task BulkEventsHandle(List<TEvent> events);
+    }
+    public abstract class PoleEventHandlerBase<TEvent> : IPoleEventHandler
+    {
+
+        public async Task Invoke(List<EventBytesTransport> transports, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger, Type eventHandlerType)
         {
             if (transports.Count() != 0)
             {

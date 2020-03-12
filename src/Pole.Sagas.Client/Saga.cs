@@ -131,6 +131,10 @@ namespace Pole.Sagas.Client
                 return true;
             }
             await RecursiveCompensateActivity(compensateActivity);
+            if (activities.Any(m => m.ActivityStatus != ActivityStatus.Compensated|| m.ActivityStatus != ActivityStatus.CompensateAborted))
+            {
+                return false;
+            }
             return true;
         }
 

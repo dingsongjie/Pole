@@ -41,13 +41,14 @@ namespace Backet.Api
             }));
             services.AddPole(config =>
             {
-                config.AddRabbitMQ(option =>
+                config.AddEventBus();
+                config.AddEventBusRabbitMQTransport(option =>
                 {
                     option.Hosts = new string[1] { Configuration["RabbitmqConfig:HostAddress"] };
                     option.Password = Configuration["RabbitmqConfig:HostPassword"];
                     option.UserName = Configuration["RabbitmqConfig:HostUserName"];
                 });
-                config.AddEntityFrameworkEventStorage<BacketDbContext>();
+                config.AddEventBusEFCoreStorage<BacketDbContext>();
             });
 
             services.ConfigureGrainStorageOptions<BacketDbContext, BacketGrain, Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>(

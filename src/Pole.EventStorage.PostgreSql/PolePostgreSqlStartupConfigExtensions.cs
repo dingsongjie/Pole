@@ -11,12 +11,12 @@ namespace Microsoft.Extensions.DependencyInjection
 {
    public static class PolePostgreSqlStartupConfigExtensions
     {
-        public static StartupConfig AddEntityFrameworkEventStorage<TContext>(this StartupConfig config)
+        public static StartupConfig AddEventBusEFCoreStorage<TContext>(this StartupConfig config)
    where TContext : DbContext
         {
-            return config.AddEntityFrameworkEventStorage<TContext>(opt => { });
+            return config.AddEventBusEFCoreStorage<TContext>(opt => { });
         }
-        public static StartupConfig AddEntityFrameworkEventStorage<TContext>(this StartupConfig config, Action<EFOptions> configure)
+        public static StartupConfig AddEventBusEFCoreStorage<TContext>(this StartupConfig config, Action<EFOptions> configure)
             where TContext : DbContext
         {
             if (configure == null) throw new ArgumentNullException(nameof(configure));

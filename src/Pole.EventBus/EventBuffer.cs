@@ -29,9 +29,9 @@ namespace Pole.EventBus
         private readonly IProducerInfoContainer producerContainer;
         private readonly IProducer producer;
         private readonly IEventStorage eventStorage;
-        private readonly PoleOptions options;
+        private readonly PoleEventBusOption options;
         private Task<bool> waitToReadTask;
-        public EventBuffer(ILogger<EventBuffer> logger, IProducerInfoContainer producerContainer, IProducer producer, IEventStorage eventStorage, IOptions<PoleOptions> options)
+        public EventBuffer(ILogger<EventBuffer> logger, IProducerInfoContainer producerContainer, IProducer producer, IEventStorage eventStorage, IOptions<PoleEventBusOption> options)
         {
             this.logger = logger;
             this.producerContainer = producerContainer;

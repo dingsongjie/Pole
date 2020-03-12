@@ -13,14 +13,13 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class PoleRabbitmqStartupConfigExtensions
     {
         private static ConcurrentDictionary<string, ConsumerRunner> ConsumerRunners = new ConcurrentDictionary<string, ConsumerRunner>();
-        public static void AddRabbitMQ(
+        public static void AddEventBusRabbitMQTransport(
             this StartupConfig startupOption,
             Action<RabbitOptions> rabbitConfigAction,
             Func<IRabbitEventBusContainer, Task> eventBusConfig = default)
         {
             startupOption.Services.Configure<RabbitOptions>(config => rabbitConfigAction(config));
             startupOption.Services.AddSingleton<IRabbitMQClient, RabbitMQClient>();
-            //startupOption.Services.AddHostedService<ConsumerManager>();
             startupOption.Services.AddSingleton<IRabbitEventBusContainer, EventBusContainer>();
             startupOption.Services.AddSingleton<IProducer, RabbitProducer>();
             startupOption.Services.AddSingleton(serviceProvider => serviceProvider.GetService<IRabbitEventBusContainer>() as IProducerInfoContainer);

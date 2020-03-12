@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Pole.Core;
+using Pole.EventBus;
 using Pole.EventBus.EventStorage;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,10 @@ namespace Pole.EventStorage.PostgreSql
     class PostgreSqlEventStorage : IEventStorage
     {
         private readonly string tableName;
-        private readonly ProducerOptions producerOptions;
+        private readonly PoleEventBusOption producerOptions;
         private readonly PostgreSqlOptions options;
         private readonly IEventStorageInitializer eventStorageInitializer;
-        public PostgreSqlEventStorage(IOptions<PostgreSqlOptions> postgreSqlOptions, IOptions<ProducerOptions> producerOptions, IEventStorageInitializer eventStorageInitializer)
+        public PostgreSqlEventStorage(IOptions<PostgreSqlOptions> postgreSqlOptions, IOptions<PoleEventBusOption> producerOptions, IEventStorageInitializer eventStorageInitializer)
         {
             this.producerOptions = producerOptions.Value;
             this.options = postgreSqlOptions.Value;

@@ -15,7 +15,7 @@ namespace Pole.EventBus.Processor
         private readonly ILogger logger;
         private readonly IEventStorageInitializer initializer;
         private readonly IEventStorage eventstorage;
-        private readonly PoleOptions poleOptions;
+        private readonly PoleEventBusOption poleOptions;
 
         private const int ItemBatch = 1000;
         private readonly TimeSpan _waitingInterval = TimeSpan.FromMinutes(5);
@@ -27,7 +27,7 @@ namespace Pole.EventBus.Processor
             ILogger<ExpiredEventsCollectorProcessor> logger,
             IEventStorageInitializer initializer,
             IEventStorage eventstorage,
-            IOptions<PoleOptions> poleOptions)
+            IOptions<PoleEventBusOption> poleOptions)
         {
             this.logger = logger;
             this.initializer = initializer;

@@ -5,7 +5,7 @@
         /// <summary>
         /// 批量数据处理每次处理的最大数据量
         /// </summary>
-        public int MaxBatchSize { get; set; } = 100000;
+        public int MaxBatchSize { get; set; } = 10000;
         /// <summary>
         /// 批量数据接收的最大延时
         /// </summary>

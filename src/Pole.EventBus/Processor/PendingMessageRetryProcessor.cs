@@ -17,22 +17,20 @@ namespace Pole.EventBus.Processor
     class PendingMessageRetryProcessor : ProcessorBase
     {
         private readonly IEventStorage eventStorage;
-        private readonly PoleOptions options;
+        private readonly PoleEventBusOption options;
         private readonly IProducerInfoContainer producerContainer;
         private readonly ISerializer serializer;
         private readonly ILogger<PendingMessageRetryProcessor> logger;
-        private readonly ProducerOptions producerOptions;
         private readonly IProducer producer;
         private readonly IEventBuffer eventBuffer;
-        public PendingMessageRetryProcessor(IEventStorage eventStorage, IOptions<PoleOptions> options, ILogger<PendingMessageRetryProcessor> logger,
-            IProducerInfoContainer producerContainer, ISerializer serializer, IOptions<ProducerOptions> producerOptions, IProducer producer, IEventBuffer eventBuffer)
+        public PendingMessageRetryProcessor(IEventStorage eventStorage, IOptions<PoleEventBusOption> options, ILogger<PendingMessageRetryProcessor> logger,
+            IProducerInfoContainer producerContainer, ISerializer serializer, IProducer producer, IEventBuffer eventBuffer)
         {
             this.eventStorage = eventStorage;
-            this.options = options.Value ?? throw new Exception($"{nameof(PoleOptions)} Must be injected");
+            this.options = options.Value ?? throw new Exception($"{nameof(PoleEventBusOption)} Must be injected");
             this.logger = logger;
             this.producerContainer = producerContainer;
             this.serializer = serializer;
-            this.producerOptions = producerOptions.Value ?? throw new Exception($"{nameof(ProducerOptions)} Must be injected");
             this.producer = producer;
             this.eventBuffer = eventBuffer;
         }
@@ -68,7 +66,7 @@ namespace Pole.EventBus.Processor
                 var eventContentBytes = Encoding.UTF8.GetBytes(pendingMessage.Content);
                 var bytesTransport = new EventBytesTransport(pendingMessage.Name, pendingMessage.Id, eventContentBytes);
                 var bytes = bytesTransport.GetBytes();
-                if (pendingMessage.Retries > producerOptions.MaxFailedRetryCount)
+                if (pendingMessage.Retries > options.MaxFailedRetryCount)
                 {
                     pendingMessage.StatusName = nameof(EventStatus.Failed);
                     continue;

@@ -22,19 +22,7 @@ namespace Pole.EventBus
             {
                 foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract && !typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
                 {
-                    var eventType = type.GetGenericArguments().FirstOrDefault();
-                    //var eventHandlerInterface = type.GetInterfaces().FirstOrDefault(type => typeof(IPoleEventHandler).IsAssignableFrom(type) && !type.IsGenericType);
-                    //var basePoleEventHandlerInterface= eventHandlerInterface.GetInterfaces().FirstOrDefault(m=>m.IsGenericType);
-
-                    //if (basePoleEventHandlerInterface == null)
-                    //{
-                    //    throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
-                    //}
-                    //var eventType= basePoleEventHandlerInterface.GetGenericArguments().FirstOrDefault();
-                    //if (eventType == null)
-                    //{
-                    //    throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
-                    //}
+                    var eventType = type.BaseType.GetGenericArguments().FirstOrDefault();
                     var attribute = eventType.GetCustomAttributes(typeof(EventInfoAttribute), false).FirstOrDefault();
 
                     if (attribute != null)

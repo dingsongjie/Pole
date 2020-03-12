@@ -24,7 +24,6 @@ namespace Pole.EventBus.RabbitMQ
         readonly IServiceProvider serviceProvider;
         private readonly IObserverUnitContainer observerUnitContainer;
         private readonly RabbitOptions rabbitOptions;
-        public bool IsAutoRegisterFinished { get; private set; }
         public EventBusContainer(
             IServiceProvider serviceProvider,
             IObserverUnitContainer observerUnitContainer,
@@ -36,7 +35,7 @@ namespace Pole.EventBus.RabbitMQ
             this.observerUnitContainer = observerUnitContainer;
             this.rabbitOptions = rabbitOptions.Value;
         }
-        public async Task AutoRegister()
+        public async Task AutoRegister(IServiceCollection services)
         {
             var eventList = new List<(Type type, EventInfoAttribute config)>();
             var evenHandlertList = new List<(Type type, EventInfoAttribute config)>();
@@ -57,7 +56,15 @@ namespace Pole.EventBus.RabbitMQ
                     await eventBus.AddGrainConsumer<string>();
                 }
             }
-            IsAutoRegisterFinished = true;
+            RegisterEventHandlers(services, evenHandlertList);
+        }
+
+        private void RegisterEventHandlers(IServiceCollection services, List<(Type type, EventInfoAttribute config)> evenHandlertList)
+        {
+            foreach(var eventHandler in evenHandlertList)
+            {
+                services.AddScoped(eventHandler.type);
+            }
         }
 
         public RabbitEventBus CreateEventBus(string exchange, string routePrefix, int lBCount = 1, bool autoAck = false, bool reenqueue = true, bool persistent = true)
@@ -123,22 +130,9 @@ namespace Pole.EventBus.RabbitMQ
 
             foreach (var assembly in AssemblyHelper.GetAssemblies(serviceProvider.GetService<ILogger<EventBusContainer>>()))
             {
-
                 foreach (var type in assembly.GetTypes().Where(m => typeof(IPoleEventHandler).IsAssignableFrom(m) && m.IsClass && !m.IsAbstract && !typeof(Orleans.Runtime.GrainReference).IsAssignableFrom(m)))
                 {
-                    var eventType = type.GetGenericArguments().FirstOrDefault();
-                    //var eventHandlerInterface = type.GetInterfaces().FirstOrDefault(type => typeof(IPoleEventHandler).IsAssignableFrom(type) && !type.IsGenericType);
-                    //var basePoleEventHandlerInterface = eventHandlerInterface.GetInterfaces().FirstOrDefault(m => m.IsGenericType);
-
-                    //if (basePoleEventHandlerInterface == null)
-                    //{
-                    //    throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
-                    //}
-                    //var eventType = basePoleEventHandlerInterface.GetGenericArguments().FirstOrDefault();
-                    //if (eventType == null)
-                    //{
-                    //    throw new PoleEventHandlerImplementException("PoleEventHandler interface must Inherited from IPoleEventHandler<TEvent>");
-                    //}
+                    var eventType = type.BaseType.GetGenericArguments().FirstOrDefault();
                     var attribute = eventType.GetCustomAttributes(typeof(EventInfoAttribute), false).FirstOrDefault();
 
                     if (attribute != null)
@@ -150,7 +144,6 @@ namespace Pole.EventBus.RabbitMQ
                         throw new PoleEventHandlerImplementException("Can not found EventHandlerAttribute in PoleEventHandler");
                     }
                 }
-
             }
         }
 

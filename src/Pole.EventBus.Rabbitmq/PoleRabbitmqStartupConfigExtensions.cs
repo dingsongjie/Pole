@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 if (eventBusConfig != default)
                     await eventBusConfig(container);
                 else
-                    await container.AutoRegister();
+                    await container.AutoRegister(startupOption.Services);
 
                 var consumers = container.GetConsumers();
                 foreach (var consumer in consumers)

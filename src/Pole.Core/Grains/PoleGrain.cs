@@ -1,6 +1,5 @@
 ﻿using Orleans;
 using Pole.Core.Domain;
-using Pole.Core.EventBus.Event;
 using System;
 using System.Collections.Generic;
 using System.Text;

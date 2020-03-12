@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Pole.Core.EventBus.EventStorage;
 using Pole.Sagas.Core;
 using Pole.Sagas.Core.Abstraction;
 using System;

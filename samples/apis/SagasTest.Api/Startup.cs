@@ -33,13 +33,13 @@ namespace SagasTest.Api
             services.AddControllers();
             services.AddPole(config =>
             {
-                config.AddRabbitMQ(option =>
-                {
-                    option.Hosts = new string[1] { Configuration["RabbitmqConfig:HostAddress"] };
-                    option.Password = Configuration["RabbitmqConfig:HostPassword"];
-                    option.UserName = Configuration["RabbitmqConfig:HostUserName"];
-                });
-                config.AddEntityFrameworkEventStorage<BacketDbContext>();
+                //config.AddRabbitMQ(option =>
+                //{
+                //    option.Hosts = new string[1] { Configuration["RabbitmqConfig:HostAddress"] };
+                //    option.Password = Configuration["RabbitmqConfig:HostPassword"];
+                //    option.UserName = Configuration["RabbitmqConfig:HostUserName"];
+                //});
+                //config.AddEntityFrameworkEventStorage<BacketDbContext>();
                 config.AddSagas(option=> {
                     option.ServiceName = "SagasTest";
                 });

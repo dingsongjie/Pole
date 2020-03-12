@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using Pole.Core;
-using Pole.Core.EventBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;

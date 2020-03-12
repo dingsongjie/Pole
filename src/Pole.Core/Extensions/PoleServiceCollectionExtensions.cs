@@ -1,12 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pole.Core;
 using Pole.Core.Channels;
-using Pole.Core.EventBus;
 using Pole.Core.Processor;
-using Pole.Core.Processor.Server;
 using Pole.Core.Query;
 using Pole.Core.Serialization;
-using Pole.Core.UnitOfWork;
 using Pole.Core.Utils;
 using Pole.Core.Utils.Abstraction;
 using System;
@@ -24,14 +21,9 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.Configure<PoleOptions>(option => { });
             }
-            services.AddSingleton<IEventTypeFinder, EventTypeFinder>();
-            services.AddSingleton<IEventBuffer, EventBuffer>();
             services.AddTransient(typeof(IMpscChannel<>), typeof(MpscChannel<>));
-            services.AddScoped<IBus, Bus>();
-            services.AddScoped<IUnitOfWork, Pole.Core.UnitOfWork.UnitOfWork>();
             services.AddSingleton<ISerializer, DefaultJsonSerializer>();
             services.AddSingleton<IGeneratorIdSolver, InstanceIPV4_16IdGeneratorIdSolver>();
-            services.AddSingleton<IObserverUnitContainer, ObserverUnitContainer>();
             services.AddSingleton<IQueryRegister, QueryRegister>();
             using (var serviceProvider = services.BuildServiceProvider())
             {
@@ -41,11 +33,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 var queryRegister = serviceProvider.GetService<IQueryRegister>();
                 queryRegister.Register(services, ServiceLifetime.Scoped);
             }
-
-            services.AddSingleton<IProcessor, PendingMessageRetryProcessor>();
-            services.AddSingleton<IProcessor, ExpiredEventsCollectorProcessor>();
-            services.AddHostedService<BackgroundServiceBasedProcessorServer>();
-
             config(startupOption);
             return services;
         }

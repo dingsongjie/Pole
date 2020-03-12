@@ -1,4 +1,4 @@
-﻿using Pole.Core.EventBus.Event;
+﻿using Pole.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Backet.Api.Domain.Event
 {
-    [EventInfo(EventName = "Backet")]
+    [Pole.EventBus.Event.EventInfo(EventName = "Backet")]
     public class BacketCreatedEvent : IEvent
     {
         public string BacketId { get; set; }

@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
-using Pole.Core.EventBus;
-using Pole.Core.EventBus.Event;
-using Pole.Core.EventBus.EventStorage;
-using Pole.Core.EventBus.Transaction;
 using Pole.Core.Serialization;
+using Pole.EventBus.Transaction;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

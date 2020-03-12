@@ -17,13 +17,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Orleans;
-using Pole.Core.EventBus;
-using Pole.Core.EventBus.Event;
-using Pole.Core.EventBus.EventHandler;
-using Pole.Core.EventBus.EventStorage;
 using Pole.Core.Serialization;
 using Pole.Core.UnitOfWork;
 using Pole.Core.Utils.Abstraction;
+using Pole.EventBus;
 
 namespace Backet.Api.Controllers
 {

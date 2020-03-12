@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pole.Core\Pole.Core.csproj" />
+    <ProjectReference Include="..\Pole.EventBus\Pole.EventBus.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Pole.Core;
-using Pole.Core.EventBus;
+using Pole.EventBus;
 using Pole.EventBus.RabbitMQ;
 
 namespace Microsoft.Extensions.DependencyInjection

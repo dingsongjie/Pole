@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Backet.Api.Domain.Event;
 using Pole.Core.UnitOfWork;
-using Pole.Core.EventBus.Transaction;
-using Pole.Core.EventBus;
+using Pole.EventBus.UnitOfWork;
+using Pole.EventBus;
 
 namespace Backet.Api.Grains
 {

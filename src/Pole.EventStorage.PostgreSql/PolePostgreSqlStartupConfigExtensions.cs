@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pole.Core;
-using Pole.Core.EventBus.EventStorage;
-using Pole.Core.EventBus.Transaction;
+using Pole.EventBus.EventStorage;
+using Pole.EventBus.Transaction;
 using Pole.EventStorage.PostgreSql;
 using System;
 using System.Collections.Generic;

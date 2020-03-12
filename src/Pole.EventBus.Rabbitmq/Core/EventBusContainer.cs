@@ -2,17 +2,17 @@
 using Microsoft.Extensions.Logging;
 using Orleans;
 using RabbitMQ.Client;
-using Pole.Core.EventBus;
 using Pole.Core.Exceptions;
 using Pole.Core.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Pole.Core.EventBus.Event;
-using Pole.Core.EventBus.EventHandler;
 using Microsoft.Extensions.Options;
 using System.Linq;
+using Pole.EventBus.Event;
+using Pole.Core.Domain;
+using Pole.EventBus.EventHandler;
 
 namespace Pole.EventBus.RabbitMQ
 {

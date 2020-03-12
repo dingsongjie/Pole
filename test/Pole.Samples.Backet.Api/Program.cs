@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using Npgsql;
-using Pole.Core.EventBus.EventStorage;
 using Pole.Samples.Backet.Api.Benchmarks;
 using System;
 using System.Collections.Generic;

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Pole.Core;
-using Pole.Core.EventBus.EventStorage;
+using Pole.EventBus.EventStorage;
 using System;
 using System.Collections.Generic;
 using System.Data;

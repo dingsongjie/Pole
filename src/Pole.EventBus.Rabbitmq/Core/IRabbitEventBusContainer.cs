@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Pole.Core.EventBus;
 
 namespace Pole.EventBus.RabbitMQ
 {

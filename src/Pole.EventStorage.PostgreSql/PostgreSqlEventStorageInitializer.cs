@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Pole.Core.EventBus.EventStorage;
+using Pole.EventBus.EventStorage;
 using System;
 using System.Collections.Generic;
 using System.Text;

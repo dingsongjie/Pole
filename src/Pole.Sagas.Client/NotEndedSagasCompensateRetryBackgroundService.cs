@@ -43,7 +43,7 @@ namespace Pole.Sagas.Client
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Errors in GRPC");
+                    logger.LogError(ex, "Errors in GRPC GetSagas");
                 }
                 finally
                 {
@@ -56,7 +56,6 @@ namespace Pole.Sagas.Client
         {
             using (var stream = sagaClient.GetSagas(new Pole.Sagas.Server.Grpc.GetSagasRequest { Limit = options.PreSagasGrpcStreamingResponseLimitCount, ServiceName = options.ServiceName }))
             {
-
                 while (await stream.ResponseStream.MoveNext(cancellationToken))
                 {
                     if (stream.ResponseStream.Current.IsSuccess)

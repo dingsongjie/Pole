@@ -11,12 +11,8 @@ namespace Pole.Sagas.Core
         public string SagaId { get; set; }
         public int Order { get; set; }
         public string Status { get; set; }
-        public int TimeOutSeconds { get; set; }
-        public Byte[] ParameterData { get; set; }
-        public Byte[] ResultData { get; set; }
-        public string Errors { get; set; }
+        public string ParameterData { get; set; }
         public int OvertimeCompensateTimes { get; set; }
         public int CompensateTimes  { get; set; }
-        public DateTime AddTime { get; set; }
     }
 }

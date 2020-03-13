@@ -70,7 +70,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuteOvertime(request.ActivityId, request.Name, request.ParameterData.ToByteArray(), Convert.ToDateTime(request.AddTime));
+                await sagaStorage.ActivityExecuteOvertime(request.ActivityId);
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -84,7 +84,7 @@ namespace Pole.Sagas.Server.Services
             CommonResponse commonResponse = new CommonResponse();
             try
             {
-                await sagaStorage.ActivityExecuting(request.ActivityId, request.ActivityName, request.SagaId, request.ParameterData.ToByteArray(), request.Order, Convert.ToDateTime(request.AddTime));
+                await sagaStorage.ActivityExecuting(request.ActivityId, request.ActivityName, request.SagaId, request.ParameterData, request.Order, Convert.ToDateTime(request.AddTime));
                 commonResponse.IsSuccess = true;
             }
             catch (Exception ex)
@@ -139,12 +139,16 @@ namespace Pole.Sagas.Server.Services
         {
             while (!context.CancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(poleSagasServerOption.GetSagasGrpcStreamingResponseDelaySeconds*1000);
+                await Task.Delay(poleSagasServerOption.GetSagasGrpcStreamingResponseDelaySeconds * 1000);
 
                 GetSagasResponse getSagasResponse = new GetSagasResponse();
                 try
                 {
                     var sagaEntities = await sagasBuffer.GetSagas(request.ServiceName, request.Limit);
+                    if (sagaEntities.Count() == 0)
+                    {
+                        continue;
+                    }
                     var sagaDtoes = sagaEntities.Select(m =>
                     {
                         var result = new GetSagasResponse.Types.Saga
@@ -156,9 +160,9 @@ namespace Pole.Sagas.Server.Services
                             CompensateTimes = n.CompensateTimes,
                             ExecuteTimes = n.OvertimeCompensateTimes,
                             Id = n.Id,
-                            Name = n.Id,
+                            Name = n.Name,
                             Order = n.Order,
-                            ParameterData = ByteString.CopyFrom(n.ParameterData),
+                            ParameterData = n.ParameterData,
                             SagaId = n.SagaId,
                             Status = n.Status
                         }));

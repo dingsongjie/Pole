@@ -56,7 +56,7 @@ namespace Pole.Sagas.Client
             }
         }
 
-        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, byte[] parameterData, int order, DateTime addTime)
+        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, string parameterData, int order, DateTime addTime)
         {
             var result = await sagaClient.ActivityExecutingAsync(new Server.Grpc.ActivityExecutingRequest
             {
@@ -64,7 +64,7 @@ namespace Pole.Sagas.Client
                 ActivityName = activityName,
                 AddTime = addTime.ToString("yyyy-MM-dd HH:mm:ss.fff"),
                 Order = order,
-                ParameterData = Google.Protobuf.ByteString.CopyFrom(parameterData),
+                ParameterData = parameterData,
                 SagaId = sagaId,
             });
             if (!result.IsSuccess)
@@ -100,7 +100,7 @@ namespace Pole.Sagas.Client
             }
         }
 
-        public async Task ActivityExecuteOvertime(string activityId, string name, byte[] parameterData, DateTime addTime)
+        public async Task ActivityExecuteOvertime(string activityId)
         {
             var result = await sagaClient.ActivityExecuteOvertimeAsync(new Server.Grpc.ActivityExecuteOvertimeRequest
             {

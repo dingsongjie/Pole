@@ -17,7 +17,7 @@ using static Pole.Sagas.Server.Grpc.Saga;
 
 namespace Pole.Sagas.Client
 {
-    public class SagasCompensateRetryBackgroundService : IHostedService
+    public class SagasCompensateRetryBackgroundService : BackgroundService
     {
         private readonly PoleSagasOption options;
         private readonly SagaClient sagaClient;
@@ -31,25 +31,6 @@ namespace Pole.Sagas.Client
             sagaRestorer = new SagaRestorer(serviceProvider.GetRequiredService<ISnowflakeIdGenerator>(), serviceProvider, serviceProvider.GetRequiredService<IEventSender>(), this.options, serviceProvider.GetRequiredService<ISerializer>(), serviceProvider.GetRequiredService<IActivityFinder>());
             this.eventSender = eventSender;
             this.logger = logger;
-        }
-
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            while (true)
-            {
-                try
-                {
-                    await GrpcGetSagasCore(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Errors in grpc get sagas");
-                }
-                finally
-                {
-                    await Task.Delay(options.GrpcConnectFailRetryIntervalSeconds * 1000);
-                }
-            }
         }
 
         private async Task GrpcGetSagasCore(CancellationToken cancellationToken)
@@ -73,9 +54,9 @@ namespace Pole.Sagas.Client
                                     CompensateTimes = n.CompensateTimes,
                                     OvertimeCompensateTimes = n.ExecuteTimes,
                                     Id = n.Id,
-                                    Name = n.Id,
+                                    Name = n.Name,
                                     Order = n.Order,
-                                    ParameterData = n.ParameterData.ToByteArray(),
+                                    ParameterData = n.ParameterData,
                                     SagaId = n.SagaId,
                                     Status = n.Status
                                 }).ToList();
@@ -101,9 +82,24 @@ namespace Pole.Sagas.Client
             }
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return Task.CompletedTask;
+            while (true)
+            {
+                try
+                {
+                    await GrpcGetSagasCore(stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Errors in grpc get sagas");
+                }
+                finally
+                {
+                    await Task.Delay(options.GrpcConnectFailRetryIntervalSeconds * 1000);
+                }
+            }
         }
     }
 }

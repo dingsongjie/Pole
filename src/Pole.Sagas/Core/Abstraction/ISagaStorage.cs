@@ -12,11 +12,11 @@ namespace Pole.Sagas.Core.Abstraction
     {
         Task SagaStarted(string sagaId, string serviceName,DateTime addTime);
         Task SagaEnded(string sagaId, DateTime ExpiresAt);
-        Task ActivityExecuting(string activityId, string activityName,string sagaId, byte[] ParameterData, int order,DateTime addTime);
+        Task ActivityExecuting(string activityId, string activityName,string sagaId, string ParameterData, int order,DateTime addTime);
         Task ActivityExecuteAborted(string activityId);
         Task ActivityCompensateAborted(string activityId, string sagaId, string errors);
         Task ActivityCompensated(string activityId);
-        Task ActivityExecuteOvertime(string activityId, string name, byte[] parameterData, DateTime addTime);
+        Task ActivityExecuteOvertime(string activityId);
         Task ActivityRevoked(string activityId);
         IAsyncEnumerable<SagasGroupEntity> GetSagas(DateTime dateTime, int limit);
         Task<int> DeleteExpiredData(string tableName,DateTime ExpiredAt, int batchCount);

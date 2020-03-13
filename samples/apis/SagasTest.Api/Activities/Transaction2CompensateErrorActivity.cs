@@ -17,7 +17,7 @@ namespace SagasTest.Api.Activities
         {
             this.httpClientFactory = httpClientFactory;
         }
-        public Task Compensate(Transaction2Dto data, CancellationToken cancellationToken)
+        public Task Compensate(Transaction2Dto data)
         {
             throw new NotImplementedException();
         }

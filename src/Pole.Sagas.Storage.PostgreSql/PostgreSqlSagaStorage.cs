@@ -29,10 +29,11 @@ namespace Pole.Sagas.Storage.PostgreSql
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
+                await connection.OpenAsync();
                 using (var tansaction = await connection.BeginTransactionAsync())
                 {
                     var updateActivitySql =
-$"UPDATE {activityTableName} SET \"Status\"=@Status,\"Errors\"=@Errors, \"CompensateTimes\"=\"CompensateTimes\"+1 WHERE \"Id\" = @Id";
+$"UPDATE {activityTableName} SET \"Status\"=@Status,\"CompensateErrors\"=@Errors, \"CompensateTimes\"=\"CompensateTimes\"+1 WHERE \"Id\" = @Id";
                     await connection.ExecuteAsync(updateActivitySql, new
                     {
                         Id = activityId,
@@ -42,7 +43,7 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status,\"Errors\"=@Errors, \"Compen
                     if (!string.IsNullOrEmpty(sagaId))
                     {
                         var updateSagaSql =
-$"UPDATE {sagaTableName} SET \"Status\"=@Status,\"Errors\"=@Errors WHERE \"Id\" = @Id";
+$"UPDATE {sagaTableName} SET \"Status\"=@Status WHERE \"Id\" = @Id";
                         await connection.ExecuteAsync(updateSagaSql, new
                         {
                             Id = sagaId,
@@ -83,7 +84,7 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
             }
         }
 
-        public async Task ActivityExecuteOvertime(string activityId, string name, byte[] parameterData, DateTime addTime)
+        public async Task ActivityExecuteOvertime(string activityId)
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
@@ -97,19 +98,20 @@ $"UPDATE {activityTableName} SET \"Status\"=@Status  WHERE \"Id\" = @Id";
             }
         }
 
-        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, byte[] ParameterData, int order, DateTime addTime)
+        public async Task ActivityExecuting(string activityId, string activityName, string sagaId, string ParameterData, int order, DateTime addTime)
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
                 string sql =
-           $"INSERT INTO {activityTableName} (\"Id\",\"Name\",\"SagaId\",\"Status\",\"ParameterData\",\"OvertimeCompensateTimes\",\"CompensateTimes\",\"AddTime\")" +
-           $"VALUES(@Id,@Name,@SagaId,@Status,@ParameterData,@OvertimeCompensateTimes,@CompensateTimes,@AddTime);";
+           $"INSERT INTO {activityTableName} (\"Id\",\"Name\",\"SagaId\",\"Status\",\"Order\",\"ParameterData\",\"OvertimeCompensateTimes\",\"CompensateTimes\",\"AddTime\")" +
+           $"VALUES(@Id,@Name,@SagaId,@Status,@Order,@ParameterData,@OvertimeCompensateTimes,@CompensateTimes,@AddTime);";
                 _ = await connection.ExecuteAsync(sql, new
                 {
                     Id = activityId,
                     Name = activityName,
                     SagaId = sagaId,
                     Status = nameof(ActivityStatus.Executing),
+                    Order = order,
                     ExecutingOvertimeRetries = 0,
                     ParameterData = ParameterData,
                     OvertimeCompensateTimes = 0,
@@ -143,7 +145,7 @@ $"UPDATE {sagaTableName} SET \"Status\"=@Status ,\"ExpiresAt\"=@ExpiresAt WHERE 
                 {
                     Id = sagaId,
                     ExpiresAt = ExpiresAt,
-                    Status = nameof(ActivityStatus.Revoked)
+                    Status = nameof(SagaStatus.Ended)
                 });
             }
         }
@@ -160,7 +162,7 @@ $"INSERT INTO {sagaTableName} (\"Id\",\"ServiceName\",\"Status\",\"AddTime\")" +
                     Id = sagaId,
                     AddTime = addTime,
                     ServiceName = serviceName,
-                    Status = nameof(ActivityStatus.Revoked)
+                    Status = nameof(SagaStatus.Started)
                 });
             }
         }
@@ -170,7 +172,7 @@ $"INSERT INTO {sagaTableName} (\"Id\",\"ServiceName\",\"Status\",\"AddTime\")" +
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
                 var sql =
-$"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"Id\" as ActivityId,activities.\"Order\",activities.\"Status\",activities.\"ParameterData\",activities.\"OvertimeCompensateTimes\",activities.\"CompensateTimes\",activities.\"Name\" from {activityTableName} as activities  inner join(select \"Id\",\"ServiceName\" from {sagaTableName} where \"AddTime\" <= @AddTime and \"Status\" = '{nameof(SagaStatus.Started)}' limit @Limit ) as limit_sagas on activities.\"SagaId\" = limit_sagas.\"Id\" and activities.\"Status\" != @Status1 and activities.\"Status\" != @Status2";
+$"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"Id\" as ActivityId,activities.\"Order\",activities.\"Status\",activities.\"ParameterData\",activities.\"OvertimeCompensateTimes\",activities.\"CompensateTimes\",activities.\"Name\" as ActivityName from {activityTableName} as activities  inner join(select \"Id\",\"ServiceName\" from {sagaTableName} where \"AddTime\" <= @AddTime and \"Status\" = '{nameof(SagaStatus.Started)}' limit @Limit ) as limit_sagas on activities.\"SagaId\" = limit_sagas.\"Id\" and activities.\"Status\" != @Status1 and activities.\"Status\" != @Status2";
                 var activities = await connection.QueryAsync<ActivityAndSagaEntity>(sql, new
                 {
                     AddTime = dateTime,
@@ -198,11 +200,12 @@ $"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"I
                             {
                                 CompensateTimes = activity.CompensateTimes,
                                 OvertimeCompensateTimes = activity.OvertimeCompensateTimes,
-                                Id = activity.Id,
+                                Id = activity.ActivityId,
                                 Order = activity.Order,
                                 ParameterData = activity.ParameterData,
                                 SagaId = activity.SagaId,
                                 Status = activity.Status,
+                                Name= activity.ActivityName
                             };
                             sagaEntity.ActivityEntities.Add(activityEntity);
                         }

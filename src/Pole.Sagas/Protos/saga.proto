@@ -34,7 +34,7 @@ message SagaEndedRequest {
 message ActivityExecutingRequest {
   string activityId = 1;
   string sagaId = 2;
-  bytes parameterData = 3;
+  string parameterData = 3;
   int32 order = 4;
   string addTime = 5;
   string activityName = 6;
@@ -55,9 +55,6 @@ message ActivityCompensatedRequest {
 }
 message ActivityExecuteOvertimeRequest {
   string activityId = 1;
-  string name = 2;
-  bytes parameterData = 3;
-  string addTime = 4;
 }
 message ActivityRevokedRequest {
   string activityId = 1;
@@ -82,7 +79,7 @@ message GetSagasResponse{
       string sagaId = 2;
       int32 order = 3;
       string status = 4;
-      bytes parameterData = 5;
+      string parameterData = 5;
       int32 executeTimes = 6;
       int32 compensateTimes = 7;
       string name = 8;

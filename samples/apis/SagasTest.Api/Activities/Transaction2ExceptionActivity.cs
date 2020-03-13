@@ -18,7 +18,7 @@ namespace SagasTest.Api.Activities
             this.httpClientFactory = httpClientFactory;
 
         }
-        public async Task Compensate(Transaction2Dto data, CancellationToken cancellationToken)
+        public async Task Compensate(Transaction2Dto data)
         {
             var httpclient = httpClientFactory.CreateClient();
             httpclient.BaseAddress = new Uri("http://localhost:5000");

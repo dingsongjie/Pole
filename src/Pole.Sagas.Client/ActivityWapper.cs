@@ -47,15 +47,14 @@ namespace Pole.Sagas.Client
             var activityParams = Expression.Convert(activityObjParams, ActivityType);
             var dataObjParams = Expression.Parameter(typeof(object), "data");
             var dataParams = Expression.Convert(dataObjParams, ActivityDataType);
-            var cancellationTokenParams = Expression.Parameter(typeof(CancellationToken), "ct");
-            var method = ActivityType.GetMethod("Compensate", new Type[] { ActivityDataType, typeof(CancellationToken) });
-            var body = Expression.Call(activityParams, method, dataParams, cancellationTokenParams);
-            var func = Expression.Lambda<Func<object, object, CancellationToken, Task>>(body, activityObjParams, dataObjParams, cancellationTokenParams).Compile();
+            var method = ActivityType.GetMethod("Compensate", new Type[] { ActivityDataType});
+            var body = Expression.Call(activityParams, method, dataParams);
+            var func = Expression.Lambda<Func<object, object, Task>>(body, activityObjParams, dataObjParams).Compile();
 
             using (var scope = ServiceProvider.CreateScope())
             {
                 var activity = scope.ServiceProvider.GetRequiredService(ActivityType);
-                return func(activity, DataObj, CancellationTokenSource.Token);
+                return func(activity, DataObj);
             }
         }
     }

@@ -5,6 +5,7 @@ using Pole.Sagas.Client.Abstraction;
 using Pole.Sagas.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Pole.Sagas.Client
@@ -29,9 +30,9 @@ namespace Pole.Sagas.Client
         internal Saga CreateSaga(SagaEntity sagaEntity)
         {
             var saga = new Saga(snowflakeIdGenerator, serviceProvider, eventSender, poleSagasOption, serializer, activityFinder, sagaEntity.Id);
-            foreach (var activity in sagaEntity.ActivityEntities)
+            foreach (var activity in sagaEntity.ActivityEntities.OrderBy(m=>m.Order))
             {
-                saga.AddActivity(activity.Name, activity.Status, activity.ParameterData, activity.Order);
+                saga.AddActivity(activity.Id,activity.Name, activity.Status, activity.ParameterData, activity.Order, activity.CompensateTimes,activity.OvertimeCompensateTimes);
             }
             return saga;
         }

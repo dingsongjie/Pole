@@ -10,6 +10,6 @@ namespace Pole.Sagas.Client.Abstraction
     public interface IActivity<TData>
     {
         Task<ActivityExecuteResult> Execute(TData data ,CancellationToken cancellationToken);
-        Task Compensate(TData data, CancellationToken cancellationToken);
+        Task Compensate(TData data);
     }
 }

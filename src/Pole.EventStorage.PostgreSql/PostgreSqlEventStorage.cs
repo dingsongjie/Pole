@@ -85,6 +85,7 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
             var result = new List<EventEntity>();
             using (var connection = new NpgsqlConnection(options.ConnectionString))
             {
+                await connection.OpenAsync();
                 using (var transaction = await connection.BeginTransactionAsync())
                 {
                     var reader = await connection.ExecuteReaderAsync(sql);

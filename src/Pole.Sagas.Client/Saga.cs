@@ -25,6 +25,10 @@ namespace Pole.Sagas.Client
         {
             get { return activities.Count; }
         }
+        private bool IsCompensated
+        {
+            get { return this.activities.All(m => m.ActivityStatus == ActivityStatus.Compensated); }
+        }
         /// <summary>
         /// 如果 等于 -1 说明已经在执行补偿操作,此时这个值已经没有意义
         /// </summary>
@@ -75,13 +79,13 @@ namespace Pole.Sagas.Client
                 ActivityStatus = ActivityStatus.NotStarted,
                 ActivityType = targetActivityType,
                 DataObj = data,
-                Order = CurrentMaxOrder,
+                Order = CurrentMaxOrder + 1,
                 ServiceProvider = serviceProvider,
-                TimeOutSeconds = 2,
+                TimeOutSeconds = timeOutSeconds,
             };
             activities.Add(activityWapper);
         }
-        internal void AddActivity(string activityName, string activityStatus, object data, int order, int timeOutSeconds = 2)
+        internal void AddActivity(string id, string activityName, string activityStatus, string data, int order, int compensateTimes,int overtimeCompensateTimes)
         {
             var targetActivityType = activityFinder.FindType(activityName);
 
@@ -91,16 +95,19 @@ namespace Pole.Sagas.Client
                 throw new ActivityNotFoundWhenCompensateRetryException(activityName);
             }
             var dataType = activityInterface.GetGenericArguments()[0];
+            var dataParameter = serializer.Deserialize(data, dataType);
             ActivityWapper activityWapper = new ActivityWapper
             {
                 Name = activityName,
                 ActivityDataType = dataType,
                 ActivityStatus = (ActivityStatus)Enum.Parse(typeof(ActivityStatus), activityStatus),
                 ActivityType = targetActivityType,
-                DataObj = data,
+                DataObj = dataParameter,
                 Order = order,
                 ServiceProvider = serviceProvider,
-                TimeOutSeconds = 2,
+                Id = id,
+                CompensateTimes = compensateTimes,
+                OvertimeCompensateTimes= overtimeCompensateTimes
             };
             activities.Add(activityWapper);
         }
@@ -131,11 +138,12 @@ namespace Pole.Sagas.Client
                 return true;
             }
             await RecursiveCompensateActivity(compensateActivity);
-            if (activities.Any(m => m.ActivityStatus != ActivityStatus.Compensated|| m.ActivityStatus != ActivityStatus.CompensateAborted))
+            // 如果补偿成功 这里返回 true
+            if (activities.All(m => m.ActivityStatus == ActivityStatus.Compensated))
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
 
         private ActivityWapper GetNextExecuteActivity()
@@ -170,15 +178,24 @@ namespace Pole.Sagas.Client
             }
             try
             {
+                if (activityWapper.ActivityStatus != ActivityStatus.ExecutingOvertime)
+                {
+                    activityWapper.ActivityStatus = ActivityStatus.Compensating;
+                }
                 await activityWapper.InvokeCompensate();
                 if (activityWapper.ActivityStatus == ActivityStatus.ExecutingOvertime)
                 {
                     // 超时 补偿次数已到
-                    var isCompensated = activityWapper.CompensateTimes == poleSagasOption.MaxOvertimeCompensateTimes;
+                    var isCompensated = activityWapper.OvertimeCompensateTimes >= poleSagasOption.MaxOvertimeCompensateTimes;
+                    if (isCompensated)
+                    {
+                        activityWapper.ActivityStatus = ActivityStatus.Compensated;
+                    }
                     await eventSender.ActivityOvertimeCompensated(activityId, isCompensated);
                 }
                 else
                 {
+                    activityWapper.ActivityStatus = ActivityStatus.Compensated;
                     await eventSender.ActivityCompensated(activityId);
                 }
                 var compensateActivity = GetNextCompensateActivity();
@@ -190,8 +207,9 @@ namespace Pole.Sagas.Client
             }
             catch (Exception exception)
             {
+                activityWapper.ActivityStatus = ActivityStatus.CompensateAborted;
                 // todo: 超时操作 如果出错可能 减少 补偿次数 这里 先不做处理
-                if (activityWapper.CompensateTimes == poleSagasOption.MaxCompensateTimes)
+                if (activityWapper.CompensateTimes >= poleSagasOption.MaxCompensateTimes)
                 {
                     // 此时 结束 saga 并且设置状态 为 Error
                     await eventSender.ActivityCompensateAborted(activityId, Id, exception.InnerException != null ? exception.InnerException.Message + exception.StackTrace : exception.Message + exception.StackTrace);
@@ -206,21 +224,28 @@ namespace Pole.Sagas.Client
         {
             var activityId = snowflakeIdGenerator.NextId();
             activityWapper.Id = activityId;
-            activityWapper.CancellationTokenSource = new System.Threading.CancellationTokenSource(2 * 1000);
+            activityWapper.CancellationTokenSource = new System.Threading.CancellationTokenSource(activityWapper.TimeOutSeconds * 1000);
             try
             {
-                var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
-                await eventSender.ActivityExecuting(activityId, activityWapper.Name, Id, bytesContent, activityWapper.Order, DateTime.UtcNow);
+                var content = serializer.Serialize(activityWapper.DataObj, activityWapper.ActivityDataType);
+                activityWapper.ActivityStatus = ActivityStatus.Executing;
+                await eventSender.ActivityExecuting(activityId, activityWapper.Name, Id, content, activityWapper.Order, DateTime.UtcNow);
                 var result = await activityWapper.InvokeExecute();
                 if (!result.IsSuccess)
                 {
+                    activityWapper.ActivityStatus = ActivityStatus.Revoked;
                     await eventSender.ActivityRevoked(activityId);
                     await CompensateActivity(result, currentExecuteOrder);
+                    var expiresAt = DateTime.UtcNow.AddSeconds(poleSagasOption.CompeletedSagaExpiredAfterSeconds);
+                    await eventSender.SagaEnded(Id, expiresAt);
                     return result;
                 }
+                activityWapper.ActivityStatus = ActivityStatus.Executed;
                 var executeActivity = GetNextExecuteActivity();
                 if (executeActivity == null)
                 {
+                    var expiresAt = DateTime.UtcNow.AddSeconds(poleSagasOption.CompeletedSagaExpiredAfterSeconds);
+                    await eventSender.SagaEnded(Id, expiresAt);
                     return result;
                 }
                 else
@@ -239,7 +264,9 @@ namespace Pole.Sagas.Client
                         Errors = errors
                     };
                     var bytesContent = serializer.SerializeToUtf8Bytes(activityWapper.DataObj, activityWapper.ActivityDataType);
-                    await eventSender.ActivityExecuteOvertime(activityId, activityWapper.Name, bytesContent, DateTime.UtcNow);
+
+                    activityWapper.ActivityStatus = ActivityStatus.ExecutingOvertime;
+                    await eventSender.ActivityExecuteOvertime(activityId);
                     // 超时的时候 需要首先补偿这个超时的操作
                     return await CompensateActivity(result, currentExecuteOrder + 1);
                 }
@@ -251,9 +278,17 @@ namespace Pole.Sagas.Client
                         IsSuccess = false,
                         Errors = errors
                     };
+                    activityWapper.ActivityStatus = ActivityStatus.ExecuteAborted;
                     await eventSender.ActivityExecuteAborted(activityId);
                     // 出错的时候 需要首先补偿这个出错的操作
-                    return await CompensateActivity(result, currentExecuteOrder + 1);
+                    var executeResult = await CompensateActivity(result, currentExecuteOrder + 1);
+
+                    var expiresAt = DateTime.UtcNow.AddSeconds(poleSagasOption.CompeletedSagaExpiredAfterSeconds);
+                    if (IsCompensated)
+                    {
+                        await eventSender.SagaEnded(Id, expiresAt);
+                    }
+                    return executeResult;
                 }
             }
         }

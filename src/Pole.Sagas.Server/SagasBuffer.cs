@@ -56,7 +56,7 @@ namespace Pole.Sagas.Server
                 await semaphoreSlim.WaitAsync();
                 if (Sagas.TryGetValue(serviceName, out List<SagaEntity> sagaList))
                 {
-                    var result = sagaList.Take(limit);
+                    var result = sagaList.Take(limit).ToList();
                     sagaList.RemoveAll(m => result.Select(n => n.Id).Contains(m.Id));
                     Sagas[serviceName] = sagaList;
                     return result;

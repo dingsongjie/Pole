@@ -154,7 +154,7 @@ namespace Pole.Sagas.Server.Services
                         result.Activities.Add(m.ActivityEntities.Select(n => new GetSagasResponse.Types.Saga.Types.Activity
                         {
                             CompensateTimes = n.CompensateTimes,
-                            ExecuteTimes = n.ExecuteTimes,
+                            ExecuteTimes = n.OvertimeCompensateTimes,
                             Id = n.Id,
                             Name = n.Id,
                             Order = n.Order,

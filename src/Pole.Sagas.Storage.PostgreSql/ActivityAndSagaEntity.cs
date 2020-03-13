@@ -12,7 +12,7 @@ namespace Pole.Sagas.Storage.PostgreSql
         public int Order { get; set; }
         public string Status { get; set; }
         public byte[] ParameterData { get; set; }
-        public int ExecuteTimes { get; set; }
+        public int OvertimeCompensateTimes { get; set; }
         public int CompensateTimes { get; set; }
         public int Name { get; set; }
     }

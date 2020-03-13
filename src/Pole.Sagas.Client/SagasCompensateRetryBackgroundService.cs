@@ -71,7 +71,7 @@ namespace Pole.Sagas.Client
                                 result.ActivityEntities = m.Activities.Select(n => new ActivityEntity
                                 {
                                     CompensateTimes = n.CompensateTimes,
-                                    ExecuteTimes = n.ExecuteTimes,
+                                    OvertimeCompensateTimes = n.ExecuteTimes,
                                     Id = n.Id,
                                     Name = n.Id,
                                     Order = n.Order,

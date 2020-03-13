@@ -169,9 +169,9 @@ $"INSERT INTO {sagaTableName} (\"Id\",\"ServiceName\",\"Status\",\"AddTime\")" +
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
-                var updateActivitySql =
-$"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"Id\" as ActivityId,activities.\"Order\",activities.\"Status\",activities.\"ParameterData\",activities.\"ExecuteTimes\",activities.\"CompensateTimes\",activities.\"Name\" from \"Activities\" as activities  inner join(select \"Id\",\"ServiceName\" from \"Sagas\" where \"AddTime\" <= @AddTime and \"Status\" = '{nameof(SagaStatus.Started)}' limit @Limit ) as limit_sagas on activities.\"SagaId\" = limit_sagas.\"Id\" and activities.\"Status\" != @Status1 and activities.\"Status\" != @Status2";
-                var activities = await connection.QueryAsync<ActivityAndSagaEntity>(updateActivitySql, new
+                var sql =
+$"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"Id\" as ActivityId,activities.\"Order\",activities.\"Status\",activities.\"ParameterData\",activities.\"OvertimeCompensateTimes\",activities.\"CompensateTimes\",activities.\"Name\" from {activityTableName} as activities  inner join(select \"Id\",\"ServiceName\" from {sagaTableName} where \"AddTime\" <= @AddTime and \"Status\" = '{nameof(SagaStatus.Started)}' limit @Limit ) as limit_sagas on activities.\"SagaId\" = limit_sagas.\"Id\" and activities.\"Status\" != @Status1 and activities.\"Status\" != @Status2";
+                var activities = await connection.QueryAsync<ActivityAndSagaEntity>(sql, new
                 {
                     AddTime = dateTime,
                     Limit = limit,
@@ -197,7 +197,7 @@ $"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"I
                             ActivityEntity activityEntity = new ActivityEntity
                             {
                                 CompensateTimes = activity.CompensateTimes,
-                                ExecuteTimes = activity.ExecuteTimes,
+                                OvertimeCompensateTimes = activity.OvertimeCompensateTimes,
                                 Id = activity.Id,
                                 Order = activity.Order,
                                 ParameterData = activity.ParameterData,
@@ -213,17 +213,18 @@ $"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"I
             }
         }
 
-        public Task<int> DeleteExpiredData(string tableName, DateTime ExpiredAt, int batchCount)
+        public async Task<int> DeleteExpiredData(string tableName, DateTime ExpiredAt, int batchCount)
         {
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
                 var sql =
-$"delete {tableName}   WHERE \"ExpiresAt\" < @ExpiredAt AND \"Id\" IN (SELECT \"Id\" FROM {tableName} LIMIT @BatchCount);";
-                return connection.ExecuteAsync(sql, new
+$"DELETE FROM {tableName}   WHERE \"ExpiresAt\" < @ExpiredAt AND \"Id\" IN (SELECT \"Id\" FROM {tableName} LIMIT @BatchCount);";
+                var result = await connection.ExecuteAsync(sql, new
                 {
                     ExpiredAt = ExpiredAt,
                     BatchCount = batchCount,
                 });
+                return result;
             }
         }
 

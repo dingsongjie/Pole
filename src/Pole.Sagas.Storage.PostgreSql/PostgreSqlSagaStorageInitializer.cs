@@ -47,7 +47,6 @@ namespace Pole.Sagas.Storage.PostgreSql
         private string CreateDbTablesScript(string schemaName)
         {
             var batchSql = $@"
-111
 CREATE SCHEMA IF NOT EXISTS ""{options.SchemaName}"";
 
 CREATE TABLE IF NOT EXISTS {GetSagaTableName()}(

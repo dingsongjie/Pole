@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Pole.EventBus.Processor.Server
 {
-    public class BackgroundServiceBasedProcessorServer : IHostedService
+    public class BackgroundServiceBasedProcessorServer : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
         private Task _compositeTask;
@@ -22,12 +22,16 @@ namespace Pole.EventBus.Processor.Server
             _serviceProvider = serviceProvider;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
             var eventStorageInitializer = _serviceProvider.GetService<IEventStorageInitializer>();
             await eventStorageInitializer.InitializeAsync(cancellationToken);
+            await base.StartAsync(cancellationToken);
+        }
 
-            ProcessingContext processingContext = new ProcessingContext(cancellationToken);
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            ProcessingContext processingContext = new ProcessingContext(stoppingToken);
             List<LoopProcessor> loopProcessors = new List<LoopProcessor>();
             var innerProcessors = _serviceProvider.GetServices<IProcessor>();
             var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
@@ -40,11 +44,6 @@ namespace Pole.EventBus.Processor.Server
 
             _compositeTask = Task.WhenAll(tasks);
             await _compositeTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }

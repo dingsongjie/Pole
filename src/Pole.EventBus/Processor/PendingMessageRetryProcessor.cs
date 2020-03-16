@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Pole.Core.Processor;
 using Pole.Core;
+using Pole.EventBus.Abstraction;
 
 namespace Pole.EventBus.Processor
 {

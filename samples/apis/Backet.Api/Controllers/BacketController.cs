@@ -20,6 +20,7 @@ using Pole.Core.Serialization;
 using Pole.Core.UnitOfWork;
 using Pole.Core.Utils.Abstraction;
 using Pole.EventBus;
+using Pole.EventBus.Abstraction;
 
 namespace Backet.Api.Controllers
 {

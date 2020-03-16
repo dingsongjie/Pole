@@ -13,6 +13,7 @@ using Pole.EventBus.Event;
 using Pole.Core.Domain;
 using Pole.EventBus.EventHandler;
 using Pole.EventBus.Exceptions;
+using Pole.EventBus.Abstraction;
 
 namespace Pole.EventBus.RabbitMQ
 {

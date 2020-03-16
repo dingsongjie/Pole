@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pole.EventBus
+namespace Pole.EventBus.Abstraction
 {
     public interface IProducerInfoContainer
     {

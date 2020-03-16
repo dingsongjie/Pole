@@ -4,6 +4,7 @@ using Pole.Core.Channels;
 using Pole.Core.Processor;
 using Pole.Core.Utils;
 using Pole.EventBus;
+using Pole.EventBus.Abstraction;
 using Pole.EventBus.EventHandler;
 using Pole.EventBus.Processor;
 using Pole.EventBus.Processor.Server;

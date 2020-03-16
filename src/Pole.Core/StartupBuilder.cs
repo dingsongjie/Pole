@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pole.Core
 {
-    public static class Startup
+    public static class StartupBuilder
     {
         static List<StartupTask> tasks = new List<StartupTask>();
         public static void Register(Func<IServiceProvider, Task> method, int sortIndex = 0)

@@ -10,6 +10,7 @@ using Backet.Api.Domain.Event;
 using Pole.Core.UnitOfWork;
 using Pole.EventBus.UnitOfWork;
 using Pole.EventBus;
+using Pole.EventBus.Abstraction;
 
 namespace Backet.Api.Grains
 {

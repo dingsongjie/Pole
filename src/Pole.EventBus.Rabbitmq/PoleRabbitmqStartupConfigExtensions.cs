@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Pole.Core;
 using Pole.EventBus;
+using Pole.EventBus.Abstraction;
 using Pole.EventBus.RabbitMQ;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -23,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
             startupOption.Services.AddSingleton<IRabbitEventBusContainer, EventBusContainer>();
             startupOption.Services.AddSingleton<IProducer, RabbitProducer>();
             startupOption.Services.AddSingleton(serviceProvider => serviceProvider.GetService<IRabbitEventBusContainer>() as IProducerInfoContainer);
-            Startup.Register(async serviceProvider =>
+            StartupBuilder.Register(async serviceProvider =>
             {
                 var container = serviceProvider.GetService<IRabbitEventBusContainer>();
                 var client = serviceProvider.GetService<IRabbitMQClient>();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pole.EventBus
+namespace Pole.EventBus.Abstraction
 {
     public interface IObserverUnitContainer
     {

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Pole.EventBus
+namespace Pole.EventBus.Abstraction
 {
     public interface IBus
     {

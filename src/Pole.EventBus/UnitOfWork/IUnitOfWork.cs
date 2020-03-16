@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Pole.EventBus.Abstraction;
 using Pole.EventBus.Transaction;
 
 namespace Pole.EventBus.UnitOfWork

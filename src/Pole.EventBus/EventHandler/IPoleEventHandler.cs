@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Orleans;
 using Pole.Core.Serialization;
+using Pole.EventBus.Abstraction;
 using Pole.EventBus.Event;
 using System;
 using System.Collections.Generic;

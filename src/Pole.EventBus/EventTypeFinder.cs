@@ -2,6 +2,7 @@
 using Pole.Core.Domain;
 using Pole.Core.Utils;
 using Pole.Core.Utils.Abstraction;
+using Pole.EventBus.Abstraction;
 using Pole.EventBus.Event;
 using Pole.EventBus.Exceptions;
 using System;

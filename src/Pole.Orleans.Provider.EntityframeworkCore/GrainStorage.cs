@@ -9,6 +9,7 @@ using Orleans.Runtime;
 using Orleans.Storage;
 using Pole.Core.Domain;
 using Pole.EventBus;
+using Pole.EventBus.Abstraction;
 using Pole.EventBus.Transaction;
 using Pole.EventBus.UnitOfWork;
 using System;

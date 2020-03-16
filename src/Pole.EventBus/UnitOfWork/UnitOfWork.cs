@@ -12,6 +12,7 @@ using Pole.Core.Utils.Abstraction;
 using Pole.EventBus.Event;
 using Pole.EventBus.Transaction;
 using Pole.EventBus.Exceptions;
+using Pole.EventBus.Abstraction;
 
 namespace Pole.EventBus.UnitOfWork
 {

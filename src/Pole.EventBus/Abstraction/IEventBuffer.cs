@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pole.EventBus
+namespace Pole.EventBus.Abstraction
 {
     public interface IEventBuffer
     {

@@ -13,6 +13,7 @@ using System.Linq;
 using Orleans;
 using Pole.Core.Utils.Abstraction;
 using Pole.EventBus.Exceptions;
+using Pole.EventBus.Abstraction;
 
 namespace Pole.EventBus.EventHandler
 {

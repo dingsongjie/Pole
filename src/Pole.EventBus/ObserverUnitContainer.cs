@@ -9,6 +9,7 @@ using Pole.EventBus.EventHandler;
 using System.Linq;
 using Pole.EventBus.Event;
 using Pole.EventBus.Exceptions;
+using Pole.EventBus.Abstraction;
 
 namespace Pole.EventBus
 {

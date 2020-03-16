@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Pole.Core.UnitOfWork;
 using Pole.EventBus;
+using Pole.EventBus.Abstraction;
 using Pole.EventBus.Transaction;
 using Pole.EventBus.UnitOfWork;
 using System;

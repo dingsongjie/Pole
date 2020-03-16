@@ -78,7 +78,7 @@ namespace Backet.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
-                endpoints.MapGrpcService<BacketService>().EnableGrpcWeb();
+                endpoints.MapGrpcService<BacketService>();
             });
         }
     }

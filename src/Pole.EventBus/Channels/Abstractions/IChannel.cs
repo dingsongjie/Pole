@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Pole.Core.Channels
 {
-    public interface IMpscChannel<T> : IBaseMpscChannel
+    public interface IChannel<T> 
     {
         void BindConsumer(Func<List<T>, Task> consumer);
         void BindConsumer(Func<List<T>, Task> consumer, int maxBatchSize, int maxMillisecondsDelay);

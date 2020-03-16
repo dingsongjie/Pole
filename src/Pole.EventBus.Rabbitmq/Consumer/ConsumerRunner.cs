@@ -16,7 +16,7 @@ namespace Pole.EventBus.RabbitMQ
 {
     public class ConsumerRunner
     {
-        readonly IMpscChannel<BasicDeliverEventArgs> mpscChannel;
+        readonly IChannel<BasicDeliverEventArgs> mpscChannel;
         readonly ISerializer serializer;
         readonly RabbitOptions rabbitOptions;
         List<ulong> errorMessageDeliveryTags = new List<ulong>();
@@ -30,7 +30,7 @@ namespace Pole.EventBus.RabbitMQ
             Client = client;
             Logger = provider.GetService<ILogger<ConsumerRunner>>();
             serializer = provider.GetService<ISerializer>();
-            mpscChannel = provider.GetService<IMpscChannel<BasicDeliverEventArgs>>();
+            mpscChannel = provider.GetService<IChannel<BasicDeliverEventArgs>>();
             mpscChannel.BindConsumer(BatchExecuter);
             Consumer = consumer;
             Queue = queue;

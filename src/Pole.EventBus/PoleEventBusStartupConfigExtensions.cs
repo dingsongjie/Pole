@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pole.Core;
+using Pole.Core.Channels;
 using Pole.Core.Processor;
 using Pole.Core.Utils;
 using Pole.EventBus;
@@ -24,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
             startupOption.Services.Configure(finalConfig);
             startupOption.Services.AddSingleton<IEventBuffer, EventBuffer>();
             startupOption.Services.AddScoped<IBus, Bus>();
+            startupOption.Services.AddTransient(typeof(IChannel<>), typeof(Channel<>));
             startupOption.Services.AddSingleton<IObserverUnitContainer, ObserverUnitContainer>();
             startupOption.Services.AddSingleton<IProcessor, PendingMessageRetryProcessor>();
             startupOption.Services.AddSingleton<IProcessor, ExpiredEventsCollectorProcessor>();

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pole.Core;
-using Pole.Core.Channels;
 using Pole.Core.Processor;
 using Pole.Core.Query;
 using Pole.Core.Serialization;
@@ -21,7 +20,6 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.Configure<PoleOptions>(option => { });
             }
-            services.AddTransient(typeof(IMpscChannel<>), typeof(MpscChannel<>));
             services.AddSingleton<ISerializer, DefaultJsonSerializer>();
             services.AddSingleton<IGeneratorIdSolver, InstanceIPV4_16IdGeneratorIdSolver>();
             services.AddSingleton<IQueryRegister, QueryRegister>();

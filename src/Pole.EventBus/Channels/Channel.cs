@@ -9,22 +9,17 @@ using Microsoft.Extensions.Options;
 
 namespace Pole.Core.Channels
 {
-    /// <summary>
-    /// multi producter single consumer channel
-    /// </summary>
-    /// <typeparam name="T">data type produced by producer</typeparam>
-    public class MpscChannel<T> : IMpscChannel<T>
+    public class Channel<T> : IChannel<T>
     {
         readonly BufferBlock<T> buffer = new BufferBlock<T>();
         private Func<List<T>, Task> consumer;
-        readonly List<IBaseMpscChannel> consumerSequence = new List<IBaseMpscChannel>();
         private Task<bool> waitToReadTask;
         readonly ILogger logger;
         /// <summary>
         /// 是否在自动消费中
         /// </summary>
         private int _autoConsuming = 0;
-        public MpscChannel(ILogger<MpscChannel<T>> logger, IOptions<ChannelOptions> options)
+        public Channel(ILogger<Channel<T>> logger, IOptions<ChannelOptions> options)
         {
             this.logger = logger;
             MaxBatchSize = options.Value.MaxBatchSize;
@@ -38,8 +33,6 @@ namespace Pole.Core.Channels
         /// 批量数据接收的最大延时
         /// </summary>
         public int MaxMillisecondsDelay { get; set; }
-        public bool IsComplete { get; private set; }
-        public bool IsChildren { get; set; }
 
         public void BindConsumer(Func<List<T>, Task> consumer)
         {
@@ -72,14 +65,14 @@ namespace Pole.Core.Channels
             if (!buffer.Post(data))
                 return await buffer.SendAsync(data);
 
-            if (!IsChildren && _autoConsuming == 0)
+            if (_autoConsuming == 0)
                 ActiveAutoConsumer();
 
             return true;
         }
         private void ActiveAutoConsumer()
         {
-            if (!IsChildren && _autoConsuming == 0)
+            if (_autoConsuming == 0)
                 ThreadPool.QueueUserWorkItem(ActiveConsumer);
             async void ActiveConsumer(object state)
             {
@@ -106,14 +99,6 @@ namespace Pole.Core.Channels
                 }
             }
         }
-        public void JoinConsumerSequence(IBaseMpscChannel channel)
-        {
-            if (consumerSequence.IndexOf(channel) == -1)
-            {
-                channel.IsChildren = true;
-                consumerSequence.Add(channel);
-            }
-        }
         public async Task ManualConsume()
         {
             if (waitToReadTask.IsCompletedSuccessfully && waitToReadTask.Result)
@@ -135,33 +120,11 @@ namespace Pole.Core.Channels
                 if (dataList.Count > 0)
                     await consumer(dataList);
             }
-            foreach (var joinConsumer in consumerSequence)
-            {
-                await joinConsumer.ManualConsume();
-            }
         }
         public async Task<bool> WaitToReadAsync()
         {
             waitToReadTask = buffer.OutputAvailableAsync();
-            if (consumerSequence.Count == 0)
-            {
-                return await waitToReadTask;
-            }
-            else
-            {
-                var taskList = consumerSequence.Select(c => c.WaitToReadAsync()).ToList();
-                taskList.Add(waitToReadTask);
-                return await await Task.WhenAny(taskList);
-            }
-        }
-        public void Complete()
-        {
-            IsComplete = true;
-            foreach (var joinConsumer in consumerSequence)
-            {
-                joinConsumer.Complete();
-            }
-            buffer.Complete();
+            return await waitToReadTask;
         }
     }
 }

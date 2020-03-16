@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pole.Core.Exceptions
+namespace Pole.EventBus.Exceptions
 {
     public class TypeCodeRepeatedException : Exception
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.ObjectPool;
 using Pole.Core;
-using Pole.Core.Exceptions;
+using Pole.EventBus.Exceptions;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;

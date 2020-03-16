@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Orleans;
 using RabbitMQ.Client;
-using Pole.Core.Exceptions;
 using Pole.Core.Utils;
 using System;
 using System.Collections.Concurrent;
@@ -13,6 +12,7 @@ using System.Linq;
 using Pole.EventBus.Event;
 using Pole.Core.Domain;
 using Pole.EventBus.EventHandler;
+using Pole.EventBus.Exceptions;
 
 namespace Pole.EventBus.RabbitMQ
 {

@@ -10,9 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection.Emit;
 using System.Linq.Expressions;
 using System.Linq;
-using Pole.Core.Exceptions;
 using Orleans;
 using Pole.Core.Utils.Abstraction;
+using Pole.EventBus.Exceptions;
 
 namespace Pole.EventBus.EventHandler
 {

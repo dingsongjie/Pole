@@ -7,8 +7,8 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Pole.EventBus.EventHandler;
 using System.Linq;
-using Pole.Core.Exceptions;
 using Pole.EventBus.Event;
+using Pole.EventBus.Exceptions;
 
 namespace Pole.EventBus
 {

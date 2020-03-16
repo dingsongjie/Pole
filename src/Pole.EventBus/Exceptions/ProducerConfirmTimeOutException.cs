@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pole.Core.Exceptions
+namespace Pole.EventBus.Exceptions
 {
     public class ProducerConfirmTimeOutException : Exception
     {

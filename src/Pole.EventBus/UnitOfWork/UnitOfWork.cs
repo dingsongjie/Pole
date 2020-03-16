@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Pole.Core.Serialization;
 using Microsoft.Extensions.Options;
 using Pole.Core.Utils.Abstraction;
-using Pole.Core.Exceptions;
 using Pole.EventBus.Event;
 using Pole.EventBus.Transaction;
+using Pole.EventBus.Exceptions;
 
 namespace Pole.EventBus.UnitOfWork
 {

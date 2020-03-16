@@ -46,19 +46,6 @@ namespace Pole.Sagas.Server
             }
             return true;
         }
-        public Task<bool> CanConsume(string serviceName)
-        {
-            if (Sagas.TryGetValue(serviceName, out BufferBlock<SagaEntity> bufferBlock))
-            {
-                return bufferBlock.OutputAvailableAsync();
-            }
-            else
-            {
-                var newBufferBlock = new BufferBlock<SagaEntity>();
-                Sagas.TryAdd(serviceName, newBufferBlock);
-                return newBufferBlock.OutputAvailableAsync();
-            }
-        }
 
         public Task<SagaEntity>  GetSagaAvailableAsync(string serviceName)
         {

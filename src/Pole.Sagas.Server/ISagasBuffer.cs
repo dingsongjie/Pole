@@ -9,7 +9,6 @@ namespace Pole.Sagas.Server
 {
     public interface ISagasBuffer
     {
-        Task<bool> CanConsume(string serviceName);
         Task<SagaEntity> GetSagaAvailableAsync(string serviceName);
         Task<bool> AddSagas(IAsyncEnumerable<SagasGroupEntity> sagasGroupEntities);
     }

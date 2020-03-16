@@ -72,7 +72,7 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
             using var connection = new NpgsqlConnection(options.ConnectionString);
 
             return await connection.ExecuteAsync(
-                $"DELETE FROM {table} WHERE \"ExpiresAt\" < @timeout AND \"Id\" IN (SELECT \"Id\" FROM {table} LIMIT @batchCount);",
+                $"DELETE FROM {table} WHERE   \"Id\" IN (SELECT \"Id\" FROM {table} WHERE \"ExpiresAt\" < @timeout LIMIT @batchCount);",
                 new { timeout, batchCount });
         }
 

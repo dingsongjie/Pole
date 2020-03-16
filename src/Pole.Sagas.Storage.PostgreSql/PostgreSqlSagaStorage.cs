@@ -221,7 +221,7 @@ $"select limit_sagas.\"Id\" as SagaId,limit_sagas.\"ServiceName\",activities.\"I
             using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
             {
                 var sql =
-$"DELETE FROM {tableName}   WHERE \"ExpiresAt\" < @ExpiredAt AND \"Id\" IN (SELECT \"Id\" FROM {tableName} LIMIT @BatchCount);";
+$"DELETE FROM {tableName} WHERE \"Id\" IN (SELECT \"Id\" FROM {tableName} WHERE \"ExpiresAt\" < @ExpiredAt  LIMIT @BatchCount);";
                 var result = await connection.ExecuteAsync(sql, new
                 {
                     ExpiredAt = ExpiredAt,

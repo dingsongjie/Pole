@@ -51,11 +51,11 @@ namespace Pole.EventBus.Processor
                     {
                         deletedCount = await eventstorage.DeleteExpiresAsync(table, time, ItemBatch, context.CancellationToken);
 
-                        if (deletedCount != 0)
+                        if (deletedCount == ItemBatch)
                         {
                             await Task.Delay(poleOptions.ExpiredEventsPreBulkDeleteDelaySeconds * 1000);
                         }
-                    } while (deletedCount != 0);
+                    } while (deletedCount == ItemBatch);
                 }
             }
             catch (Exception ex)

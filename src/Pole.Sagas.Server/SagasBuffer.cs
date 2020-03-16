@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace Pole.Sagas.Server
 {
     class SagasBuffer : ISagasBuffer
     {
-        private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-        private readonly Dictionary<string, List<SagaEntity>> Sagas = new Dictionary<string, List<SagaEntity>>();
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, BufferBlock<SagaEntity>> Sagas = new System.Collections.Concurrent.ConcurrentDictionary<string, BufferBlock<SagaEntity>>();
         private readonly ILogger logger;
         public SagasBuffer(ILogger<SagasBuffer> logger)
         {
@@ -21,55 +21,56 @@ namespace Pole.Sagas.Server
         }
         public async Task<bool> AddSagas(IAsyncEnumerable<SagasGroupEntity> sagasGroupEntities)
         {
-            try
+            await foreach (var sagasGroupEntity in sagasGroupEntities)
             {
-                await semaphoreSlim.WaitAsync();
-                await foreach (var sagasGroupEntity in sagasGroupEntities)
+                if (!Sagas.ContainsKey(sagasGroupEntity.ServiceName))
                 {
-                    if (!Sagas.ContainsKey(sagasGroupEntity.ServiceName))
+                    var bufferBlock = new BufferBlock<SagaEntity>();
+                    sagasGroupEntity.SagaEntities.ForEach(m =>
                     {
-                        Sagas.TryAdd(sagasGroupEntity.ServiceName, sagasGroupEntity.SagaEntities);
-                    }
-                    else
-                    {
-                        // 这里必然为true
-                        Sagas.TryGetValue(sagasGroupEntity.ServiceName, out List<SagaEntity> sagaList);
-                        sagaList.AddRange(sagasGroupEntity.SagaEntities);
-                    }
+                        bufferBlock.SendAsync(m);
+                    });
+
+                    Sagas.TryAdd(sagasGroupEntity.ServiceName, bufferBlock);
+
                 }
-                return true;
+                else
+                {
+                    // 这里必然为true
+                    Sagas.TryGetValue(sagasGroupEntity.ServiceName, out BufferBlock<SagaEntity> bufferBlock);
+                    sagasGroupEntity.SagaEntities.ForEach(m =>
+                    {
+                        bufferBlock.SendAsync(m);
+                    });
+                }
             }
-            catch (Exception ex)
+            return true;
+        }
+        public Task<bool> CanConsume(string serviceName)
+        {
+            if (Sagas.TryGetValue(serviceName, out BufferBlock<SagaEntity> bufferBlock))
             {
-                throw ex;
+                return bufferBlock.OutputAvailableAsync();
             }
-            finally
+            else
             {
-                semaphoreSlim.Release();
+                var newBufferBlock = new BufferBlock<SagaEntity>();
+                Sagas.TryAdd(serviceName, newBufferBlock);
+                return newBufferBlock.OutputAvailableAsync();
             }
         }
 
-        public async Task<IEnumerable<SagaEntity>> GetSagas(string serviceName, int limit)
+        public Task<SagaEntity>  GetSagaAvailableAsync(string serviceName)
         {
-            try
+            if (Sagas.TryGetValue(serviceName, out BufferBlock<SagaEntity> bufferBlock))
             {
-                await semaphoreSlim.WaitAsync();
-                if (Sagas.TryGetValue(serviceName, out List<SagaEntity> sagaList))
-                {
-                    var result = sagaList.Take(limit).ToList();
-                    sagaList.RemoveAll(m => result.Select(n => n.Id).Contains(m.Id));
-                    Sagas[serviceName] = sagaList;
-                    return result;
-                }
-                return Enumerable.Empty<SagaEntity>();
+                return bufferBlock.ReceiveAsync();
             }
-            catch (Exception ex)
+            else
             {
-                throw ex;
-            }
-            finally
-            {
-                semaphoreSlim.Release();
+                var newBufferBlock = new BufferBlock<SagaEntity>();
+                Sagas.TryAdd(serviceName, newBufferBlock);
+                return newBufferBlock.ReceiveAsync();
             }
         }
     }

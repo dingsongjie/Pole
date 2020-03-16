@@ -139,36 +139,31 @@ namespace Pole.Sagas.Server.Services
         {
             while (!context.CancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(poleSagasServerOption.GetSagasGrpcStreamingResponseDelaySeconds * 1000);
-
+                var sagaEntity = await sagasBuffer.GetSagaAvailableAsync(request.ServiceName);
                 GetSagasResponse getSagasResponse = new GetSagasResponse();
                 try
                 {
-                    var sagaEntities = await sagasBuffer.GetSagas(request.ServiceName, request.Limit);
-                    if (sagaEntities.Count() == 0)
+                    //var sagaEntity =  sagasBuffer.GetSagas(request.ServiceName);
+                    if (sagaEntity == null )
                     {
                         continue;
                     }
-                    var sagaDtoes = sagaEntities.Select(m =>
+                    var saga = new GetSagasResponse.Types.Saga
                     {
-                        var result = new GetSagasResponse.Types.Saga
-                        {
-                            Id = m.Id,
-                        };
-                        result.Activities.Add(m.ActivityEntities.Select(n => new GetSagasResponse.Types.Saga.Types.Activity
-                        {
-                            CompensateTimes = n.CompensateTimes,
-                            ExecuteTimes = n.OvertimeCompensateTimes,
-                            Id = n.Id,
-                            Name = n.Name,
-                            Order = n.Order,
-                            ParameterData = n.ParameterData,
-                            SagaId = n.SagaId,
-                            Status = n.Status
-                        }));
-                        return result;
-                    });
-                    getSagasResponse.Sagas.Add(sagaDtoes);
+                        Id = sagaEntity.Id,
+                    };
+                    saga.Activities.Add(sagaEntity.ActivityEntities.Select(n => new GetSagasResponse.Types.Saga.Types.Activity
+                    {
+                        CompensateTimes = n.CompensateTimes,
+                        ExecuteTimes = n.OvertimeCompensateTimes,
+                        Id = n.Id,
+                        Name = n.Name,
+                        Order = n.Order,
+                        ParameterData = n.ParameterData,
+                        SagaId = n.SagaId,
+                        Status = n.Status
+                    }));
+                    getSagasResponse.Sagas.Add(saga);
                     getSagasResponse.IsSuccess = true;
                 }
                 catch (Exception ex)
@@ -177,6 +172,7 @@ namespace Pole.Sagas.Server.Services
                 }
                 await responseStream.WriteAsync(getSagasResponse);
             }
+
         }
 
         public override async Task<CommonResponse> ActivityOvertimeCompensated(ActivityOvertimeCompensatedRequest request, ServerCallContext context)

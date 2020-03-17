@@ -23,7 +23,6 @@ namespace Pole.Sagas.Core
                 HasException = !string.IsNullOrEmpty(activity.Errors),
                 ExceptionMessages = activity.Errors
             };
-        }
-        
+        }    
     }
 }

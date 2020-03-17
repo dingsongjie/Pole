@@ -48,7 +48,6 @@ namespace Pole.Sagas.Server.Processor
             }
             finally
             {
-
                 await Task.Delay(poleOptions.PrometheusErrorSagasGaugeIntervalSeconds * 1000);
             }
         }

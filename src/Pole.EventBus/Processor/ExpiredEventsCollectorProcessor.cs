@@ -64,7 +64,6 @@ namespace Pole.EventBus.Processor
             }
             finally
             {
-
                 await Task.Delay(poleOptions.ExpiredEventsCollectIntervalSeconds * 1000);
             }
         }

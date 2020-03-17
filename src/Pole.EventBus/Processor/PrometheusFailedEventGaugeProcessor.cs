@@ -48,7 +48,6 @@ namespace Pole.EventBus.Processor
             }
             finally
             {
-
                 await Task.Delay(poleOptions.PrometheusFaildEventGaugeIntervalSeconds * 1000);
             }
         }

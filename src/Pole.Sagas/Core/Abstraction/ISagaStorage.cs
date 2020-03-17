@@ -21,5 +21,6 @@ namespace Pole.Sagas.Core.Abstraction
         IAsyncEnumerable<SagasGroupEntity> GetSagas(DateTime dateTime, int limit);
         Task<int> DeleteExpiredData(string tableName,DateTime ExpiredAt, int batchCount);
         Task ActivityOvertimeCompensated(string activityId, bool compensated);
+        Task<int> GetErrorSagasCount();
     }
 }

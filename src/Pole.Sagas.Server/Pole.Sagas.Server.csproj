@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.27.0" />
+    <PackageReference Include="prometheus-net" Version="3.5.0" />
   </ItemGroup>
 
   <ItemGroup>

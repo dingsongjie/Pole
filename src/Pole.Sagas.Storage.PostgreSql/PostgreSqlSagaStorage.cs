@@ -257,5 +257,15 @@ $"UPDATE {activityTableName} SET \"OvertimeCompensateTimes\"=\"OvertimeCompensat
                 }
             }
         }
+
+        public async Task<int> GetErrorSagasCount()
+        {
+            using (var connection = new NpgsqlConnection(poleSagasStoragePostgreSqlOption.ConnectionString))
+            {
+                var count = await connection.ExecuteScalarAsync<int>(
+    $"select count(1) FROM {sagaTableName} WHERE   \"Status\" = '{nameof(SagaStatus.Error)}'");
+                return count;
+            }
+        }
     }
 }

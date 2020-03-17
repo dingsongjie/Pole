@@ -27,6 +27,8 @@ namespace Pole.Sagas.Server
         /// 批量删除时 实际过期的数量比预定数量要大时,会分多次删除,此值为其中每次分批删除的时间间隔
         /// </summary>
         public int ExpiredDataPreBulkDeleteDelaySeconds { get; set; } = 3;
-        
+        public int PrometheusErrorSagasGaugeIntervalSeconds { get; set; } = 30;
+
+
     }
 }

@@ -17,7 +17,7 @@ namespace Pole.EventBus.Processor
         private readonly PoleEventBusOption poleOptions;
 
         private static readonly Gauge FailedEventGauge =
-        Metrics.CreateGauge("pole_eventbus_faild_events", "Pole framework event bus faild events monitoring");
+        Metrics.CreateGauge("pole_eventbus_failed_events", "Pole framework event bus failed events monitoring");
 
         public string Name => nameof(PrometheusFailedEventGaugeProcessor);
 

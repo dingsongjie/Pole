@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             startupOption.Services.AddSingleton<IObserverUnitContainer, ObserverUnitContainer>();
             startupOption.Services.AddSingleton<IProcessor, PendingMessageRetryProcessor>();
             startupOption.Services.AddSingleton<IProcessor, ExpiredEventsCollectorProcessor>();
-            startupOption.Services.AddSingleton<IProcessor, PrometheusFaildEventGaugeProcessor>();
+            startupOption.Services.AddSingleton<IProcessor, PrometheusFailedEventGaugeProcessor>();
             startupOption.Services.AddHostedService<BackgroundServiceBasedProcessorServer>();
             startupOption.Services.AddScoped<IUnitOfWork, Pole.EventBus.UnitOfWork.UnitOfWork>();
             startupOption.Services.AddSingleton<IEventTypeFinder, EventTypeFinder>();

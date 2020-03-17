@@ -19,6 +19,6 @@ namespace Pole.EventBus.EventStorage
 
         Task<IEnumerable<EventEntity>> GetEventsOfNeedRetry();
 
-        Task<int> GetFaildEventsCount();
+        Task<int> GetFailedEventsCount();
     }
 }

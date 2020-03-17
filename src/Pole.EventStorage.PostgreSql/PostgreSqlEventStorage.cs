@@ -69,11 +69,13 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
 
         public async Task<int> DeleteExpiresAsync(string table, DateTime timeout, int batchCount = 1000, CancellationToken token = default)
         {
-            using var connection = new NpgsqlConnection(options.ConnectionString);
-
-            return await connection.ExecuteAsync(
-                $"DELETE FROM {table} WHERE   \"Id\" IN (SELECT \"Id\" FROM {table} WHERE \"ExpiresAt\" < @timeout LIMIT @batchCount);",
-                new { timeout, batchCount });
+            using (var connection = new NpgsqlConnection(options.ConnectionString))
+            {
+                var result = await connection.ExecuteAsync(
+    $"DELETE FROM {table} WHERE   \"Id\" IN (SELECT \"Id\" FROM {table} WHERE \"ExpiresAt\" < @timeout LIMIT @batchCount);",
+    new { timeout, batchCount });
+                return result;
+            }
         }
 
         public async Task<IEnumerable<EventEntity>> GetEventsOfNeedRetry()
@@ -82,25 +84,13 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
             var sql =
                 $"SELECT * FROM {tableName} WHERE \"Retries\"<{producerOptions.MaxFailedRetryCount} AND \"Added\"<'{fourMinAgo}' AND  \"StatusName\"='{EventStatus.Pending}' for update skip locked LIMIT 200;";
 
-            var result = new List<EventEntity>();
             using (var connection = new NpgsqlConnection(options.ConnectionString))
             {
                 await connection.OpenAsync();
                 using (var transaction = await connection.BeginTransactionAsync())
                 {
-                    var reader = await connection.ExecuteReaderAsync(sql);
-                    while (reader.Read())
-                    {
-                        result.Add(new EventEntity
-                        {
-                            Id = reader.GetString(0),
-                            Name = reader.GetString(2),
-                            Content = reader.GetString(3),
-                            Retries = reader.GetInt32(4),
-                            Added = reader.GetDateTime(5),
-                            StatusName = reader.GetString(7)
-                        });
-                    }
+                    var result = await connection.QueryAsync<EventEntity>(sql,null, transaction);
+  
                     await transaction.CommitAsync();
                     return result;
                 }
@@ -129,13 +119,14 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
             }
         }
 
-        public async Task<int> GetFaildEventsCount()
+        public async Task<int> GetFailedEventsCount()
         {
-            using var connection = new NpgsqlConnection(options.ConnectionString);
-
-            var count = await connection.ExecuteAsync(
-                $"select count(1) FROM {tableName} WHERE   \"StatusName\" = '{EventStatus.Failed}'");
-            return count;
+            using (var connection = new NpgsqlConnection(options.ConnectionString))
+            {
+                var count = await connection.ExecuteScalarAsync<int>(
+    $"select count(1) FROM {tableName} WHERE   \"StatusName\" = '{nameof(EventStatus.Failed)}'");
+                return count;
+            }
         }
     }
 }

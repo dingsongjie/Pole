@@ -78,6 +78,7 @@ namespace Pole.EventBus.Processor
                 var targetName = producerContainer.GetTargetName(pendingMessage.Name);
                 await producer.Publish(targetName, bytes);
                 pendingMessage.StatusName = nameof(EventStatus.Published);
+                pendingMessage.ExpiresAt = DateTime.UtcNow.AddSeconds(options.PublishedEventsExpiredAfterSeconds);
             }
             if (pendingMessages.Count() > 0)
             {

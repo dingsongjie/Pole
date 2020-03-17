@@ -10,19 +10,19 @@ using System.Threading.Tasks;
 
 namespace Pole.EventBus.Processor
 {
-    class PrometheusFaildEventGaugeProcessor : IProcessor
+    class PrometheusFailedEventGaugeProcessor : IProcessor
     {
         private readonly ILogger logger;
         private readonly IEventStorage eventstorage;
         private readonly PoleEventBusOption poleOptions;
 
-        private static readonly Gauge FaildEventGauge =
+        private static readonly Gauge FailedEventGauge =
         Metrics.CreateGauge("pole_eventbus_faild_events", "Pole framework event bus faild events monitoring");
 
-        public string Name => nameof(PrometheusFaildEventGaugeProcessor);
+        public string Name => nameof(PrometheusFailedEventGaugeProcessor);
 
-        public PrometheusFaildEventGaugeProcessor(
-            ILogger<ExpiredEventsCollectorProcessor> logger,
+        public PrometheusFailedEventGaugeProcessor(
+            ILogger<PrometheusFailedEventGaugeProcessor> logger,
             IEventStorage eventstorage,
             IOptions<PoleEventBusOption> poleOptions)
         {
@@ -37,14 +37,14 @@ namespace Pole.EventBus.Processor
             {
                 logger.LogDebug($"Faild event Counter begin");
 
-                var count = await eventstorage.GetFaildEventsCount();
-                FaildEventGauge.IncTo(count);
+                var count = await eventstorage.GetFailedEventsCount();
+                FailedEventGauge.Set(count);
 
                 logger.LogDebug($"Faild event Counter ended");
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"{nameof(PrometheusFaildEventGaugeProcessor)} Process Error");
+                logger.LogError(ex, $"{nameof(PrometheusFailedEventGaugeProcessor)} Process Error");
             }
             finally
             {

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pole.Orleans.Provider.EntityframeworkCore;
+using Prometheus;
 
 namespace Backet.Api
 {
@@ -79,6 +80,7 @@ namespace Backet.Api
             {
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapGrpcService<BacketService>();
+                endpoints.MapMetrics();
             });
         }
     }

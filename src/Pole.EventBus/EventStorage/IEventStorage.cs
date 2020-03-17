@@ -12,11 +12,13 @@ namespace Pole.EventBus.EventStorage
         Task ChangePublishStateAsync(IEnumerable<EventEntity> messages);
         Task BulkChangePublishStateAsync(IEnumerable<EventEntity> events);
 
-        Task<bool> StoreMessage(EventEntity eventEntity, object dbTransaction = null);
+        Task<bool> StoreEvent(EventEntity eventEntity, object dbTransaction = null);
 
         Task<int> DeleteExpiresAsync(string table, DateTime timeout, int batchCount = 1000,
             CancellationToken token = default);
 
-        Task<IEnumerable<EventEntity>> GetMessagesOfNeedRetry();
+        Task<IEnumerable<EventEntity>> GetEventsOfNeedRetry();
+
+        Task<int> GetFaildEventsCount();
     }
 }

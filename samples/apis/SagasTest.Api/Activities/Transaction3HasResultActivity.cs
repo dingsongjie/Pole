@@ -13,7 +13,7 @@ namespace SagasTest.Api.Activities
     {
         public Task Compensate(Transaction3Dto data)
         {
-            Console.WriteLine("Transaction3 Rollback");
+            //Console.WriteLine("Transaction3 Rollback");
             return Task.CompletedTask;
         }
 

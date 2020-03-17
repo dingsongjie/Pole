@@ -76,7 +76,7 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
                 new { timeout, batchCount });
         }
 
-        public async Task<IEnumerable<EventEntity>> GetMessagesOfNeedRetry()
+        public async Task<IEnumerable<EventEntity>> GetEventsOfNeedRetry()
         {
             var fourMinAgo = DateTime.UtcNow.AddMinutes(-4).ToString("O");
             var sql =
@@ -107,7 +107,7 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
             }
         }
 
-        public async Task<bool> StoreMessage(EventEntity eventEntity, object dbTransaction = null)
+        public async Task<bool> StoreEvent(EventEntity eventEntity, object dbTransaction = null)
         {
             var sql =
                 $"INSERT INTO {tableName} (\"Id\",\"Version\",\"Name\",\"Content\",\"Retries\",\"Added\",\"ExpiresAt\",\"StatusName\")" +
@@ -127,6 +127,15 @@ $"UPDATE {tableName} SET \"Retries\"=@Retries,\"ExpiresAt\"=@ExpiresAt,\"StatusN
                 var conn = dbTrans?.Connection;
                 return await conn.ExecuteAsync(sql, eventEntity, dbTrans) > 0;
             }
+        }
+
+        public async Task<int> GetFaildEventsCount()
+        {
+            using var connection = new NpgsqlConnection(options.ConnectionString);
+
+            var count = await connection.ExecuteAsync(
+                $"select count(1) FROM {tableName} WHERE   \"StatusName\" = '{EventStatus.Failed}'");
+            return count;
         }
     }
 }

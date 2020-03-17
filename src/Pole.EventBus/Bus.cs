@@ -51,11 +51,11 @@ namespace Pole.EventBus
             };
             if (Transaction?.DbTransaction == null)
             {
-                await eventStorage.StoreMessage(eventEntity);
+                await eventStorage.StoreEvent(eventEntity);
             }
             else
             {
-                await eventStorage.StoreMessage(eventEntity, Transaction.DbTransaction);
+                await eventStorage.StoreEvent(eventEntity, Transaction.DbTransaction);
 
             }
             PrePublishEventBuffer.Add(eventEntity);

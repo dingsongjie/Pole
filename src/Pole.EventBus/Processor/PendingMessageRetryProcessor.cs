@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Pole.Core.Processor;
 using Pole.Core;
 using Pole.EventBus.Abstraction;
+using Prometheus;
 
 namespace Pole.EventBus.Processor
 {
@@ -57,7 +58,7 @@ namespace Pole.EventBus.Processor
         {
             var now = DateTime.UtcNow;
             
-            var pendingMessages = await eventStorage.GetMessagesOfNeedRetry();
+            var pendingMessages = await eventStorage.GetEventsOfNeedRetry();
 
             if (logger.IsEnabled(LogLevel.Debug))
             {

@@ -21,7 +21,7 @@ namespace Pole.EventBus.Processor
         private readonly TimeSpan _waitingInterval = TimeSpan.FromMinutes(5);
         private readonly TimeSpan _delay = TimeSpan.FromSeconds(1);
 
-        public string Name => nameof(PendingMessageRetryProcessor);
+        public string Name => nameof(ExpiredEventsCollectorProcessor);
 
         public ExpiredEventsCollectorProcessor(
             ILogger<ExpiredEventsCollectorProcessor> logger,

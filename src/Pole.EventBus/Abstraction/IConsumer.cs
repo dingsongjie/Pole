@@ -5,6 +5,6 @@ namespace Pole.EventBus
 {
     public interface IConsumer
     {
-        Task Notice(List<byte[]> list);
+        Task Notice(byte[] bytes);
     }
 }

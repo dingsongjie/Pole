@@ -16,7 +16,7 @@ namespace Pole.EventBus.RabbitMQ
 {
     public class ConsumerRunner
     {
-        readonly IChannel<BasicDeliverEventArgs> mpscChannel;
+        readonly IChannel<BasicDeliverEventArgs> channel;
         readonly ISerializer serializer;
         readonly RabbitOptions rabbitOptions;
         List<ulong> errorMessageDeliveryTags = new List<ulong>();
@@ -30,8 +30,8 @@ namespace Pole.EventBus.RabbitMQ
             Client = client;
             Logger = provider.GetService<ILogger<ConsumerRunner>>();
             serializer = provider.GetService<ISerializer>();
-            mpscChannel = provider.GetService<IChannel<BasicDeliverEventArgs>>();
-            mpscChannel.BindConsumer(BatchExecuter);
+            channel = provider.GetService<IChannel<BasicDeliverEventArgs>>();
+            channel.BindConsumer(Executer);
             Consumer = consumer;
             Queue = queue;
             this.rabbitOptions = rabbitOptions;
@@ -49,7 +49,7 @@ namespace Pole.EventBus.RabbitMQ
         public Task Run()
         {
             Model = Client.PullChannel();
-            mpscChannel.Config(Model.Connection.Options.CunsumerMaxBatchSize, Model.Connection.Options.CunsumerMaxMillisecondsInterval);
+            channel.Config(Model.Connection.Options.CunsumerMaxBatchSize, Model.Connection.Options.CunsumerMaxMillisecondsInterval);
             if (isFirst)
             {
                 isFirst = false;
@@ -59,45 +59,47 @@ namespace Pole.EventBus.RabbitMQ
                 Model.Model.QueueDeclare(Queue.Queue, true, false, false, null);
                 Model.Model.QueueBind(Queue.Queue, Queue.Queue, string.Empty);
             }
+            //这里的预取数 可以做到限流的作用
             Model.Model.BasicQos(0, Model.Connection.Options.CunsumerMaxBatchSize, false);
             BasicConsumer = new EventingBasicConsumer(Model.Model);
             BasicConsumer.Received += async (ch, ea) =>
             {
-                await mpscChannel.WriteAsync(ea);
+                await channel.WriteAsync(ea);
             };
             BasicConsumer.ConsumerTag = Model.Model.BasicConsume(Queue.Queue, false, BasicConsumer);
             return Task.CompletedTask;
         }
-        private async Task BatchExecuter(List<BasicDeliverEventArgs> list)
+        private Task Executer(List<BasicDeliverEventArgs> list)
         {
-            try
+            list.ForEach(async args =>
             {
-                await Consumer.Notice(list.Select(o => o.Body).ToList());
-            }
-            catch (Exception exception)
-            {
-                Logger.LogError(exception, $"An error occurred in batch consume {Queue.Queue} queue, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
-                if (Consumer.Config.Reenqueue)
+                try
                 {
-                    foreach (var item in list)
-                    {
-                        ProcessComsumerErrors(item, exception);
-                    }
-                    return;
+                    await Consumer.Notice(args.Body);
                 }
-            }
-
+                catch (Exception exception)
+                {
+                    Logger.LogError(exception, $"An error occurred in  consume {Queue.Queue} queue, routing path {Consumer.EventBus.Exchange}->{Queue.Queue}->{Queue.Queue}");
+                    if (Consumer.Config.Reenqueue)
+                    {
+                        ProcessComsumerErrors(args, exception);
+                        return;
+                    }
+                }
+            });
             if (errorMessageDeliveryTags.Count == 0)
             {
                 Model.Model.BasicAck(list.Max(o => o.DeliveryTag), true);
             }
             else
             {
-                list.ForEach(m =>
+                var waitToAck = list.Where(m => !errorMessageDeliveryTags.Contains(m.DeliveryTag)).ToList();
+                waitToAck.ForEach(m =>
                 {
                     Model.Model.BasicAck(m.DeliveryTag, false);
                 });
             }
+            return Task.CompletedTask;
         }
 
         private void ProcessComsumerErrors(BasicDeliverEventArgs ea, Exception exception)

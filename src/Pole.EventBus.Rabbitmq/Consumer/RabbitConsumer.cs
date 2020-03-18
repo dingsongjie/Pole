@@ -7,7 +7,7 @@ namespace Pole.EventBus.RabbitMQ
     public class RabbitConsumer : Consumer
     {
         public RabbitConsumer(
-            Func<List<byte[]>, Task> batchEventHandlers) : base( new List<Func<List<byte[]>, Task>> { batchEventHandlers })
+            Func<byte[], Task> batchEventHandlers) : base( new List<Func<byte[], Task>> { batchEventHandlers })
         {
         }
         public RabbitEventBus EventBus { get; set; }

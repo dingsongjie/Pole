@@ -7,15 +7,15 @@ namespace Pole.EventBus
 {
     public abstract class Consumer : IConsumer
     {
-        readonly List<Func<List<byte[]>, Task>> batchEventHandlers;
+        readonly List<Func<byte[], Task>> eventHandlers;
         public Consumer(
-            List<Func<List<byte[]>, Task>> batchEventHandlers)
+            List<Func<byte[], Task>> eventHandlers)
         {
-            this.batchEventHandlers = batchEventHandlers;
+            this.eventHandlers = eventHandlers;
         }
-        public Task Notice(List<byte[]> list)
+        public Task Notice(byte[] list)
         {
-            return Task.WhenAll(batchEventHandlers.Select(func => func(list)));
+            return Task.WhenAll(eventHandlers.Select(func => func(list)));
         }
     }
 }

@@ -20,47 +20,29 @@ namespace Pole.EventBus.EventHandler
     /// <summary>
     /// 
     /// </summary>
-    public abstract class PoleEventHandler<TEvent> : PoleEventHandlerBase<TEvent>, IPoleEventHandler<TEvent>
+    public abstract class PoleEventHandler<TEvent> : PoleEventHandlerBase<TEvent>, IPoleEventHandler<TEvent> where TEvent : class,new()
     {
         public abstract Task EventHandle(TEvent @event);
 
     }
-    public abstract class PoleBulkEventsHandler<TEvent> : PoleEventHandlerBase<TEvent>, IPoleBulkEventsHandler<TEvent>
-    {
-        public abstract Task BulkEventsHandle(List<TEvent> events);
-    }
-    public abstract class PoleEventHandlerBase<TEvent> : IPoleEventHandler
+    public abstract class PoleEventHandlerBase<TEvent> : IPoleEventHandler where TEvent : class, new()
     {
 
-        public async Task Invoke(List<EventBytesTransport> transports, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger, Type eventHandlerType)
+        public async Task Invoke(EventBytesTransport transport, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger, Type eventHandlerType)
         {
-            if (transports.Count() != 0)
+            var eventType = eventTypeFinder.FindType(transport.EventTypeCode);
+            var @event = (TEvent)serializer.Deserialize(transport.EventBytes, eventType);
+
+            if (this is IPoleEventHandler<TEvent> handler)
             {
-                var firstTransport = transports.First();
-                var eventType = eventTypeFinder.FindType(firstTransport.EventTypeCode);
-                var eventObjs = transports.Select(transport => serializer.Deserialize(firstTransport.EventBytes, eventType)).Select(@event => (TEvent)@event).ToList();
-                if (this is IPoleBulkEventsHandler<TEvent> batchHandler)
-                {
-                    await batchHandler.BulkEventsHandle(eventObjs);
-                    logger.LogTrace("Batch invoke completed: {0}->{1}->{2}", eventHandlerType.FullName, nameof(batchHandler.BulkEventsHandle), serializer.Serialize(eventObjs));
-                    return;
-                }
-                else if (this is IPoleEventHandler<TEvent> handler)
-                {
-                    var handleTasks = eventObjs.Select(m => handler.EventHandle(m));
-                    await Task.WhenAll(handleTasks);
-                    logger.LogTrace("Invoke completed: {0}->{1}->{2}", eventHandlerType.FullName, nameof(handler.EventHandle), serializer.Serialize(eventObjs));
-                    return;
-                }
-                else
-                {
-                    throw new EventHandlerImplementedNotRightException(nameof(handler.EventHandle), eventType.Name, this.GetType().FullName);
-                }
+                var handleTasks = handler.EventHandle(@event);
+                await handleTasks;
+                logger.LogTrace("Invoke completed: {0}->{1}->{2}", eventHandlerType.FullName, nameof(handler.EventHandle), serializer.Serialize(@event));
+                return;
             }
             else
             {
-                if (logger.IsEnabled(LogLevel.Information))
-                    logger.LogInformation($"{nameof(EventBytesTransport.FromBytes)} failed");
+                throw new EventHandlerImplementedNotRightException(nameof(handler.EventHandle), eventType.Name, this.GetType().FullName);
             }
         }
     }

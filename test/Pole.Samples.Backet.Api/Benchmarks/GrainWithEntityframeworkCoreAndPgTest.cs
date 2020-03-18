@@ -36,7 +36,6 @@ namespace Pole.Samples.Backet.Api.Benchmarks
             using (NpgsqlConnection conn = new NpgsqlConnection("Server=192.168.0.251;Port=5432;Username=postgres;Password=comteck2020!@#;Database=smartretail-tenant;Enlist=True;"))
             {
                 await conn.OpenAsync();
-                //var teams = await conn.QueryAsync<Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>("SELECT * FROM   \"public\".\"Backet\" where  \"Id\" =@Id", new { Id = newId });
                 var teams = await conn.ExecuteAsync("SELECT 1");
             }
         }

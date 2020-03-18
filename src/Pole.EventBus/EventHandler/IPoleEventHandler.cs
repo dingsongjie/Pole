@@ -10,16 +10,12 @@ using System.Threading.Tasks;
 
 namespace Pole.EventBus.EventHandler
 {
-    public interface IPoleEventHandler<TEvent> : IPoleEventHandler
+    public interface IPoleEventHandler<TEvent> : IPoleEventHandler where TEvent:class, new()
     {
         Task EventHandle(TEvent @event);
     }
-    public interface IPoleBulkEventsHandler<TEvent> : IPoleEventHandler
-    {
-        Task BulkEventsHandle(List<TEvent> events);
-    }
     public interface IPoleEventHandler 
     {
-        public Task Invoke(List<EventBytesTransport> transports, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger, Type eventHandlerType);
+        public Task Invoke(EventBytesTransport transports, ISerializer serializer, IEventTypeFinder eventTypeFinder, ILogger logger, Type eventHandlerType);
     }
 }

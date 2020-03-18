@@ -6,6 +6,6 @@ namespace Pole.EventBus.Abstraction
 {
     public interface IObserverUnit<PrimaryKey> : IGrainID
     {
-        Func<List<byte[]>, Task> GetBatchEventHandler();
+        Func<byte[], Task> GetEventHandler();
     }
 }

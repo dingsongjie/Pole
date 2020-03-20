@@ -19,6 +19,17 @@ namespace SagasTest.Api
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseKestrel(option =>
+                {
+                    option.ListenAnyIP(5002, config =>
+                    {
+                        config.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+                    });
+                    option.ListenAnyIP(5000, config =>
+                    {
+                        config.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+                    });
+                });
     }
 }

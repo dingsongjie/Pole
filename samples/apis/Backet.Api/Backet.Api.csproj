@@ -17,10 +17,11 @@
 
   <ItemGroup>
     <None Remove="Protos\commonCommandResponse.proto" GrpcServices="Server" />
+    <None Remove="Protos\test.proto" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos\*" AdditionalImportDirs="Protos" GrpcServices="Server" />
+    <Protobuf Include="Protos\*" AdditionalImportDirs="Protos" GrpcServices="All" />
   </ItemGroup>
   
   <ItemGroup>
@@ -55,6 +56,12 @@
     <Content Update="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Protobuf Update="Protos\test.proto">
+      <GrpcServices>Client</GrpcServices>
+      <AdditionalImportDirs>Protos</AdditionalImportDirs>
+    </Protobuf>
   </ItemGroup>
 
 </Project>

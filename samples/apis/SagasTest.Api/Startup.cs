@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SagasTest.Api.Services;
 
 namespace SagasTest.Api
 {
@@ -35,6 +36,7 @@ namespace SagasTest.Api
                     option.SagasServerHost = "http://localhost:80";
                 });
             });
+            services.AddGrpc();
             services.AddHttpClient();
         }
 
@@ -52,6 +54,7 @@ namespace SagasTest.Api
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGrpcService<TestService>();
                 endpoints.MapDefaultControllerRoute();
             });
         }

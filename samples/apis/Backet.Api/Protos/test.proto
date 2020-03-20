@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "SagasTest.Api";
+
+package sagasTest.Api;
+
+// The greeting service definition.
+service Test {
+  // Sends a greeting
+  rpc AddBacket (TestRequest) returns (TestRequest);
+}
+message TestRequest{
+
+}
+message TestResponse{
+
+}
+

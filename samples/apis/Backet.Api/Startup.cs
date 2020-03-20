@@ -1,15 +1,24 @@
 using Backet.Api.Grains;
 using Backet.Api.GrpcServices;
 using Backet.Api.Infrastructure;
+using Grpc.Core;
+using Grpc.Net.ClientFactory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using Pole.Grpc.Authentication;
 using Pole.Orleans.Provider.EntityframeworkCore;
 using Prometheus;
+using System;
+using System.Threading.Tasks;
+using static SagasTest.Api.Test;
 
 namespace Backet.Api
 {
@@ -26,13 +35,14 @@ namespace Backet.Api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             services.AddDbContextPool<BacketDbContext>(options => options.UseNpgsql(Configuration["postgres:write"]));
             services.AddControllers();
 
-            services.AddGrpc();
-            services.AddGrpcValidation();
-            services.AddGrpcRequestValidator();
-            services.AddGrpcWeb(o => o.GrpcWebEnabled = true);
+            services.AddGrpc(option =>
+            {
+                option.EnableMessageValidation();
+            });
             services.AddCors(o => o.AddPolicy("AllowAll", builder =>
             {
                 builder.AllowAnyOrigin()
@@ -40,6 +50,13 @@ namespace Backet.Api
                        .AllowAnyHeader()
                        .WithExposedHeaders("Grpc-Status", "Grpc-Message");
             }));
+            var builder = services.AddGrpcClient<TestClient>((s, o) =>
+             {
+                 o.Address = new Uri("http://localhost:5002");
+             })
+            .EnableCallContextPropagation()
+            .EnableJWTPropagation();
+
             services.AddPole(config =>
             {
                 config.AddEventBus();
@@ -50,6 +67,7 @@ namespace Backet.Api
                     option.UserName = Configuration["RabbitmqConfig:HostUserName"];
                 });
                 config.AddEventBusEFCoreStorage<BacketDbContext>();
+                config.AddPoleGrpc();
             });
 
             services.ConfigureGrainStorageOptions<BacketDbContext, BacketGrain, Backet.Api.Domain.AggregatesModel.BacketAggregate.Backet>(

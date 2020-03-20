@@ -45,9 +45,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Sagas.Server", "src\Po
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.Sagas.Client", "src\Pole.Sagas.Client\Pole.Sagas.Client.csproj", "{EED4FEA7-4E20-41B2-9741-55FCA709373E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagasServer", "samples\apis\SagasServer\SagasServer.csproj", "{9717D0D7-9288-4B2F-9830-A06E13B1C8C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SagasServer", "samples\apis\SagasServer\SagasServer.csproj", "{9717D0D7-9288-4B2F-9830-A06E13B1C8C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pole.EventBus", "src\Pole.EventBus\Pole.EventBus.csproj", "{A92E194A-518F-4A93-B346-0FEA50CCD614}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pole.EventBus", "src\Pole.EventBus\Pole.EventBus.csproj", "{A92E194A-518F-4A93-B346-0FEA50CCD614}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pole.Grpc.Client", "src\Pole.Grpc.Client\Pole.Grpc.Client.csproj", "{BEBE029F-882E-4E1B-8BED-4923F5AFC13A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +129,10 @@ Global
 		{A92E194A-518F-4A93-B346-0FEA50CCD614}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A92E194A-518F-4A93-B346-0FEA50CCD614}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A92E194A-518F-4A93-B346-0FEA50CCD614}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEBE029F-882E-4E1B-8BED-4923F5AFC13A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEBE029F-882E-4E1B-8BED-4923F5AFC13A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEBE029F-882E-4E1B-8BED-4923F5AFC13A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEBE029F-882E-4E1B-8BED-4923F5AFC13A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,6 +158,7 @@ Global
 		{EED4FEA7-4E20-41B2-9741-55FCA709373E} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 		{9717D0D7-9288-4B2F-9830-A06E13B1C8C4} = {475116FC-DEEC-4255-94E4-AE7B8C85038D}
 		{A92E194A-518F-4A93-B346-0FEA50CCD614} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
+		{BEBE029F-882E-4E1B-8BED-4923F5AFC13A} = {9932C965-8B38-4F70-9E43-86DC56860E2B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DB0775A3-F293-4043-ADB7-72BAC081E87E}

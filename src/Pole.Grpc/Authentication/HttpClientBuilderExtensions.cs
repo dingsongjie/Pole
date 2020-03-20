@@ -14,15 +14,16 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IHttpClientBuilder EnableJWTPropagation(this IHttpClientBuilder builder)
         {
+            builder.AddInterceptor<JWTPropagationInterceptor>();
             builder.Services.TryAddSingleton<JWTPropagationInterceptor>();
             builder.Services.AddHttpContextAccessor();
-            builder.Services.AddTransient<IConfigureOptions<GrpcClientFactoryOptions>>(services =>
-            {
-                return new ConfigureNamedOptions<GrpcClientFactoryOptions>(builder.Name, options =>
-                {
-                    options.Interceptors.Add(services.GetRequiredService<JWTPropagationInterceptor>());
-                });
-            });
+            //builder.Services.AddTransient<IConfigureOptions<GrpcClientFactoryOptions>>(services =>
+            //{
+            //    return new ConfigureNamedOptions<GrpcClientFactoryOptions>(builder.Name, options =>
+            //    {
+            //        options.Interceptors.Add(services.GetRequiredService<JWTPropagationInterceptor>());
+            //    });
+            //});
             return builder;
         }
     }

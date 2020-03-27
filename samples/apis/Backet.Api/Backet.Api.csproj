@@ -16,12 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Protos\commonCommandResponse.proto" GrpcServices="Server" />
     <None Remove="Protos\test.proto" />
   </ItemGroup>
 
   <ItemGroup>
     <Protobuf Include="Protos\*" AdditionalImportDirs="Protos" GrpcServices="All" />
+    <Protobuf Include="Protos\Common\*" AdditionalImportDirs="Protos" GrpcServices="Server" />
   </ItemGroup>
   
   <ItemGroup>

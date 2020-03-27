@@ -10,7 +10,7 @@ namespace Pole.Core.Serialization
 {
     public class DefaultJsonSerializer : ISerializer
     {
-        static readonly JsonSerializerOptions options = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All), MaxDepth = 5, ReferenceHandling = ReferenceHandling.Preserve, WriteIndented =true};
+        static readonly JsonSerializerOptions options = new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All), MaxDepth = 5, WriteIndented =true};
         public T Deserialize<T>(string json) where T : class, new()
         {
             return JsonSerializer.Deserialize<T>(json);
